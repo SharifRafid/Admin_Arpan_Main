@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/txtAllPrice"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:background="@drawable/price_bg"
+        android:fontFamily="@font/hind_siliguri_font"
+        android:gravity="center"
+        android:padding="10dp"
+        android:text="Select a DA to ASSIGN"
+        android:textColor="@color/text_color_edit_custom"
+        android:textColorHint="#6E8697"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="20dp" />
+
+    <ListView
+        android:id="@+id/listView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+</LinearLayout>

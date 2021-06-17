@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center_horizontal"
+    tools:context=".ui.products.ProductsActivity">
+
+    <TextView
+        android:id="@+id/title_text_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/hind_siliguri_font"
+        android:gravity="center"
+        android:text="শপ নেম"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        android:background="@color/colorPrimary"
+        android:padding="7dp"
+        android:drawableLeft="@drawable/ic_offer_icon"
+        android:drawableRight="@drawable/ic_round_settings_24"
+        android:drawableTint="@color/white"
+        android:textStyle="bold" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+        <LinearLayout
+            android:background="@color/grey"
+            android:layout_width="100dp"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+            <ListView
+                android:id="@+id/mainRecyclerView"
+                android:scrollbars="none"
+                android:background="@color/grey"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"/>
+            <ImageView
+                android:id="@+id/addProductCategoriesButton"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_gravity="center_horizontal"
+                android:background="@drawable/add_button_bg"
+                android:padding="4dp"
+                android:onClick="addNewCategory"
+                android:layout_margin="5dp"
+                android:src="@drawable/ic_round_add_24"
+                app:tint="#8A8A8A" />
+        </LinearLayout>
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/productsRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_margin="2dp"
+                android:layout_height="match_parent"/>
+            <ImageView
+                android:id="@+id/addProductsButton"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center_horizontal"
+                android:background="@drawable/add_button_bg"
+                android:padding="4dp"
+                android:onClick="addNewProduct"
+                android:layout_margin="15dp"
+                android:src="@drawable/ic_round_add_24"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentBottom="true"
+                app:tint="#8A8A8A" />
+        </RelativeLayout>
+    </LinearLayout>
+</LinearLayout>

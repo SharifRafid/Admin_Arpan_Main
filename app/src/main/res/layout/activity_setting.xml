@@ -1,0 +1,380 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".ui.settings.SettingActivity">
+
+    <TextView
+        android:id="@+id/noProductsTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="visible"
+        android:padding="8dp"
+        android:fontFamily="@font/hind_siliguri_font"
+        android:gravity="center"
+        android:text="Settings"
+        android:textColor="#000000"
+        android:textColorHint="#6E8697"
+        android:textSize="16sp"
+        android:textStyle="bold"/>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView
+                android:id="@+id/productsTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/hind_siliguri_font"
+                android:gravity="center"
+                android:background="@color/divider_bg_color_1"
+                android:text="অর্ডার টাইম লিমিট"
+                android:textColor="@color/divider_text_color_1"
+                android:textSize="12sp"
+                android:padding="4dp"
+                android:textStyle="bold"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="horizontal">
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="2dp"
+                    android:hint="অর্ডার স্টার্ট টাইম">
+
+                    <EditText
+                        android:id="@+id/startTimeOrder"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:backgroundTint="#fff"
+                        android:ems="10"
+                        android:fontFamily="@font/hind_siliguri_font"
+                        android:inputType="textPersonName"
+                        android:padding="5dp"
+                        android:textColor="#000"
+                        android:textSize="14sp" />
+                </com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="2dp"
+                    android:hint="অর্ডার এন্ড টাইম">
+
+                    <EditText
+                        android:id="@+id/endTimeOrder"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:backgroundTint="#fff"
+                        android:ems="10"
+                        android:fontFamily="@font/hind_siliguri_font"
+                        android:inputType="textPersonName"
+                        android:padding="5dp"
+                        android:textColor="#000"
+                        android:textSize="14sp" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <CheckBox
+                    android:id="@+id/allowOverTimeCheckBox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ওভারটাইম"
+                    android:gravity="center"
+                    android:button="@null"
+                    android:padding="5dp"
+                    android:drawableTop="?android:attr/listChoiceIndicatorMultiple"
+                    android:textSize="10sp"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/saveOrderTimeButton"
+                    android:layout_width="wrap_content"
+                    android:layout_margin="2dp"
+                    android:text="সেভ"
+                    android:textSize="12sp"
+                    android:layout_height="wrap_content"/>
+            </LinearLayout>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/hind_siliguri_font"
+                android:gravity="center"
+                android:background="@color/divider_bg_color_1"
+                android:text="কাস্টম অর্ডার লিমিট"
+                android:textColor="@color/divider_text_color_1"
+                android:textSize="12sp"
+                android:padding="4dp"
+                android:layout_marginTop="10dp"
+                android:textStyle="bold"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center">
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="2dp"
+                        android:hint="কাস্টম">
+
+                        <EditText
+                            android:id="@+id/customCategoryMaxOrderLimitEdittext"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:backgroundTint="#fff"
+                            android:ems="10"
+                            android:fontFamily="@font/hind_siliguri_font"
+                            android:inputType="number"
+                            android:padding="5dp"
+                            android:textColor="#000"
+                            android:textSize="14sp" />
+                    </com.google.android.material.textfield.TextInputLayout>
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="2dp"
+                        android:hint="মেডীসিন">
+
+                        <EditText
+                            android:id="@+id/medicineCategoryMaxOrderLimitEdittext"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:backgroundTint="#fff"
+                            android:ems="10"
+                            android:fontFamily="@font/hind_siliguri_font"
+                            android:inputType="number"
+                            android:padding="5dp"
+                            android:textColor="#000"
+                            android:textSize="14sp" />
+                    </com.google.android.material.textfield.TextInputLayout>
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="2dp"
+                        android:hint="পার্সেল">
+
+                        <EditText
+                            android:id="@+id/parcelCategoryMaxOrderLimitEdittext"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:backgroundTint="#fff"
+                            android:ems="10"
+                            android:fontFamily="@font/hind_siliguri_font"
+                            android:inputType="number"
+                            android:padding="5dp"
+                            android:textColor="#000"
+                            android:textSize="14sp" />
+                    </com.google.android.material.textfield.TextInputLayout>
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="2dp"
+                        android:hint="টোটাল">
+
+                        <EditText
+                            android:id="@+id/totalCategoryMaxOrderLimitEdittext"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:backgroundTint="#fff"
+                            android:ems="10"
+                            android:fontFamily="@font/hind_siliguri_font"
+                            android:inputType="number"
+                            android:padding="5dp"
+                            android:textColor="#000"
+                            android:textSize="14sp" />
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/saveCustomCategoryOrderLimitsButton"
+                    android:layout_width="wrap_content"
+                    android:layout_margin="2dp"
+                    android:text="সেভ"
+                    android:textSize="12sp"
+                    android:layout_height="wrap_content"/>
+            </LinearLayout>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/hind_siliguri_font"
+                android:gravity="center"
+                android:background="@color/divider_bg_color_1"
+                android:text="শপ অর্ডার লিমিট"
+                android:textColor="@color/divider_text_color_1"
+                android:textSize="12sp"
+                android:padding="4dp"
+                android:layout_marginTop="10dp"
+                android:textStyle="bold"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="2dp"
+                        android:hint="সর্বোচ্চ শপ অর্ডার">
+
+                        <EditText
+                            android:id="@+id/maxOrderFromEachShopEdittext"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:backgroundTint="#fff"
+                            android:ems="10"
+                            android:fontFamily="@font/hind_siliguri_font"
+                            android:inputType="number"
+                            android:padding="5dp"
+                            android:textColor="#000"
+                            android:textSize="14sp" />
+                    </com.google.android.material.textfield.TextInputLayout>
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="2dp"
+                        android:hint="অতিরিক্ত চার্জ">
+
+                        <EditText
+                            android:id="@+id/extraChargeAfterCrossingMaxOrderFromEachShopEdittext"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:backgroundTint="#fff"
+                            android:ems="10"
+                            android:fontFamily="@font/hind_siliguri_font"
+                            android:inputType="number"
+                            android:padding="5dp"
+                            android:textColor="#000"
+                            android:textSize="14sp" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <CheckBox
+                        android:id="@+id/allowExtraOrderAfterCrossingMaxFromEachShopCheckBox"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="ওভারঅর্ডার"
+                        android:gravity="center"
+                        android:button="@null"
+                        android:padding="5dp"
+                        android:drawableTop="?android:attr/listChoiceIndicatorMultiple"
+                        android:textSize="10sp"/>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/saveShopOrderExtraLimitButton"
+                        android:layout_width="wrap_content"
+                        android:layout_margin="2dp"
+                        android:text="সেভ"
+                        android:textSize="12sp"
+                        android:layout_height="wrap_content"/>
+                </LinearLayout>
+            </LinearLayout>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/hind_siliguri_font"
+                android:gravity="center"
+                android:background="@color/divider_bg_color_1"
+                android:text="ইমার্জেন্সি মুড ডায়ালগ"
+                android:textColor="@color/divider_text_color_1"
+                android:textSize="12sp"
+                android:padding="4dp"
+                android:layout_marginTop="10dp"
+                android:textStyle="bold"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center">
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="2dp"
+                        android:layout_weight="1"
+                        android:hint="ডায়ালগ টাইটেল">
+                        <EditText
+                            android:id="@+id/emergencyModeDialogTitleEditText"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:backgroundTint="#fff"
+                            android:ems="10"
+                            android:inputType="textPersonName"
+                            android:textColor="#000"
+                            android:textSize="12sp" />
+                    </com.google.android.material.textfield.TextInputLayout>
+                    <CheckBox
+                        android:id="@+id/emergencyModeDialogActivityCheckBox"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text=" অ্যাক্টিভ "
+                        android:gravity="center"
+                        android:button="@null"
+                        android:padding="5dp"
+                        android:drawableTop="?android:attr/listChoiceIndicatorMultiple"
+                        android:textSize="10sp"/>
+                </LinearLayout>
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="2dp"
+                    android:hint="ডায়ালগ মেসেজ">
+                    <EditText
+                        android:id="@+id/emergencyModeDialogMessageEdtittext"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="top"
+                        android:backgroundTint="#fff"
+                        android:ems="10"
+                        android:inputType="textPersonName"
+                        android:textColor="#000"
+                        android:textSize="12sp" />
+                </com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/emergencyModeDialogSaveButton"
+                    android:layout_width="wrap_content"
+                    android:layout_margin="2dp"
+                    android:text="সেভ"
+                    android:textSize="12sp"
+                    android:layout_height="wrap_content"/>
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>
