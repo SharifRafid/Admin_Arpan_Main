@@ -23,37 +23,44 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
-            <com.google.android.material.switchmaterial.SwitchMaterial
-                android:id="@+id/titleTextView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/hind_siliguri_font"
-                android:gravity="start|center_vertical"
-                android:text="অর্পন"
-                android:textStyle="bold"
-                android:textColor="@color/black"
-                android:textSize="18sp"
-                android:padding="10dp"/>
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:padding="10dp"
                 android:orientation="horizontal">
-                <Button
+                <TextView
+                    android:id="@+id/titleTextView"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/hind_siliguri_font"
+                    android:gravity="start|center_vertical"
+                    android:text="অর্পন"
+                    android:textStyle="bold"
+                    android:textColor="@color/black"
+                    android:textSize="18sp"/>
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/switchShopStatus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="start|center_vertical"
+                    android:textStyle="bold"
+                    android:textColor="@color/black"
+                    android:textSize="18sp"/>
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="end"
+                android:orientation="horizontal">
+                <ImageButton
                     android:id="@+id/editButton"
-                    android:layout_weight="1"
+                    android:src="@drawable/ic_round_settings_24"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/white"
+                    style="@style/Widget.AppCompat.ActionButton"
                     android:layout_margin="3dp"
-                    android:text="Edit"/>
-                <Button
-                    android:layout_weight="1"
-                    android:layout_margin="3dp"
-                    android:id="@+id/openShopButton"
-                    android:layout_width="wrap_content"
-                    android:textColor="@color/white"
-                    android:layout_height="wrap_content"
-                    android:text="Add"/>
+                    app:tint="@color/grey" />
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>

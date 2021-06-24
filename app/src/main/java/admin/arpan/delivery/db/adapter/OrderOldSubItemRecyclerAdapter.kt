@@ -5,6 +5,7 @@ import admin.arpan.delivery.db.model.OrderItemMain
 import admin.arpan.delivery.ui.order.OrderHistoryFragment
 import admin.arpan.delivery.ui.order.OrdresActivity
 import android.content.Context
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -13,6 +14,7 @@ import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.android.synthetic.main.fragment_order_history.view.*
 import kotlinx.android.synthetic.main.old_orders_list_view.view.*
 import java.text.SimpleDateFormat
 import java.util.*
@@ -49,7 +51,13 @@ class OrderOldSubItemRecyclerAdapter(
     override fun onBindViewHolder(holder: RecyclerViewHolder, position: Int) {
         holder.orderIdTextView.text = productItems[position].orderId
         holder.timeTextView.text = getDate(productItems[position].orderPlacingTimeStamp,"hh:mm a")
-        holder.statusTextView.text = productItems[position].orderStatus
+        if(productItems[position].orderCompletedStatus == "CANCELLED") {
+            holder.statusTextView.text = "CANCELLED"
+            holder.statusTextView.setBackgroundColor(Color.parseColor("#EA594D"))
+        }else{
+            holder.statusTextView.text = productItems[position].orderStatus
+            holder.statusTextView.setBackgroundColor(Color.parseColor("#43A047"))
+        }
         holder.cardView.setOnClickListener {
             (context as OrdresActivity).selectedRecyclerAdapterItem = position
             (context as OrdresActivity).mainItemPositionsRecyclerAdapter = mainItemPositions

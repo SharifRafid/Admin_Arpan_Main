@@ -6,61 +6,6 @@
     android:gravity="center"
     tools:context=".ui.order.OrdresActivity"
     android:orientation="vertical">
-    <RadioGroup
-        android:id="@+id/radioGroup"
-        android:layout_width="match_parent"
-        android:layout_margin="8dp"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:visibility="gone">
-        <com.google.android.material.radiobutton.MaterialRadioButton
-            android:id="@+id/pendingRadio"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="5dp"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:layout_margin="2dp"
-            android:checked="true"
-            android:background="@drawable/radio_selector"
-            android:text="PENDING"
-            android:button="@android:color/transparent" />
-
-        <com.google.android.material.radiobutton.MaterialRadioButton
-            android:id="@+id/approvedRadio"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="@drawable/radio_selector"
-            android:button="@android:color/transparent"
-            android:gravity="center"
-            android:layout_margin="2dp"
-            android:padding="5dp"
-            android:text="APPROVED" />
-
-        <com.google.android.material.radiobutton.MaterialRadioButton
-            android:id="@+id/onDeliveryRadio"
-            android:layout_width="wrap_content"
-            android:layout_margin="2dp"
-            android:layout_height="wrap_content"
-            android:padding="5dp"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:background="@drawable/radio_selector"
-            android:text="DELIVERY"
-            android:button="@android:color/transparent"/>
-        <com.google.android.material.radiobutton.MaterialRadioButton
-            android:id="@+id/completedRadio"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="2dp"
-            android:padding="5dp"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:background="@drawable/radio_selector"
-            android:text="COMPLETED"
-            android:button="@android:color/transparent"/>
-    </RadioGroup>
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"

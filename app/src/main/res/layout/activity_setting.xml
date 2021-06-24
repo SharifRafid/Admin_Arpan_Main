@@ -279,6 +279,27 @@
                             android:textSize="14sp" />
                     </com.google.android.material.textfield.TextInputLayout>
 
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="2dp"
+                        android:hint="ডিএ চার্জ">
+
+                        <EditText
+                            android:id="@+id/extraDaChargeAfterCrossingMaxOrderFromEachShopEdittext"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:backgroundTint="#fff"
+                            android:ems="10"
+                            android:fontFamily="@font/hind_siliguri_font"
+                            android:inputType="number"
+                            android:padding="5dp"
+                            android:textColor="#000"
+                            android:textSize="14sp" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
                     <CheckBox
                         android:id="@+id/allowExtraOrderAfterCrossingMaxFromEachShopCheckBox"
                         android:layout_width="wrap_content"
@@ -374,6 +395,91 @@
                     android:textSize="12sp"
                     android:layout_height="wrap_content"/>
             </LinearLayout>
+
+            <TextView
+                android:id="@+id/addNormalDeliveryCharge"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/hind_siliguri_font"
+                android:gravity="center"
+                android:background="@color/divider_bg_color_1"
+                android:text="সাধারন ডেলিভারি চার্জ"
+                android:textColor="@color/divider_text_color_1"
+                android:textSize="12sp"
+                android:padding="4dp"
+                android:drawableEnd="@drawable/ic_round_add_24"
+                android:drawableTint="@color/white"
+                android:layout_marginTop="10dp"
+                android:textStyle="bold"/>
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/deliveryChargeRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"/>
+
+            <TextView
+                android:id="@+id/addPickDropDeliveryCharge"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawableEnd="@drawable/ic_round_add_24"
+                android:drawableTint="@color/white"
+                android:fontFamily="@font/hind_siliguri_font"
+                android:gravity="center"
+                android:background="@color/divider_bg_color_1"
+                android:text="পিক ড্রপ ডেলিভারি চার্জ"
+                android:textColor="@color/divider_text_color_1"
+                android:textSize="12sp"
+                android:padding="4dp"
+                android:layout_marginTop="10dp"
+                android:textStyle="bold"/>
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/pickDropDeliveryChargeRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"/>
+
+            <TextView
+                android:id="@+id/addNormalNotifications"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/hind_siliguri_font"
+                android:gravity="center"
+                android:background="@color/divider_bg_color_1"
+                android:text="নরমাল নটিফিকেশন্"
+                android:textColor="@color/divider_text_color_1"
+                android:textSize="12sp"
+                android:padding="4dp"
+                android:drawableEnd="@drawable/ic_round_add_24"
+                android:drawableTint="@color/white"
+                android:layout_marginTop="10dp"
+                android:textStyle="bold"/>
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/normalNotificationsPopUp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"/>
+
+
+            <TextView
+                android:id="@+id/addTimeBasedNotifications"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/hind_siliguri_font"
+                android:gravity="center"
+                android:background="@color/divider_bg_color_1"
+                android:text="টাইম বেসড নটিফিকেশন"
+                android:textColor="@color/divider_text_color_1"
+                android:textSize="12sp"
+                android:drawableEnd="@drawable/ic_round_add_24"
+                android:drawableTint="@color/white"
+                android:padding="4dp"
+                android:layout_marginTop="10dp"
+                android:textStyle="bold"/>
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/timeBasedNotifications"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"/>
         </LinearLayout>
     </ScrollView>
 

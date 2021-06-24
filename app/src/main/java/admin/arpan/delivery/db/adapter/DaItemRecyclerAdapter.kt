@@ -6,7 +6,9 @@ import admin.arpan.delivery.ui.da.AddDaFragment
 import admin.arpan.delivery.ui.da.DaActivity
 import admin.arpan.delivery.ui.da.UpdateDaFragment
 import admin.arpan.delivery.utils.AppGlide
+import admin.arpan.delivery.utils.Constants
 import admin.arpan.delivery.utils.showToast
+import android.app.AlertDialog
 import android.content.Context
 import android.icu.number.NumberRangeFormatter.with
 import android.os.Bundle
@@ -37,6 +39,7 @@ class DaItemRecyclerAdapter(val context : Context,
         val phone_text_view = itemView.phone_text_view
         val imageView = itemView.image_view
         val da_activity = itemView.da_activity
+        val switchDaActivity = itemView.switchDaActivity
         val cardView = itemView.cardView
     }
 
@@ -55,6 +58,36 @@ class DaItemRecyclerAdapter(val context : Context,
         val daAgent = daAgents[position]
         holder.title_text_view.text = daAgent.da_name
         holder.phone_text_view.text = daAgent.da_mobile
+        holder.switchDaActivity.isChecked = daAgent.da_status_active
+        holder.switchDaActivity.setOnCheckedChangeListener { buttonView, isChecked ->
+            if(isChecked){
+                if(!daAgents[position].da_status_active){
+                    daAgents[position].da_status_active = true
+                    holder.switchDaActivity.isEnabled = false
+                    FirebaseFirestore.getInstance()
+                        .collection("da_agents_main_list_collection")
+                        .document(daAgents[position].key)
+                        .update("da_status_active",true)
+                        .addOnCompleteListener {
+                            holder.switchDaActivity.isEnabled = true
+                        }
+                }
+            }else{
+                if(daAgents[position].da_status_active) {
+                    daAgents[position].da_status_active = false
+                    holder.switchDaActivity.isEnabled = false
+                    val hashMap = HashMap<String,Any>()
+                    hashMap[daAgents[position].key] = daAgents[position]
+                    FirebaseFirestore.getInstance()
+                        .collection("da_agents_main_list_collection")
+                        .document(daAgents[position].key)
+                        .update("da_status_active",false)
+                        .addOnCompleteListener {
+                            holder.switchDaActivity.isEnabled = true
+                        }
+                }
+            }
+        }
 
         if(daAgent.da_image.isNotEmpty()){
             val storageReference = FirebaseStorage.getInstance()
@@ -105,22 +138,34 @@ class DaItemRecyclerAdapter(val context : Context,
         }
 
         holder.cardView.setOnLongClickListener {
-            FirebaseFirestore.getInstance()
-                .collection("da_agents_main_list_collection")
-                .document(daAgents[position].key)
-                .delete().addOnCompleteListener {
-                    if(it.isSuccessful){
-                        firebaseDatabase.child("da_agents_realtime_details")
-                            .child(daAgent.key).removeValue()
-                        (context as DaActivity).daList.removeAt(position)
-                        (context as DaActivity).daItemRecyclerAdapter.notifyItemRemoved(position)
-                        (context as DaActivity).daItemRecyclerAdapter.notifyItemRangeChanged(position, daAgents.size)
-                        context.showToast("Success Deleted", FancyToast.SUCCESS)
-                    }else{
-                        it.exception!!.printStackTrace()
-                        context.showToast("Failed", FancyToast.SUCCESS)
-                    }
+            val mDialog = AlertDialog.Builder(context)
+                .setTitle("Are you sure to delete this agent?")
+                .setPositiveButton(
+                    context.getString(R.string.yes_ok)
+                ) { diaInt, _ ->
+                    FirebaseFirestore.getInstance()
+                        .collection("da_agents_main_list_collection")
+                        .document(daAgents[position].key)
+                        .delete().addOnCompleteListener {
+                            if(it.isSuccessful){
+                                firebaseDatabase.child("da_agents_realtime_details")
+                                    .child(daAgent.key).removeValue()
+                                (context as DaActivity).daList.removeAt(position)
+                                (context as DaActivity).daItemRecyclerAdapter.notifyItemRemoved(position)
+                                (context as DaActivity).daItemRecyclerAdapter.notifyItemRangeChanged(position, daAgents.size)
+                                context.showToast("Success Deleted", FancyToast.SUCCESS)
+                            }else{
+                                it.exception!!.printStackTrace()
+                                context.showToast("Failed", FancyToast.SUCCESS)
+                            }
+                        }
+                    diaInt.dismiss()
                 }
+                .setNegativeButton(
+                    context.getString(R.string.no_its_ok)
+                ) { dialogInterface, _ -> dialogInterface.dismiss() }
+                .create()
+            mDialog.show()
             true
         }
     }

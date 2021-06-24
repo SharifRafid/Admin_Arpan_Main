@@ -16,6 +16,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -41,10 +42,10 @@ class ShopItemRecyclerAdapter(
 
     class RecyclerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val imageView = itemView.shopImageItem as ImageView
-        val textView = itemView.titleTextView as SwitchMaterial
+        val switchShopStatus = itemView.switchShopStatus as SwitchMaterial
+        val textView = itemView.titleTextView as TextView
         val cardView = itemView.mainCardView as CardView
-        val editButton = itemView.editButton as Button
-        val openShopButton = itemView.openShopButton as Button
+        val editButton = itemView.editButton as ImageButton
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerViewHolder {
@@ -62,22 +63,30 @@ class ShopItemRecyclerAdapter(
 
     override fun onBindViewHolder(holder: RecyclerViewHolder, position: Int) {
         holder.textView.text = shopItems[position].name
-        holder.textView.isChecked = shopItems[position].status == "open"
+        holder.switchShopStatus.isChecked = shopItems[position].status == "open"
 
-        holder.textView.setOnCheckedChangeListener { buttonView, isChecked ->
+        holder.switchShopStatus.setOnCheckedChangeListener { buttonView, isChecked ->
             if(isChecked){
                 if(shopItems[position].status != "open"){
                     shopItems[position].status = "open"
+                    holder.switchShopStatus.isEnabled = false
                     firebaseFirestore.collection(Constants.FC_SHOPS_MAIN)
                         .document(shopItems[position].key)
                         .update(Constants.FIELD_FD_SM_STATUS,"open")
+                        .addOnCompleteListener {
+                            holder.switchShopStatus.isEnabled = true
+                        }
                 }
             }else{
                 if(shopItems[position].status != "closed") {
                     shopItems[position].status = "closed"
+                    holder.switchShopStatus.isEnabled = false
                     firebaseFirestore.collection(Constants.FC_SHOPS_MAIN)
                         .document(shopItems[position].key)
                         .update(Constants.FIELD_FD_SM_STATUS,"closed")
+                        .addOnCompleteListener {
+                            holder.switchShopStatus.isEnabled = true
+                        }
                 }
             }
         }
@@ -97,7 +106,7 @@ class ShopItemRecyclerAdapter(
                     .into(holder.imageView)
         }
 
-        holder.openShopButton.setOnClickListener {
+        holder.cardView.setOnClickListener {
             val intent = Intent(context, ProductsActivity::class.java)
             intent.putExtra("shop_key",shopItems[position].key)
             intent.putExtra("shop_name",shopItems[position].name)

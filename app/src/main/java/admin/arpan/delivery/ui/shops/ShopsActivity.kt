@@ -29,7 +29,6 @@ class ShopsActivity : AppCompatActivity() {
     private fun loadDataFirestore() {
         FirebaseFirestore.getInstance()
             .collection(Constants.FC_SHOPS_MAIN)
-            .whereEqualTo(Constants.FIELD_FD_SM_STATUS, "open")
             .orderBy(Constants.FIELD_FD_SM_CATEGORY)
             .orderBy(Constants.FIELD_FD_SM_ORDER)
             .get().addOnCompleteListener {

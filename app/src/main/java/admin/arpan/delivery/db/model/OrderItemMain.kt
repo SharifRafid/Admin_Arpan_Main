@@ -25,4 +25,7 @@ data class OrderItemMain(
     var pickDropOrderItem : PickDropOrderItem = PickDropOrderItem(),
     var lattitude : String = "",
     var longtitude : String = "",
+    var orderCompletedStatus : String = "",
+    var daDetails : DaAgent = DaAgent(),
+    var daID : String = ""
 )

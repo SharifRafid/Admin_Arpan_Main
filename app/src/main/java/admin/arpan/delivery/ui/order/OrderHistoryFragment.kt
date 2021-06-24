@@ -10,6 +10,7 @@ import admin.arpan.delivery.utils.createProgressDialog
 import admin.arpan.delivery.utils.showToast
 import android.app.AlertDialog
 import android.app.Dialog
+import android.content.DialogInterface
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -59,6 +60,9 @@ class OrderHistoryFragment : DialogFragment() {
     private var deliveryCharge = 0
     private var promoCodeActive = false
     private var promoCode = PromoCode()
+    private var orderItemMain = OrderItemMain()
+    private var orderId = ""
+    private var customerId = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -100,8 +104,8 @@ class OrderHistoryFragment : DialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         initVars(view)
-        val orderId = arguments?.getString("orderID").toString()
-        val customerId = arguments?.getString("customerId").toString()
+        orderId = arguments?.getString("orderID").toString()
+        customerId = arguments?.getString("customerId").toString()
         if(FirebaseAuth.getInstance().currentUser == null){
             view.shopsProgress.visibility = View.GONE
             view.noProductsText.visibility = View.VISIBLE
@@ -114,7 +118,7 @@ class OrderHistoryFragment : DialogFragment() {
                     .get().addOnCompleteListener { it1 ->
                     if(it1.isSuccessful){
                             if(it1.result!!.exists()){
-                                val orderItemMain = it1.result!!.toObject(OrderItemMain::class.java) as OrderItemMain
+                                orderItemMain = it1.result!!.toObject(OrderItemMain::class.java) as OrderItemMain
                                 if(orderItemMain.pickDropOrder){
                                     view.nestedScrollView.visibility = View.GONE
                                     view.pickDropScrollView.visibility = View.VISIBLE
@@ -149,77 +153,12 @@ class OrderHistoryFragment : DialogFragment() {
                                 promoCode = orderItemMain.promoCode
                                 setPriceTotalOnView(view)
                                 view.orderIDText.text = orderItemMain.orderId
-                                view.orderStatusText2.text = orderItemMain.orderStatus
-                                if(orderItemMain.orderStatus == "PENDING"){
-                                    progressDialog.show()
-                                    view.button.text = "ASSIGN"
-                                    view.button.setOnClickListener {
-                                        val alertDialogForDa = AlertDialog.Builder(context).create()
-                                        val alertDialogForDaView = LayoutInflater.from(context).inflate(R.layout.assign_da_list_view, null)
-                                        val arrayListDaStatus = (activity as OrdresActivity).daStatusList
-                                        val arrayListDaStatusString = ArrayList<String>()
-                                        for(daStatus in arrayListDaStatus){
-                                            arrayListDaStatusString.add(daStatus.name)
-                                        }
-                                        alertDialogForDaView.listView.adapter = ArrayAdapter(requireContext(),R.layout.custom_spinner_item_view, arrayListDaStatusString)
-                                        alertDialogForDa.setView(alertDialogForDaView)
-                                        alertDialogForDaView.listView.setOnItemClickListener { parent, view, position, id ->
-                                            progressDialog.show()
-                                            val daDetails = HashMap<String, Any>()
-                                            FirebaseFirestore.getInstance()
-                                                .collection("da_agents_main_list_collection")
-                                                .document(arrayListDaStatus[position].key)
-                                                .get().addOnCompleteListener {
-                                                    if(it.isSuccessful){
-                                                       val daAgent = it.result!!.toObject(DaAgent::class.java) as DaAgent
-                                                        daAgent.key = it.result!!.id
-                                                       daDetails["daDetails"] = daAgent
-                                                       daDetails["daID"] = it.result!!.id
-                                                        daDetails["orderStatus"] = "APPROVED"
-                                                        FirebaseFirestore.getInstance().collection("users")
-                                                            .document(customerId)
-                                                            .collection("users_order_collection")
-                                                            .document(orderId)
-                                                            .update(daDetails)
-                                                            .addOnCompleteListener {_->
-                                                                (activity as OrdresActivity).ordersMainOldItemsArrayList[(activity as OrdresActivity).mainItemPositionsRecyclerAdapter].orders.removeAt((activity as OrdresActivity).selectedRecyclerAdapterItem)
-                                                                if((activity as OrdresActivity).ordersMainOldItemsArrayList[(activity as OrdresActivity).mainItemPositionsRecyclerAdapter].orders.size==0){
-                                                                    (activity as OrdresActivity).ordersMainOldItemsArrayList.removeAt((activity as OrdresActivity).mainItemPositionsRecyclerAdapter)
-                                                                    (activity as OrdresActivity).orderAdapterMain.notifyItemRemoved((activity as OrdresActivity).mainItemPositionsRecyclerAdapter)
-                                                                    (activity as OrdresActivity).orderAdapterMain.notifyItemRangeChanged((activity as OrdresActivity).mainItemPositionsRecyclerAdapter, (activity as OrdresActivity).ordersMainOldItemsArrayList.size)
-                                                                }else{
-                                                                    (activity as OrdresActivity).orderAdapterMain.notifyItemChanged((activity as OrdresActivity).mainItemPositionsRecyclerAdapter)
-                                                                }
-                                                                sendNotification(
-                                                                        orderItemMain.userId,
-                                                                "আপনার অর্ডার ${orderItemMain.orderId} টি অ্যাপ্রুভ করা হয়েছে ।",
-                                                                "আপনার অর্ডারটি অ্যাপ্রুভ করা হয়েছে, দ্রুতই অর্ডার টি আপনার কাছে পৌছে যাবে ।",
-                                                                it1.result!!.id
-                                                                )
-                                                                sendNotificationToDa(
-                                                                    orderItemMain.userId,
-                                                                    it.result!!.id,
-                                                                    "আপনি একটি অর্ডার ${orderItemMain.orderId} পেয়েছেন ।",
-                                                                    "আপনি একটি অর্ডার পেয়েছেন দ্রুত অর্ডারটি রিসিভ করুন ।",
-                                                                    it1.result!!.id
-                                                                )
-                                                                alertDialogForDa.dismiss()
-                                                                dismiss()
-                                                                progressDialog.dismiss()
-                                                                requireContext().showToast("SUCCESS", FancyToast.SUCCESS)
-                                                            }
-                                                    }else{
-                                                        progressDialog.dismiss()
-                                                        requireContext().showToast("FAILED", FancyToast.SUCCESS)
-                                                        it.exception!!.printStackTrace()
-                                                    }
-                                                }
-                                        }
-                                        alertDialogForDa.show()
-                                    }
+                                if(orderItemMain.orderCompletedStatus == "CANCELLED") {
+                                    view.orderStatusText2.text = "CANCELLED"
                                 }else{
-                                    view.button.text = orderItemMain.orderStatus
+                                    view.orderStatusText2.text = orderItemMain.orderStatus
                                 }
+                                detectOrderItemStatus(view)
                                 view.txt_name.setText(orderItemMain.userName)
                                 view.txt_number.setText(orderItemMain.userNumber)
                                 view.call_now.setOnClickListener {
@@ -270,7 +209,191 @@ class OrderHistoryFragment : DialogFragment() {
 
     }
 
- fun sendNotification(
+    private fun detectOrderItemStatus(view: View) {
+        view.orderStatusText2.text = orderItemMain.orderStatus
+        when(orderItemMain.orderStatus){
+            "PENDING" -> {
+                view.button.text = "VERIFY"
+                view.buttonCancel.visibility = View.VISIBLE
+                view.button.setOnClickListener {
+                    AlertDialog.Builder(requireContext())
+                        .setTitle("Are you sure you want to verify this order?")
+                        .setMessage("By clicking yes you're approving this order and verifying it's existence")
+                        .setPositiveButton("Yes", DialogInterface.OnClickListener { dialog, which ->
+                            dialog.dismiss()
+                            progressDialog.show()
+                            FirebaseFirestore.getInstance().collection("users")
+                                .document(customerId)
+                                .collection("users_order_collection")
+                                .document(orderId)
+                                .update("orderStatus", "VERIFIED")
+                                .addOnCompleteListener {task2 ->
+                                    if(task2.isSuccessful){
+                                            orderItemMain.orderStatus = "VERIFIED"
+                                        (activity as OrdresActivity)
+                                            .ordersMainOldItemsArrayList[(activity as OrdresActivity)
+                                            .mainItemPositionsRecyclerAdapter]
+                                            .orders[(activity as OrdresActivity)
+                                            .selectedRecyclerAdapterItem].orderStatus = "VERIFIED"
+                                        (activity as OrdresActivity).orderAdapterMain
+                                            .notifyItemChanged((activity as OrdresActivity)
+                                                .mainItemPositionsRecyclerAdapter)
+                                        sendNotification(
+                                            orderItemMain.userId,
+                                            "আপনার অর্ডার ${orderItemMain.orderId} টি কনফার্ম করা হয়েছে ।",
+                                            "আপনার অর্ডারটি কনফার্ম করা হয়েছে, দ্রুতই অর্ডারটি আপনার কাছে পৌছে যাবে ।",
+                                            orderId)
+                                        detectOrderItemStatus(view)
+                                    }else{
+                                        task2.exception!!.printStackTrace()
+                                    }
+                                    progressDialog.dismiss()
+                                }
+                        })
+                        .setNegativeButton("No", DialogInterface.OnClickListener { dialog, which ->
+                            dialog.dismiss()
+                        })
+                        .create().show()
+                }
+                view.buttonCancel.setOnClickListener {
+                    AlertDialog.Builder(requireContext())
+                        .setTitle("Are you sure you want to cancel this order?")
+                        .setMessage("By clicking yes you're cancelling this order")
+                        .setPositiveButton("Yes", DialogInterface.OnClickListener { dialog, which ->
+                            dialog.dismiss()
+                            progressDialog.show()
+                            val hashMap = HashMap<String,Any>()
+                            hashMap["orderStatus"] = "COMPLETED"
+                            hashMap["orderCompletedStatus"] = "CANCELLED"
+                            FirebaseFirestore.getInstance().collection("users")
+                                .document(customerId)
+                                .collection("users_order_collection")
+                                .document(orderId)
+                                .update(hashMap)
+                                .addOnCompleteListener {task2 ->
+                                    if(task2.isSuccessful){
+                                            orderItemMain.orderStatus = "COMPLETED"
+                                            orderItemMain.orderCompletedStatus = "CANCELLED"
+                                        (activity as OrdresActivity)
+                                            .ordersMainOldItemsArrayList[(activity as OrdresActivity)
+                                            .mainItemPositionsRecyclerAdapter]
+                                            .orders[(activity as OrdresActivity)
+                                            .selectedRecyclerAdapterItem].orderStatus = "COMPLETED"
+                                        (activity as OrdresActivity)
+                                            .ordersMainOldItemsArrayList[(activity as OrdresActivity)
+                                            .mainItemPositionsRecyclerAdapter]
+                                            .orders[(activity as OrdresActivity)
+                                            .selectedRecyclerAdapterItem].orderCompletedStatus = "CANCELLED"
+                                        (activity as OrdresActivity).orderAdapterMain
+                                            .notifyItemChanged((activity as OrdresActivity)
+                                            .mainItemPositionsRecyclerAdapter)
+                                        sendNotification(
+                                            orderItemMain.userId,
+                                            "আপনার অর্ডার ${orderItemMain.orderId} টি ক্যান্সেল করা হয়েছে ।",
+                                            "অর্পণের সাথে থাকার জন্য ধন্যবাদ ।",
+                                            orderId)
+                                        detectOrderItemStatus(view)
+                                    }else{
+                                        task2.exception!!.printStackTrace()
+                                    }
+                                    progressDialog.dismiss()
+                                }
+                        })
+                        .setNegativeButton("No", DialogInterface.OnClickListener { dialog, which ->
+                            dialog.dismiss()
+                        })
+                        .create().show()
+                }
+            }
+            "VERIFIED" -> {
+                if(orderItemMain.daID.isNotEmpty()){
+                    view.txtDaStatus.visibility = View.VISIBLE
+                    view.txtDaStatus.text = "PENDING VERIFICATION FROM DA -> ${orderItemMain.daDetails.da_name}"
+                    view.button.text = "ASSIGN ANOTHER DA"
+                }else{
+                    view.txtDaStatus.visibility = View.VISIBLE
+                    view.button.text = "ASSIGN DA"
+                }
+                view.buttonCancel.visibility = View.VISIBLE
+                view.button.setOnClickListener {
+                    val alertDialogForDa = AlertDialog.Builder(context).create()
+                    val alertDialogForDaView = LayoutInflater.from(context).inflate(R.layout.assign_da_list_view, null)
+                    val arrayListDaStatus = (activity as OrdresActivity).daStatusList
+                    val arrayListDaStatusString = ArrayList<String>()
+                    for(daStatus in arrayListDaStatus){
+                        arrayListDaStatusString.add(daStatus.name)
+                    }
+                    alertDialogForDaView.listView.adapter = ArrayAdapter(requireContext(),R.layout.custom_spinner_item_view, arrayListDaStatusString)
+                    alertDialogForDa.setView(alertDialogForDaView)
+                    alertDialogForDaView.listView.setOnItemClickListener { _, _, position, _ ->
+                        progressDialog.show()
+                        val daDetails = HashMap<String, Any>()
+                        FirebaseFirestore.getInstance()
+                            .collection("da_agents_main_list_collection")
+                            .document(arrayListDaStatus[position].key)
+                            .get().addOnCompleteListener {
+                                if(it.isSuccessful){
+                                    val daAgent = it.result!!.toObject(DaAgent::class.java) as DaAgent
+                                    daAgent.key = it.result!!.id
+                                    daDetails["daDetails"] = daAgent
+                                    daDetails["daID"] = it.result!!.id
+                                    FirebaseFirestore.getInstance().collection("users")
+                                        .document(customerId)
+                                        .collection("users_order_collection")
+                                        .document(orderId)
+                                        .update(daDetails)
+                                        .addOnCompleteListener {_->
+                                            orderItemMain.daDetails = daAgent
+                                            orderItemMain.daID = it.result!!.id
+                                            (activity as OrdresActivity)
+                                                .ordersMainOldItemsArrayList[(activity as OrdresActivity)
+                                                .mainItemPositionsRecyclerAdapter]
+                                                .orders[(activity as OrdresActivity)
+                                                .selectedRecyclerAdapterItem].daDetails = daAgent
+                                            (activity as OrdresActivity)
+                                                .ordersMainOldItemsArrayList[(activity as OrdresActivity)
+                                                .mainItemPositionsRecyclerAdapter]
+                                                .orders[(activity as OrdresActivity)
+                                                .selectedRecyclerAdapterItem].daID = it.result!!.id
+                                            (activity as OrdresActivity).orderAdapterMain
+                                                .notifyItemChanged((activity as OrdresActivity)
+                                                    .mainItemPositionsRecyclerAdapter)
+                                            sendNotificationToDa(
+                                                orderItemMain.userId,
+                                                it.result!!.id,
+                                                "আপনি একটি অর্ডার ${orderItemMain.orderId} পেয়েছেন ।",
+                                                "আপনি একটি অর্ডার পেয়েছেন দ্রুত অর্ডারটি রিসিভ করুন ।",
+                                                orderId
+                                            )
+                                            alertDialogForDa.dismiss()
+                                            detectOrderItemStatus(view)
+                                            progressDialog.dismiss()
+                                            requireContext().showToast("SUCCESS", FancyToast.SUCCESS)
+                                        }
+                                }else{
+                                    progressDialog.dismiss()
+                                    requireContext().showToast("FAILED", FancyToast.SUCCESS)
+                                    it.exception!!.printStackTrace()
+                                }
+                            }
+                    }
+                    alertDialogForDa.show()
+                }
+            }
+            else -> {
+                view.buttonCancel.visibility = View.GONE
+                if(orderItemMain.orderCompletedStatus == "CANCELLED") {
+                    view.orderStatusText2.text = "CANCELLED"
+                    view.button.text = "CANCELLED"
+                }else{
+                    view.button.text = orderItemMain.orderStatus
+                    view.orderStatusText2.text = orderItemMain.orderStatus
+                }
+            }
+        }
+    }
+
+    fun sendNotification(
         userId: String,
         apititle: String,
         apibody: String,
@@ -447,20 +570,37 @@ class OrderHistoryFragment : DialogFragment() {
                 .document(mainShopItemHashMap[currentCalc].shop_doc_id)
                 .get().addOnSuccessListener { document ->
                     mainShopItemHashMap[currentCalc].shop_details =
+                        if(document.data == null){
                             ShopItem(
-                                    key = document.id,
-                                    name = document.getString(Constants.FIELD_FD_SM_NAME).toString(),
-                                    categories = document.getString(Constants.FIELD_FD_SM_CATEGORY).toString(),
-                                    image = document.getString(Constants.FIELD_FD_SM_ICON).toString(),
-                                    cover_image = document.getString(Constants.FIELD_FD_SM_COVER).toString(),
-                                    da_charge = document.getString(Constants.FIELD_FD_SM_DA_CHARGE).toString(),
-                                    deliver_charge = document.getString(Constants.FIELD_FD_SM_DELIVERY).toString(),
-                                    location = document.getString(Constants.FIELD_FD_SM_LOCATION).toString(),
-                                    username = document.getString(Constants.FIELD_FD_SM_USERNAME).toString(),
-                                    password = document.getString(Constants.FIELD_FD_SM_PASSWORD).toString(),
-                                    order = document.getString(Constants.FIELD_FD_SM_ORDER).toString().toInt(),
-                                    status = document.getString(Constants.FIELD_FD_SM_STATUS).toString()
+                                key = "",
+                                name = "SHOP DELETED",
+                                categories = "",
+                                image = "",
+                                cover_image = "",
+                                da_charge = "",
+                                deliver_charge = "",
+                                location = "",
+                                username = "",
+                                password = "",
+                                order = 0,
+                                status = ""
                             )
+                        }else{
+                            ShopItem(
+                                key = document.id,
+                                name = document.getString(Constants.FIELD_FD_SM_NAME).toString(),
+                                categories = document.getString(Constants.FIELD_FD_SM_CATEGORY).toString(),
+                                image = document.getString(Constants.FIELD_FD_SM_ICON).toString(),
+                                cover_image = document.getString(Constants.FIELD_FD_SM_COVER).toString(),
+                                da_charge = document.getString(Constants.FIELD_FD_SM_DA_CHARGE).toString(),
+                                deliver_charge = document.getString(Constants.FIELD_FD_SM_DELIVERY).toString(),
+                                location = document.getString(Constants.FIELD_FD_SM_LOCATION).toString(),
+                                username = document.getString(Constants.FIELD_FD_SM_USERNAME).toString(),
+                                password = document.getString(Constants.FIELD_FD_SM_PASSWORD).toString(),
+                                order = document.getString(Constants.FIELD_FD_SM_ORDER).toString().toInt(),
+                                status = document.getString(Constants.FIELD_FD_SM_STATUS).toString()
+                            )
+                        }
                     if(currentCalc+1 >= mainShopItemHashMap.size){
                         // The data is downloaded all of those
                         view.productsRecyclerView.layoutManager = LinearLayoutManager(view.context)

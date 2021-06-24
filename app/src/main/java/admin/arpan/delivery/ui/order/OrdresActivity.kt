@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import admin.arpan.delivery.db.model.OrderOldItems
+import android.util.Log
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
@@ -33,12 +34,15 @@ class OrdresActivity : AppCompatActivity() {
     var daStatusList = ArrayList<DaStatusItem>()
     var selectedRecyclerAdapterItem = 0
     var mainItemPositionsRecyclerAdapter = 0
+    private var startTimeMonthMillis = 0L
+    private var endTimeMonthMillis = 0L
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_ordres)
         initVars()
-        initLogics()
+        Log.e("teset", "TESTSTE")
+        //initLogics()
     }
 
     private fun initLogics() {
@@ -46,9 +50,22 @@ class OrdresActivity : AppCompatActivity() {
     }
 
     private fun initVars() {
+        Log.e("teset", "TESTSTE")
         firebaseFirestore = FirebaseFirestore.getInstance()
         firebaseStorage = FirebaseStorage.getInstance()
         orderAdapterMain = OrderOldMainItemRecyclerAdapter(this, ordersMainOldItemsArrayList)
+        val c = Calendar.getInstance() // this takes current date
+        c[Calendar.DAY_OF_MONTH] = 1
+        c[Calendar.HOUR_OF_DAY] = 0
+
+        val d = Calendar.getInstance() // this takes current date
+        d[Calendar.DAY_OF_MONTH] = c.getActualMaximum(Calendar.DAY_OF_MONTH)
+        d[Calendar.HOUR_OF_DAY] = 0
+
+        startTimeMonthMillis = c.timeInMillis
+        endTimeMonthMillis = d.timeInMillis
+
+        loadDataFirstTime()
     }
 
     private fun loadDataFirstTime() {
@@ -57,14 +74,13 @@ class OrdresActivity : AppCompatActivity() {
             noProductsTextView.text = getString(R.string.you_are_not_logged_i)
             progressBar.visibility = View.GONE
             recyclerView.visibility = View.GONE
-            radioGroup.visibility = View.GONE
         }else{
             firebaseFirestore.collectionGroup("users_order_collection")
-                    .whereEqualTo("orderStatus","PENDING")
+                    .whereGreaterThanOrEqualTo("orderPlacingTimeStamp", startTimeMonthMillis)
+                    .whereLessThanOrEqualTo("orderPlacingTimeStamp", endTimeMonthMillis)
                     .orderBy("orderPlacingTimeStamp")
                     .get()
                     .addOnCompleteListener {
-                        enableRadioGroupLogic()
                         FirebaseDatabase.getInstance().reference.child("da_agents_realtime_details")
                             .addValueEventListener(object : ValueEventListener{
                                 override fun onDataChange(snapshot: DataSnapshot) {
@@ -98,14 +114,12 @@ class OrdresActivity : AppCompatActivity() {
                                 noProductsTextView.text = getString(R.string.you_have_no_orders)
                                 progressBar.visibility = View.GONE
                                 recyclerView.visibility = View.GONE
-                                radioGroup.visibility = View.GONE
                             }
                         }else{
                             noProductsText.visibility = View.VISIBLE
                             noProductsTextView.text = getString(R.string.you_have_no_orders)
                             progressBar.visibility = View.GONE
                             recyclerView.visibility = View.GONE
-                            radioGroup.visibility = View.GONE
                             it.exception!!.printStackTrace()
                         }
                     }
@@ -144,36 +158,35 @@ class OrdresActivity : AppCompatActivity() {
         noProductsText.visibility = View.GONE
         progressBar.visibility = View.GONE
         recyclerView.visibility = View.VISIBLE
-        radioGroup.visibility = View.VISIBLE
     }
 
-    private fun enableRadioGroupLogic() {
-        radioGroup.setOnCheckedChangeListener { group, checkedId ->
-            when(checkedId){
-                R.id.pendingRadio -> {
-                    loadSecondData("PENDING")
-                }
-                R.id.approvedRadio -> {
-                    loadSecondData( "APPROVED")
-                }
-                R.id.onDeliveryRadio -> {
-                    loadSecondData("DELIVERY")
-                }
-                R.id.completedRadio -> {
-                    loadSecondData("COMPLETED")
-                }
-            }
-        }
-    }
+//    private fun enableRadioGroupLogic() {
+//        radioGroup.setOnCheckedChangeListener { group, checkedId ->
+//            when(checkedId){
+//                R.id.pendingRadio -> {
+//                    loadSecondData("PENDING")
+//                }
+//                R.id.approvedRadio -> {
+//                    loadSecondData( "APPROVED")
+//                }
+//                R.id.onDeliveryRadio -> {
+//                    loadSecondData("DELIVERY")
+//                }
+//                R.id.completedRadio -> {
+//                    loadSecondData("COMPLETED")
+//                }
+//            }
+//        }
+//    }
 
     private fun loadSecondData(s: String) {
         noProductsText.visibility = View.GONE
         progressBar.visibility = View.VISIBLE
         recyclerView.visibility = View.GONE
-        radioGroup.visibility = View.VISIBLE
         firebaseFirestore
                 .collectionGroup("users_order_collection")
-                .whereEqualTo("orderStatus",s)
+                .whereGreaterThanOrEqualTo("orderPlacingTimeStamp", startTimeMonthMillis)
+                .whereLessThanOrEqualTo("orderPlacingTimeStamp", endTimeMonthMillis)
                 .orderBy("orderPlacingTimeStamp")
                 .get()
                 .addOnCompleteListener {
@@ -191,14 +204,12 @@ class OrdresActivity : AppCompatActivity() {
                             noProductsTextView.text = getString(R.string.you_have_no_orders)
                             progressBar.visibility = View.GONE
                             recyclerView.visibility = View.GONE
-                            radioGroup.visibility = View.VISIBLE
                         }
                     }else{
                         noProductsText.visibility = View.VISIBLE
                         noProductsTextView.text = getString(R.string.you_have_no_orders)
                         progressBar.visibility = View.GONE
                         recyclerView.visibility = View.GONE
-                        radioGroup.visibility = View.VISIBLE
                         it.exception!!.printStackTrace()
                     }
                 }

@@ -1,15 +1,43 @@
 package admin.arpan.delivery.ui.settings
 
 import admin.arpan.delivery.R
+import admin.arpan.delivery.db.adapter.LocationItemRecyclerAdapter
+import admin.arpan.delivery.db.adapter.NormalBannersPopUpAdapter
+import admin.arpan.delivery.db.adapter.TimeBasedBannersPopUpAdapter
+import admin.arpan.delivery.db.model.LocationItem
+import admin.arpan.delivery.db.model.SlidingTextItem
+import admin.arpan.delivery.utils.Constants
+import android.net.ParseException
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
+import androidx.appcompat.app.AlertDialog
 import androidx.core.widget.doOnTextChanged
+import androidx.lifecycle.MutableLiveData
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.github.dhaval2404.colorpicker.ColorPickerDialog
+import com.github.dhaval2404.colorpicker.model.ColorShape
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.android.synthetic.main.activity_setting.*
+import kotlinx.android.synthetic.main.dialog_add_location.view.*
+import kotlinx.android.synthetic.main.dialog_add_location.view.addLocationConfirmButton
+import kotlinx.android.synthetic.main.dialog_add_normal_banner.view.*
+import kotlinx.android.synthetic.main.dialog_add_normal_banner.view.buttonBgColor
+import kotlinx.android.synthetic.main.dialog_add_normal_banner.view.buttonTextColor
+import kotlinx.android.synthetic.main.dialog_add_normal_banner.view.edt_name
+import kotlinx.android.synthetic.main.dialog_add_normal_banner.view.order
+import kotlinx.android.synthetic.main.dialog_add_normal_banner.view.specialOfferTextView
+import kotlinx.android.synthetic.main.dialog_add_time_based_banner.view.*
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.collections.HashMap
 
 class SettingActivity : AppCompatActivity() {
 
@@ -27,11 +55,22 @@ class SettingActivity : AppCompatActivity() {
 
     private var maxShopPerOrderInt = 0
     private var maxChargeAfterPershopMaxOrder = 0
+    private var maxDaChargeAfterPershopMaxOrder = 0
     private var allowOrderingMoreThanMaxShops = false
 
     private var alertDialogEmergencyTitleText = ""
     private var alertDialogEmergencyMessageText = ""
     private var alertDialogeEmergencyStatus = "openapp"
+
+    var normalLocationsItemsArrayList = ArrayList<LocationItem>()
+    lateinit var normalLocationsItemsRecyclerAdapter : LocationItemRecyclerAdapter
+    var pickDropLocationsItemsArrayList = ArrayList<LocationItem>()
+    lateinit var pickDropLocationsItemsRecyclerAdapter : LocationItemRecyclerAdapter
+
+    var normalBannerPopUpArrayList = ArrayList<SlidingTextItem>()
+    lateinit var normalBannersPopUpAdapter: NormalBannersPopUpAdapter
+    var timeBasedBannerPopUpArrayList = ArrayList<SlidingTextItem>()
+    lateinit var timeBasedBannersPopUpAdapter : TimeBasedBannersPopUpAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,6 +89,371 @@ class SettingActivity : AppCompatActivity() {
         initCustomOrderMaxLimitTimeLogic()
         initShopPerMaxOrderDataLimitTimeLogic()
         initDialogEmergencyMainLogic()
+        initNormalDeliveryChargesLogic()
+        initPickDropNormalDeliveryChargesLogic()
+        initTimeBasedNotificationsPopUpLogic()
+    }
+
+    private fun initTimeBasedNotificationsPopUpLogic() {
+        firebaseFirestore.collection(Constants.FC_OFFERS_OI)
+            .document("timebased_notifications_document")
+            .get().addOnCompleteListener {
+                if (it.isSuccessful) {
+                    if (it.result!!.data!!.entries.isNotEmpty()) {
+                        timeBasedBannerPopUpArrayList.clear()
+                        val map = it.result!!.data!! as HashMap<String, HashMap<String, Any>>
+                        for (docField in map.entries) {
+                            val d = SlidingTextItem()
+                            d.key = docField.key
+                            d.enabled = docField.value["enabled"] as Boolean
+                            d.textTitle = docField.value["textTitle"] as String
+                            d.textDescription = docField.value["textDescription"] as String
+                            d.timeBased = docField.value["timeBased"] as Boolean
+                            d.startTime = docField.value["startTime"] as Long
+                            d.endTime = docField.value["endTime"] as Long
+                            d.backgroundColorHex = docField.value["backgroundColorHex"] as String
+                            d.textColorHex = docField.value["textColorHex"] as String
+                            d.order = docField.value["order"] as Long
+                            d.startTimeString = docField.value["startTimeString"] as String
+                            d.endTimeString = docField.value["endTimeString"] as String
+                            timeBasedBannerPopUpArrayList.add(d)
+                        }
+                        timeBasedBannersPopUpAdapter = TimeBasedBannersPopUpAdapter(this, timeBasedBannerPopUpArrayList)
+                        timeBasedNotifications.layoutManager = LinearLayoutManager(this)
+                        timeBasedNotifications.adapter = timeBasedBannersPopUpAdapter
+
+                        addTimeBasedNotifications.setOnClickListener {
+                            val alertDialog = AlertDialog.Builder(this).create()
+                            val locationAlertDialogViewMain = LayoutInflater.from(this)
+                                .inflate(R.layout.dialog_add_time_based_banner, null)
+                            var textColor = "#ffffff"
+                            var bgColor = "#43A047"
+                            locationAlertDialogViewMain.buttonTextColor.setOnClickListener {
+                                ColorPickerDialog
+                                    .Builder(this)        				// Pass Activity Instance
+                                    .setTitle("Pick Text Color")           	// Default "Choose Color"
+                                    .setColorShape(ColorShape.SQAURE)   // Default ColorShape.CIRCLE
+                                    .setDefaultColor(textColor)     // Pass Default Color
+                                    .setColorListener { color, colorHex ->
+                                        textColor = colorHex
+                                        locationAlertDialogViewMain.specialOfferTextView.setTextColor(color)
+                                    }
+                                    .show()
+                            }
+                            locationAlertDialogViewMain.buttonBgColor.setOnClickListener {
+                                ColorPickerDialog
+                                    .Builder(this)        				// Pass Activity Instance
+                                    .setTitle("Pick Background Color")           	// Default "Choose Color"
+                                    .setColorShape(ColorShape.SQAURE)   // Default ColorShape.CIRCLE
+                                    .setDefaultColor(bgColor)     // Pass Default Color
+                                    .setColorListener { color, colorHex ->
+                                        bgColor = colorHex
+                                        locationAlertDialogViewMain.specialOfferTextView.setBackgroundColor(color)
+                                    }
+                                    .show()
+                            }
+                            locationAlertDialogViewMain.edt_name.doOnTextChanged { text, start, before, count ->
+                                locationAlertDialogViewMain.specialOfferTextView.text = text
+                            }
+                            locationAlertDialogViewMain.addLocationConfirmButton.setOnClickListener {
+                                if(locationAlertDialogViewMain.edt_name.text.isNotEmpty()&&
+                                    locationAlertDialogViewMain.edt_start_time.text.isNotEmpty()&&
+                                    locationAlertDialogViewMain.edt_end_time.text.isNotEmpty()){
+                                    locationAlertDialogViewMain.buttonTextColor.isEnabled = false
+                                    locationAlertDialogViewMain.buttonBgColor.isEnabled = false
+                                    locationAlertDialogViewMain.edt_name.isEnabled = false
+                                    locationAlertDialogViewMain.edt_start_time.isEnabled = false
+                                    locationAlertDialogViewMain.edt_end_time.isEnabled = false
+                                    locationAlertDialogViewMain.order.isEnabled = false
+                                    locationAlertDialogViewMain.addLocationConfirmButton.isEnabled = false
+                                    val d = SlidingTextItem()
+                                    d.key = "STI"+System.currentTimeMillis()
+                                    d.enabled = true
+                                    d.textTitle = locationAlertDialogViewMain.edt_name.text.toString()
+                                    d.startTimeString = locationAlertDialogViewMain.edt_start_time.text.toString()
+                                    d.endTimeString = locationAlertDialogViewMain.edt_end_time.text.toString()
+                                    d.textDescription = ""
+                                    d.timeBased = true
+                                    d.backgroundColorHex = bgColor
+                                    d.textColorHex = textColor
+                                    d.order = if(locationAlertDialogViewMain.order.text.isEmpty()){
+                                        0
+                                    }else{
+                                        locationAlertDialogViewMain.order.text.toString().toLong()
+                                    }
+                                    val hashMap = HashMap<String,Any>()
+                                    hashMap[d.key] = d
+                                    FirebaseFirestore.getInstance()
+                                        .collection(Constants.FC_OFFERS_OI)
+                                        .document("timebased_notifications_document")
+                                        .update(hashMap)
+                                        .addOnCompleteListener {
+                                            timeBasedBannerPopUpArrayList.add(d)
+                                            timeBasedBannersPopUpAdapter.notifyItemInserted(timeBasedBannerPopUpArrayList.size-1)
+                                            alertDialog.dismiss()
+                                        }
+                                }
+                            }
+                            alertDialog.setView(locationAlertDialogViewMain)
+                            alertDialog.show()
+                        }
+                    }
+                } else {
+                    it.exception!!.printStackTrace()
+                }
+                initNormalBannerNotificationsPopUpLogic()
+            }
+    }
+
+    private fun initNormalBannerNotificationsPopUpLogic() {
+        firebaseFirestore.collection(Constants.FC_OFFERS_OI)
+            .document("normal_notifications_document")
+            .get().addOnCompleteListener { task ->
+                if(task.isSuccessful){
+                    if(task.result!!.data!!.entries.isNotEmpty()){
+                        normalBannerPopUpArrayList.clear()
+                        val map = task.result!!.data!! as HashMap<String, HashMap<String,Any>>
+                        for(docField in map.entries) {
+                            val d = SlidingTextItem()
+                            d.key = docField.key
+                            d.enabled = docField.value["enabled"] as Boolean
+                            d.textTitle = docField.value["textTitle"] as String
+                            d.textDescription = docField.value["textDescription"] as String
+                            d.timeBased = docField.value["timeBased"] as Boolean
+                            d.startTime = docField.value["startTime"] as Long
+                            d.endTime = docField.value["endTime"] as Long
+                            d.backgroundColorHex = docField.value["backgroundColorHex"] as String
+                            d.textColorHex = docField.value["textColorHex"] as String
+                            d.order = docField.value["order"] as Long
+                            normalBannerPopUpArrayList.add(d)
+                        }
+                        normalBannersPopUpAdapter = NormalBannersPopUpAdapter(this, normalBannerPopUpArrayList)
+                        normalNotificationsPopUp.layoutManager = LinearLayoutManager(this)
+                        normalNotificationsPopUp.adapter = normalBannersPopUpAdapter
+
+                        addNormalNotifications.setOnClickListener {
+                            val alertDialog = AlertDialog.Builder(this).create()
+                            val locationAlertDialogViewMain = LayoutInflater.from(this)
+                                .inflate(R.layout.dialog_add_normal_banner, null)
+                            var textColor = "#ffffff"
+                            var bgColor = "#43A047"
+                            locationAlertDialogViewMain.buttonTextColor.setOnClickListener {
+                                ColorPickerDialog
+                                    .Builder(this)        				// Pass Activity Instance
+                                    .setTitle("Pick Text Color")           	// Default "Choose Color"
+                                    .setColorShape(ColorShape.SQAURE)   // Default ColorShape.CIRCLE
+                                    .setDefaultColor(textColor)     // Pass Default Color
+                                    .setColorListener { color, colorHex ->
+                                        textColor = colorHex
+                                        locationAlertDialogViewMain.specialOfferTextView.setTextColor(color)
+                                    }
+                                    .show()
+                            }
+                            locationAlertDialogViewMain.buttonBgColor.setOnClickListener {
+                                ColorPickerDialog
+                                    .Builder(this)        				// Pass Activity Instance
+                                    .setTitle("Pick Background Color")           	// Default "Choose Color"
+                                    .setColorShape(ColorShape.SQAURE)   // Default ColorShape.CIRCLE
+                                    .setDefaultColor(bgColor)     // Pass Default Color
+                                    .setColorListener { color, colorHex ->
+                                        bgColor = colorHex
+                                        locationAlertDialogViewMain.specialOfferTextView.setBackgroundColor(color)
+                                    }
+                                    .show()
+                            }
+                            locationAlertDialogViewMain.edt_name.doOnTextChanged { text, start, before, count ->
+                                locationAlertDialogViewMain.specialOfferTextView.text = text
+                            }
+                            locationAlertDialogViewMain.addLocationConfirmButton.setOnClickListener {
+                                if(locationAlertDialogViewMain.edt_name.text.isNotEmpty()){
+                                    locationAlertDialogViewMain.buttonTextColor.isEnabled = false
+                                    locationAlertDialogViewMain.buttonBgColor.isEnabled = false
+                                    locationAlertDialogViewMain.edt_name.isEnabled = false
+                                    locationAlertDialogViewMain.order.isEnabled = false
+                                    locationAlertDialogViewMain.addLocationConfirmButton.isEnabled = false
+                                    val d = SlidingTextItem()
+                                    d.key = "STI"+System.currentTimeMillis()
+                                    d.enabled = true
+                                    d.textTitle = locationAlertDialogViewMain.edt_name.text.toString()
+                                    d.textDescription = ""
+                                    d.timeBased = false
+                                    d.backgroundColorHex = bgColor
+                                    d.textColorHex = textColor
+                                    d.order = if(locationAlertDialogViewMain.order.text.isEmpty()){
+                                        0
+                                    }else{
+                                        locationAlertDialogViewMain.order.text.toString().toLong()
+                                    }
+                                    val hashMap = HashMap<String,Any>()
+                                    hashMap[d.key] = d
+                                    FirebaseFirestore.getInstance()
+                                        .collection(Constants.FC_OFFERS_OI)
+                                        .document("normal_notifications_document")
+                                        .update(hashMap)
+                                        .addOnCompleteListener {
+                                            normalBannerPopUpArrayList.add(d)
+                                            normalBannersPopUpAdapter.notifyItemInserted(normalBannerPopUpArrayList.size-1)
+                                            alertDialog.dismiss()
+                                        }
+                                }
+                            }
+                            alertDialog.setView(locationAlertDialogViewMain)
+                            alertDialog.show()
+                        }
+                    }
+                }else{
+                    task.exception!!.printStackTrace()
+                }
+            }
+    }
+
+    private fun initNormalDeliveryChargesLogic() {
+        FirebaseDatabase.getInstance()
+            .reference
+            .child("data")
+            .child("delivery_charges")
+            .get().addOnCompleteListener {
+                if(it.isSuccessful){
+                    normalLocationsItemsArrayList.clear()
+                    for (snap in it.result!!.children) {
+                        normalLocationsItemsArrayList.add(
+                            LocationItem(
+                                key = snap.key.toString(),
+                                locationName = snap.child("name").value.toString(),
+                                deliveryCharge = snap.child("deliveryCharge").value.toString().toInt(),
+                                daCharge = snap.child("daCharge").value.toString().toInt(),
+                            )
+                        )
+                    }
+                    deliveryChargeRecyclerView.layoutManager = LinearLayoutManager(this)
+                    normalLocationsItemsRecyclerAdapter =
+                        LocationItemRecyclerAdapter(this@SettingActivity,
+                            normalLocationsItemsArrayList, "delivery_charges")
+                    deliveryChargeRecyclerView.adapter = normalLocationsItemsRecyclerAdapter
+                    addNormalDeliveryCharge.setOnClickListener{
+                        val alertDialog = AlertDialog.Builder(this).create()
+                        val locationAlertDialogViewMain = LayoutInflater.from(this)
+                            .inflate(R.layout.dialog_add_location, null)
+                        locationAlertDialogViewMain.addLocationConfirmButton.setOnClickListener {
+                            val locationName = locationAlertDialogViewMain.edt_location_name.text.toString()
+                            val deliveryCharge = locationAlertDialogViewMain.edt_delivery_charge.text.toString()
+                            val daCharge = locationAlertDialogViewMain.edt_da_charge.text.toString()
+                            if(
+                                locationName.isNotEmpty() && deliveryCharge.isNotEmpty()
+                                && daCharge.isNotEmpty()
+                            ){
+                                locationAlertDialogViewMain.addLocationConfirmButton.isEnabled = false
+                                locationAlertDialogViewMain.edt_location_name.isEnabled = false
+                                locationAlertDialogViewMain.edt_delivery_charge.isEnabled = false
+                                locationAlertDialogViewMain.edt_da_charge.isEnabled = false
+                                alertDialog.setCancelable(false)
+                                alertDialog.setCanceledOnTouchOutside(false)
+                                val key = "NLI"+System.currentTimeMillis()
+                                val locationItem = HashMap<String,String>()
+                                locationItem["name"] = locationName
+                                locationItem["deliveryCharge"] = deliveryCharge
+                                locationItem["daCharge"] = daCharge
+                                FirebaseDatabase.getInstance()
+                                    .reference
+                                    .child("data")
+                                    .child("delivery_charges")
+                                    .child(key)
+                                    .setValue(locationItem)
+                                    .addOnCompleteListener {
+                                        normalLocationsItemsArrayList.add(
+                                            LocationItem(
+                                                key,
+                                                locationName,
+                                                deliveryCharge.toInt(),
+                                                daCharge.toInt()
+                                            )
+                                        )
+                                        normalLocationsItemsRecyclerAdapter.notifyItemInserted(normalLocationsItemsArrayList.size-1)
+                                        alertDialog.dismiss()
+                                    }
+                            }
+                        }
+                        alertDialog.setView(locationAlertDialogViewMain)
+                        alertDialog.show()
+                    }
+                }else{
+                    it.exception!!.printStackTrace()
+                }
+            }
+    }
+    private fun initPickDropNormalDeliveryChargesLogic() {
+        FirebaseDatabase.getInstance()
+            .reference
+            .child("data")
+            .child("delivery_charges_pick_drop")
+            .get().addOnCompleteListener {
+                if(it.isSuccessful){
+                    pickDropLocationsItemsArrayList.clear()
+                    for (snap in it.result!!.children) {
+                        pickDropLocationsItemsArrayList.add(
+                            LocationItem(
+                                key = snap.key.toString(),
+                                locationName = snap.child("name").value.toString(),
+                                deliveryCharge = snap.child("deliveryCharge").value.toString().toInt(),
+                                daCharge = snap.child("daCharge").value.toString().toInt(),
+                            )
+                        )
+                    }
+                    pickDropDeliveryChargeRecyclerView.layoutManager = LinearLayoutManager(this)
+                    pickDropLocationsItemsRecyclerAdapter =
+                        LocationItemRecyclerAdapter(this@SettingActivity,
+                            pickDropLocationsItemsArrayList, "delivery_charges_pick_drop")
+                    pickDropDeliveryChargeRecyclerView.adapter = pickDropLocationsItemsRecyclerAdapter
+                    addPickDropDeliveryCharge.setOnClickListener{
+                        val alertDialog = AlertDialog.Builder(this).create()
+                        val locationAlertDialogViewMain = LayoutInflater.from(this)
+                            .inflate(R.layout.dialog_add_location, null)
+                        locationAlertDialogViewMain.addLocationConfirmButton.setOnClickListener {
+                            val locationName = locationAlertDialogViewMain.edt_location_name.text.toString()
+                            val deliveryCharge = locationAlertDialogViewMain.edt_delivery_charge.text.toString()
+                            val daCharge = locationAlertDialogViewMain.edt_da_charge.text.toString()
+                            if(
+                                locationName.isNotEmpty() && deliveryCharge.isNotEmpty()
+                                && daCharge.isNotEmpty()
+                            ){
+                                locationAlertDialogViewMain.addLocationConfirmButton.isEnabled = false
+                                locationAlertDialogViewMain.edt_location_name.isEnabled = false
+                                locationAlertDialogViewMain.edt_delivery_charge.isEnabled = false
+                                locationAlertDialogViewMain.edt_da_charge.isEnabled = false
+                                alertDialog.setCancelable(false)
+                                alertDialog.setCanceledOnTouchOutside(false)
+                                val key = "NLI"+System.currentTimeMillis()
+                                val locationItem = HashMap<String,String>()
+                                locationItem["name"] = locationName
+                                locationItem["deliveryCharge"] = deliveryCharge
+                                locationItem["daCharge"] = daCharge
+                                FirebaseDatabase.getInstance()
+                                    .reference
+                                    .child("data")
+                                    .child("delivery_charges_pick_drop")
+                                    .child(key)
+                                    .setValue(locationItem)
+                                    .addOnCompleteListener {
+                                        pickDropLocationsItemsArrayList.add(
+                                            LocationItem(
+                                                key,
+                                                locationName,
+                                                deliveryCharge.toInt(),
+                                                daCharge.toInt()
+                                            )
+                                        )
+                                        pickDropLocationsItemsRecyclerAdapter.notifyItemInserted(pickDropLocationsItemsArrayList.size-1)
+                                        alertDialog.dismiss()
+                                    }
+                            }
+                        }
+                        alertDialog.setView(locationAlertDialogViewMain)
+                        alertDialog.show()
+                    }
+                }else{
+                    it.exception!!.printStackTrace()
+                }
+            }
     }
 
     private fun initOrderDataLimitTimeLogic() {
@@ -208,12 +612,14 @@ class SettingActivity : AppCompatActivity() {
         saveShopOrderExtraLimitButton.isEnabled = false
         maxOrderFromEachShopEdittext.isEnabled = false
         extraChargeAfterCrossingMaxOrderFromEachShopEdittext.isEnabled = false
+        extraDaChargeAfterCrossingMaxOrderFromEachShopEdittext.isEnabled = false
         allowExtraOrderAfterCrossingMaxFromEachShopCheckBox.isEnabled = false
         firebaseDatabase.reference.child("data").child("order_shop_limits")
             .get().addOnCompleteListener {
                 if(it.isSuccessful){
                     maxShopPerOrderInt = (it.result!!.child("max_shops").value as Long).toInt()
                     maxChargeAfterPershopMaxOrder = (it.result!!.child("delivery_charge_extra").value as Long).toInt()
+                    maxDaChargeAfterPershopMaxOrder = (it.result!!.child("da_charge_extra").value as Long).toInt()
                     allowOrderingMoreThanMaxShops = it.result!!.child("allow_more").value as Boolean
                     placeDataOnEdittextsPerShopMaxOrderLimitsCheckbox()
                     initListenersForPerShopMaxOrderLimitEdittextsAndCheckBoxes()
@@ -225,9 +631,11 @@ class SettingActivity : AppCompatActivity() {
     private fun placeDataOnEdittextsPerShopMaxOrderLimitsCheckbox() {
         maxOrderFromEachShopEdittext.setText(maxShopPerOrderInt.toString())
         extraChargeAfterCrossingMaxOrderFromEachShopEdittext.setText(maxChargeAfterPershopMaxOrder.toString())
+        extraDaChargeAfterCrossingMaxOrderFromEachShopEdittext.setText(maxDaChargeAfterPershopMaxOrder.toString())
         allowExtraOrderAfterCrossingMaxFromEachShopCheckBox.isChecked = allowOrderingMoreThanMaxShops
         maxOrderFromEachShopEdittext.isEnabled = true
         extraChargeAfterCrossingMaxOrderFromEachShopEdittext.isEnabled = true
+        extraDaChargeAfterCrossingMaxOrderFromEachShopEdittext.isEnabled = true
         allowExtraOrderAfterCrossingMaxFromEachShopCheckBox.isEnabled = true
     }
     private fun initListenersForPerShopMaxOrderLimitEdittextsAndCheckBoxes() {
@@ -237,6 +645,9 @@ class SettingActivity : AppCompatActivity() {
         extraChargeAfterCrossingMaxOrderFromEachShopEdittext.doOnTextChanged { text, start, before, count ->
             checkButtonShopPerMaxOrderShouldBeEnabledOrNotStatus()
         }
+        extraDaChargeAfterCrossingMaxOrderFromEachShopEdittext.doOnTextChanged { text, start, before, count ->
+            checkButtonShopPerMaxOrderShouldBeEnabledOrNotStatus()
+        }
         allowExtraOrderAfterCrossingMaxFromEachShopCheckBox.setOnCheckedChangeListener { buttonView, isChecked ->
             checkButtonShopPerMaxOrderShouldBeEnabledOrNotStatus()
         }
@@ -244,25 +655,30 @@ class SettingActivity : AppCompatActivity() {
     private fun checkButtonShopPerMaxOrderShouldBeEnabledOrNotStatus() {
         saveShopOrderExtraLimitButton.isEnabled = maxOrderFromEachShopEdittext.text.toString()!=maxShopPerOrderInt.toString() ||
                 extraChargeAfterCrossingMaxOrderFromEachShopEdittext.text.toString()!=maxChargeAfterPershopMaxOrder.toString() ||
+                extraDaChargeAfterCrossingMaxOrderFromEachShopEdittext.text.toString()!=maxDaChargeAfterPershopMaxOrder.toString() ||
                 allowExtraOrderAfterCrossingMaxFromEachShopCheckBox.isChecked != allowOrderingMoreThanMaxShops
 
         saveShopOrderExtraLimitButton.setOnClickListener {
             saveShopOrderExtraLimitButton.isEnabled = false
             maxOrderFromEachShopEdittext.isEnabled = false
             extraChargeAfterCrossingMaxOrderFromEachShopEdittext.isEnabled = false
+            extraDaChargeAfterCrossingMaxOrderFromEachShopEdittext.isEnabled = false
             allowExtraOrderAfterCrossingMaxFromEachShopCheckBox.isEnabled = false
             val hashMap = HashMap<String,Any>()
             hashMap["max_shops"] = maxOrderFromEachShopEdittext.text.toString().toInt()
             hashMap["delivery_charge_extra"] = extraChargeAfterCrossingMaxOrderFromEachShopEdittext.text.toString().toInt()
+            hashMap["da_charge_extra"] = extraDaChargeAfterCrossingMaxOrderFromEachShopEdittext.text.toString().toInt()
             hashMap["allow_more"] = allowExtraOrderAfterCrossingMaxFromEachShopCheckBox.isChecked
             firebaseDatabase.reference.child("data").child("order_shop_limits")
                 .setValue(hashMap).addOnCompleteListener {
                     maxOrderFromEachShopEdittext.isEnabled = true
                     extraChargeAfterCrossingMaxOrderFromEachShopEdittext.isEnabled = true
+                    extraDaChargeAfterCrossingMaxOrderFromEachShopEdittext.isEnabled = true
                     allowExtraOrderAfterCrossingMaxFromEachShopCheckBox.isEnabled = true
                     if(it.isSuccessful){
                         maxShopPerOrderInt = maxOrderFromEachShopEdittext.text.toString().toInt()
                         maxChargeAfterPershopMaxOrder = extraChargeAfterCrossingMaxOrderFromEachShopEdittext.text.toString().toInt()
+                        maxDaChargeAfterPershopMaxOrder = extraDaChargeAfterCrossingMaxOrderFromEachShopEdittext.text.toString().toInt()
                         allowOrderingMoreThanMaxShops = allowExtraOrderAfterCrossingMaxFromEachShopCheckBox.isChecked
                     }else{
                         saveShopOrderExtraLimitButton.isEnabled = true

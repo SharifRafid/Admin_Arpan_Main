@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center_horizontal">
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Name"
+        android:layout_margin="2dp"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <EditText
+            android:id="@+id/edt_location_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+    </com.google.android.material.textfield.TextInputLayout>
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Delivery Charge"
+        android:layout_margin="2dp"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <EditText
+            android:id="@+id/edt_delivery_charge"
+            android:layout_width="match_parent"
+            android:inputType="number"
+            android:layout_height="wrap_content"/>
+    </com.google.android.material.textfield.TextInputLayout>
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Da Charge"
+        android:layout_margin="2dp"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <EditText
+            android:id="@+id/edt_da_charge"
+            android:inputType="number"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <Button
+        android:id="@+id/addLocationConfirmButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Add Location"
+        android:layout_margin="2dp"/>
+
+</LinearLayout>

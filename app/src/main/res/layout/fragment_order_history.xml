@@ -721,15 +721,14 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/txtAllPrice"
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="5dp"
-                    android:layout_marginEnd="5dp"
-                    android:layout_weight="1"
+                    android:layout_marginStart="9dp"
+                    android:layout_marginEnd="9dp"
                     android:background="@drawable/price_bg"
                     android:fontFamily="@font/hind_siliguri_font"
                     android:gravity="center"
@@ -738,30 +737,64 @@
                     android:textColor="@color/text_color_edit_custom"
                     android:textColorHint="#6E8697"
                     android:textSize="15sp"
-                    android:textStyle="bold"
-                    android:layout_marginBottom="20dp"
-                    app:layout_constraintBottom_toBottomOf="@+id/button"
-                    app:layout_constraintEnd_toStartOf="@+id/button"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="@+id/button" />
-
-                <Button
-                    android:id="@+id/button"
-                    android:layout_width="wrap_content"
+                    android:textStyle="bold" />
+                <TextView
+                    android:id="@+id/txtDaStatus"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginRight="8dp"
-                    android:layout_marginBottom="20dp"
-                    android:backgroundTint="@color/green_normal"
+                    android:layout_marginStart="9dp"
+                    android:layout_marginEnd="9dp"
                     android:fontFamily="@font/hind_siliguri_font"
-                    android:paddingStart="30dp"
-                    android:paddingTop="10dp"
-                    android:paddingEnd="30dp"
-                    android:paddingBottom="10dp"
-                    android:text="PENDING"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent" />
+                    android:gravity="center"
+                    android:padding="3dp"
+                    android:visibility="gone"
+                    android:text="PENDING VERIFICATION FROM DA - DA001"
+                    android:textColor="@color/text_color_edit_custom"
+                    android:textColorHint="#8BC34A"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    <Button
+                        android:id="@+id/buttonCancel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:backgroundTint="@color/red"
+                        android:fontFamily="@font/hind_siliguri_font"
+                        android:paddingStart="30dp"
+                        android:paddingTop="10dp"
+                        android:layout_weight="1"
+                        android:visibility="gone"
+                        android:paddingEnd="30dp"
+                        android:layout_marginStart="8dp"
+                        android:paddingBottom="10dp"
+                        android:text="CANCEL"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent" />
+                    <Button
+                        android:id="@+id/button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:backgroundTint="@color/green_normal"
+                        android:fontFamily="@font/hind_siliguri_font"
+                        android:paddingStart="30dp"
+                        android:paddingTop="10dp"
+                        android:layout_marginStart="8dp"
+                        android:paddingEnd="30dp"
+                        android:layout_marginEnd="8dp"
+                        android:paddingBottom="10dp"
+                        android:text="PENDING"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent" />
+                </LinearLayout>
             </LinearLayout>
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>

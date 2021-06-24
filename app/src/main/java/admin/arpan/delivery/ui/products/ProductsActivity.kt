@@ -35,6 +35,7 @@ import kotlin.collections.HashMap
 
 class ProductsActivity : AppCompatActivity() {
 
+    var currentSelectedProductMainIndex = 0
     private val firebaseFirestore = FirebaseFirestore.getInstance()
     private var shop_key = ""
     private var shop_category_key = ""
@@ -44,7 +45,8 @@ class ProductsActivity : AppCompatActivity() {
     private val keysList = ArrayList<String>()
     private val namesList = ArrayList<String>()
     private lateinit var categories_item_array_adapter : ArrayAdapter<String>
-    private val productsMainArrayList = ArrayList<ProductItem>()
+    lateinit var productsItemAdapterMain : ProductItemRecyclerAdapter
+    val productsMainArrayList = ArrayList<ProductItem>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -251,12 +253,20 @@ class ProductsActivity : AppCompatActivity() {
     }
 
     fun addNewProduct(view : View){
-        val addNewProductIntent = Intent(this, AddProduct::class.java)
-        addNewProductIntent.putExtra("shop_key",shop_key)
-        addNewProductIntent.putExtra("product_category_key",shop_category_key)
-        addNewProductIntent.putExtra("product_category",shop_category_tag_name)
-        addNewProductIntent.putExtra("product_order",(productsMainArrayList.size+1).toString())
-        startActivity(addNewProductIntent)
+//        val addNewProductIntent = Intent(this, AddProduct::class.java)
+//        addNewProductIntent.putExtra("shop_key",shop_key)
+//        addNewProductIntent.putExtra("product_category_key",shop_category_key)
+//        addNewProductIntent.putExtra("product_category",shop_category_tag_name)
+//        addNewProductIntent.putExtra("product_order",(productsMainArrayList.size+1).toString())
+//        startActivity(addNewProductIntent)
+        val bundle = Bundle()
+        bundle.putString("shop_key",shop_key)
+        bundle.putString("product_category_key",shop_category_key)
+        bundle.putString("product_category",shop_category_tag_name)
+        bundle.putString("product_order",(productsMainArrayList.size+1).toString())
+        val addProductFragmennt = AddProductFragmennt()
+        addProductFragmennt.arguments = bundle
+        addProductFragmennt.show(supportFragmentManager, "")
     }
 
     private fun updateCategoriesListWithNewCategory(key : String, text: String, text1: String, categoryCount: String) {
@@ -278,14 +288,15 @@ class ProductsActivity : AppCompatActivity() {
                             obj.key = document.id
                             productsMainArrayList.add(obj)
                         }
-                        val adapter = ProductItemRecyclerAdapter(this@ProductsActivity,
+                        productsItemAdapterMain =
+                            ProductItemRecyclerAdapter(this@ProductsActivity,
                                 this@ProductsActivity,
                                 productsMainArrayList,shop_key,shop_category_key,shop_key)
-                        productsRecyclerView.adapter = adapter
+                        productsRecyclerView.adapter = productsItemAdapterMain
                         val linearLayoutManager = LinearLayoutManager(this@ProductsActivity)
                         linearLayoutManager.orientation = LinearLayoutManager.VERTICAL
                         productsRecyclerView.layoutManager = linearLayoutManager
-                        adapter.notifyDataSetChanged()
+                        productsItemAdapterMain.notifyDataSetChanged()
                     }else{
                         it.exception!!.printStackTrace()
                     }

@@ -102,20 +102,26 @@ class UpdateDaFragment : DialogFragment() {
                         .collection("da_agents_main_list_collection")
                         .document(selectedDaAgent.key)
                         .update(daAgent).addOnCompleteListener {
-                            (activity as DaActivity).daList[selectedAgentPostition].da_name =  userName
-                            (activity as DaActivity).daList[selectedAgentPostition].da_mobile =  mobile
-                            (activity as DaActivity).daList[selectedAgentPostition].da_bkash =  bkashNumber
-                            (activity as DaActivity).daList[selectedAgentPostition].da_password =  password
-                            (activity as DaActivity).daList[selectedAgentPostition].da_blood_group =  bloodGroup
-                            (activity as DaActivity).daList[selectedAgentPostition].da_category =
-                                if(view.radioGroup1.checkedRadioButtonId==R.id.regularRadio){
-                                    "রেগুলার"
-                                }else{
-                                    "পারমানেন্ট"
+                            FirebaseDatabase.getInstance().reference
+                                .child("da_agents_realtime_details")
+                                .child(selectedDaAgent.key)
+                                .child("name")
+                                .setValue(userName).addOnCompleteListener { _ ->
+                                    (activity as DaActivity).daList[selectedAgentPostition].da_name =  userName
+                                    (activity as DaActivity).daList[selectedAgentPostition].da_mobile =  mobile
+                                    (activity as DaActivity).daList[selectedAgentPostition].da_bkash =  bkashNumber
+                                    (activity as DaActivity).daList[selectedAgentPostition].da_password =  password
+                                    (activity as DaActivity).daList[selectedAgentPostition].da_blood_group =  bloodGroup
+                                    (activity as DaActivity).daList[selectedAgentPostition].da_category =
+                                        if(view.radioGroup1.checkedRadioButtonId==R.id.regularRadio){
+                                            "রেগুলার"
+                                        }else{
+                                            "পারমানেন্ট"
+                                        }
+                                    (activity as DaActivity).daItemRecyclerAdapter.notifyItemChanged(selectedAgentPostition)
+                                    progress.dismiss()
+                                    dismiss()
                                 }
-                            (activity as DaActivity).daItemRecyclerAdapter.notifyItemChanged(selectedAgentPostition)
-                            progress.dismiss()
-                            dismiss()
                         }
                 }else{
                     progress.show()
@@ -145,21 +151,27 @@ class UpdateDaFragment : DialogFragment() {
                                     .collection("da_agents_main_list_collection")
                                     .document(selectedDaAgent.key)
                                     .update(daAgent).addOnCompleteListener {
-                                        (activity as DaActivity).daList[selectedAgentPostition].da_name =  userName
-                                        (activity as DaActivity).daList[selectedAgentPostition].da_mobile =  mobile
-                                        (activity as DaActivity).daList[selectedAgentPostition].da_bkash =  bkashNumber
-                                        (activity as DaActivity).daList[selectedAgentPostition].da_password =  password
-                                        (activity as DaActivity).daList[selectedAgentPostition].da_blood_group =  bloodGroup
-                                        (activity as DaActivity).daList[selectedAgentPostition].da_image =  key
-                                        (activity as DaActivity).daList[selectedAgentPostition].da_category =
-                                            if(view.radioGroup1.checkedRadioButtonId==R.id.regularRadio){
-                                                "রেগুলার"
-                                            }else{
-                                                "পারমানেন্ট"
+                                        FirebaseDatabase.getInstance().reference
+                                            .child("da_agents_realtime_details")
+                                            .child(selectedDaAgent.key)
+                                            .child("name")
+                                            .setValue(userName).addOnCompleteListener { _ ->
+                                                (activity as DaActivity).daList[selectedAgentPostition].da_name =  userName
+                                                (activity as DaActivity).daList[selectedAgentPostition].da_mobile =  mobile
+                                                (activity as DaActivity).daList[selectedAgentPostition].da_bkash =  bkashNumber
+                                                (activity as DaActivity).daList[selectedAgentPostition].da_password =  password
+                                                (activity as DaActivity).daList[selectedAgentPostition].da_blood_group =  bloodGroup
+                                                (activity as DaActivity).daList[selectedAgentPostition].da_image =  key
+                                                (activity as DaActivity).daList[selectedAgentPostition].da_category =
+                                                    if(view.radioGroup1.checkedRadioButtonId==R.id.regularRadio){
+                                                        "রেগুলার"
+                                                    }else{
+                                                        "পারমানেন্ট"
+                                                    }
+                                                (activity as DaActivity).daItemRecyclerAdapter.notifyItemChanged(selectedAgentPostition)
+                                                progress.dismiss()
+                                                dismiss()
                                             }
-                                        (activity as DaActivity).daItemRecyclerAdapter.notifyItemChanged(selectedAgentPostition)
-                                        progress.dismiss()
-                                        dismiss()
                                     }
                             }
                 }

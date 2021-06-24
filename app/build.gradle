@@ -13,7 +13,7 @@ android {
 
     defaultConfig {
         applicationId "admin.arpan.delivery"
-        minSdkVersion 19
+        minSdkVersion 21
         targetSdkVersion 30
         versionCode 1
         versionName "1.0"
@@ -81,4 +81,5 @@ dependencies {
     implementation "com.github.smarteist:autoimageslider:$auto_image_slider_version"
     implementation "com.github.linger1216:labelview:v$label_view_version"
     implementation "com.github.dhaval2404:imagepicker:$image_picker_version"
+    implementation 'com.github.dhaval2404:colorpicker:2.0'
 }

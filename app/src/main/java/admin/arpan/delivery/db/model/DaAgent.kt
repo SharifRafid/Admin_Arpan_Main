@@ -10,5 +10,6 @@ data class DaAgent(
     var da_blood_group : String = "",
     var da_category : String = "",
     var da_image : String = "",
-    var da_address : String = ""
+    var da_address : String = "",
+    var da_status_active : Boolean = false,
 )
