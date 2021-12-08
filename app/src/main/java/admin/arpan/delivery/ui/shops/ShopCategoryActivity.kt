@@ -72,30 +72,32 @@ class ShopCategoryActivity : AppCompatActivity() {
                             dialogView.edt_shop_order.setText(categoryItemsArray[position].order.toString())
                             dialogView.addProductCategoriesButton.text = "Save Category"
                             dialogView.addProductCategoriesButton.setOnClickListener {
-                                dialog.setCancelable(false)
-                                dialog.setCanceledOnTouchOutside(false)
-                                dialogView.addProductCategoriesButton.isEnabled = false
-                                dialogView.addProductCategoriesButton.text = "Saving..."
-                                val hashMap = HashMap<String, String>()
-                                hashMap[Constants.FIELD_FD_SHOPS_MAIN_CATEGORY_NAME] = dialogView.edt_shop_name.text.toString()
-                                hashMap[Constants.FIELD_FD_SHOPS_MAIN_CATEGORY_KEY] = dialogView.edt_shop_key.text.toString()
-                                hashMap[Constants.FIELD_FD_SHOPS_MAIN_CATEGORY_ORDER] = dialogView.edt_shop_order.text.toString()
-                                val hm2 = HashMap<String, HashMap<String, String>>()
-                                hm2[categoryItemsArray[position].key] = hashMap
-                                firebaseFirestore.collection(Constants.FC_SHOPS_MAIN_CATEGORY)
+                                if(dialogView.edt_shop_name.text.isNotEmpty() && dialogView.edt_shop_key.text.isNotEmpty() && dialogView.edt_shop_order.text.isNotEmpty()){
+                                    dialog.setCancelable(false)
+                                    dialog.setCanceledOnTouchOutside(false)
+                                    dialogView.addProductCategoriesButton.isEnabled = false
+                                    dialogView.addProductCategoriesButton.text = "Saving..."
+                                    val hashMap = HashMap<String, String>()
+                                    hashMap[Constants.FIELD_FD_SHOPS_MAIN_CATEGORY_NAME] = dialogView.edt_shop_name.text.toString()
+                                    hashMap[Constants.FIELD_FD_SHOPS_MAIN_CATEGORY_KEY] = dialogView.edt_shop_key.text.toString()
+                                    hashMap[Constants.FIELD_FD_SHOPS_MAIN_CATEGORY_ORDER] = dialogView.edt_shop_order.text.toString()
+                                    val hm2 = HashMap<String, HashMap<String, String>>()
+                                    hm2[categoryItemsArray[position].key] = hashMap
+                                    firebaseFirestore.collection(Constants.FC_SHOPS_MAIN_CATEGORY)
                                         .document(Constants.FD_SHOPS_MAIN_CATEGORY)
                                         .update(hm2 as Map<String, Any>).addOnCompleteListener {
                                             categoryItemsArray[position] = ShopCategoryItem(
-                                                    key = categoryItemsArray[position].key,
-                                                    name = dialogView.edt_shop_name.text.toString(),
-                                                    category_key = dialogView.edt_shop_key.text.toString(),
-                                                    order = dialogView.edt_shop_order.text.toString().toInt(),
+                                                key = categoryItemsArray[position].key,
+                                                name = dialogView.edt_shop_name.text.toString(),
+                                                category_key = dialogView.edt_shop_key.text.toString(),
+                                                order = dialogView.edt_shop_order.text.toString().toInt(),
                                             )
                                             category_names[position] = dialogView.edt_shop_name.text.toString()
                                             category_keys[position] = dialogView.edt_shop_key.text.toString()
                                             adapter.notifyDataSetChanged()
                                             dialog.dismiss()
                                         }
+                                }
                             }
                             dialog.setView(dialogView)
                             dialog.show()
@@ -133,31 +135,33 @@ class ShopCategoryActivity : AppCompatActivity() {
                                     .inflate(R.layout.dialog_add_shop_category, null)
                             dialogView.addProductCategoriesButton.text = "Add Category"
                             dialogView.addProductCategoriesButton.setOnClickListener {
-                                dialog.setCancelable(false)
-                                dialog.setCanceledOnTouchOutside(false)
-                                dialogView.addProductCategoriesButton.isEnabled = false
-                                dialogView.addProductCategoriesButton.text = "Adding..."
-                                val hashMap = HashMap<String, String>()
-                                hashMap[Constants.FIELD_FD_SHOPS_MAIN_CATEGORY_NAME] = dialogView.edt_shop_name.text.toString()
-                                hashMap[Constants.FIELD_FD_SHOPS_MAIN_CATEGORY_KEY] = dialogView.edt_shop_key.text.toString()
-                                hashMap[Constants.FIELD_FD_SHOPS_MAIN_CATEGORY_ORDER] = dialogView.edt_shop_order.text.toString()
-                                val hm2 = HashMap<String, HashMap<String, String>>()
-                                val key = "SC"+System.currentTimeMillis()
-                                hm2[key] = hashMap
-                                firebaseFirestore.collection(Constants.FC_SHOPS_MAIN_CATEGORY)
+                                if(dialogView.edt_shop_name.text.isNotEmpty() && dialogView.edt_shop_key.text.isNotEmpty() && dialogView.edt_shop_order.text.isNotEmpty()){
+                                    dialog.setCancelable(false)
+                                    dialog.setCanceledOnTouchOutside(false)
+                                    dialogView.addProductCategoriesButton.isEnabled = false
+                                    dialogView.addProductCategoriesButton.text = "Adding..."
+                                    val hashMap = HashMap<String, String>()
+                                    hashMap[Constants.FIELD_FD_SHOPS_MAIN_CATEGORY_NAME] = dialogView.edt_shop_name.text.toString()
+                                    hashMap[Constants.FIELD_FD_SHOPS_MAIN_CATEGORY_KEY] = dialogView.edt_shop_key.text.toString()
+                                    hashMap[Constants.FIELD_FD_SHOPS_MAIN_CATEGORY_ORDER] = dialogView.edt_shop_order.text.toString()
+                                    val hm2 = HashMap<String, HashMap<String, String>>()
+                                    val key = "SC"+System.currentTimeMillis()
+                                    hm2[key] = hashMap
+                                    firebaseFirestore.collection(Constants.FC_SHOPS_MAIN_CATEGORY)
                                         .document(Constants.FD_SHOPS_MAIN_CATEGORY)
                                         .update(hm2 as Map<String, Any>).addOnCompleteListener {
                                             categoryItemsArray.add(ShopCategoryItem(
-                                                    key = key,
-                                                    name = dialogView.edt_shop_name.text.toString(),
-                                                    category_key = dialogView.edt_shop_key.text.toString(),
-                                                    order = dialogView.edt_shop_order.text.toString().toInt(),
+                                                key = key,
+                                                name = dialogView.edt_shop_name.text.toString(),
+                                                category_key = dialogView.edt_shop_key.text.toString(),
+                                                order = dialogView.edt_shop_order.text.toString().toInt(),
                                             ))
                                             category_names.add(dialogView.edt_shop_name.text.toString())
                                             category_keys.add(dialogView.edt_shop_key.text.toString())
                                             adapter.notifyDataSetChanged()
                                             dialog.dismiss()
                                         }
+                                }
                             }
                             dialog.setView(dialogView)
                             dialog.show()

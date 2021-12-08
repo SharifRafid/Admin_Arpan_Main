@@ -42,7 +42,7 @@
             android:padding="5dp"
             android:text="রেড লিকার প্রিমিয়াম ক্লোন টি(ব্ল্যাক টি) ২০০ গ্রাম"
             android:textColor="@color/grey"
-            android:textSize="16sp"
+            android:textSize="12sp"
             android:textStyle="bold"/>
         <LinearLayout
             android:layout_width="1dp"
@@ -57,7 +57,7 @@
             android:padding="10dp"
             android:text="1"
             android:textColor="@color/grey"
-            android:textSize="16sp"
+            android:textSize="12sp"
             android:textStyle="bold"/>
         <LinearLayout
             android:layout_width="1dp"
@@ -72,7 +72,7 @@
             android:padding="10dp"
             android:text="330৳"
             android:textColor="@color/grey"
-            android:textSize="16sp"
+            android:textSize="12sp"
             android:textStyle="bold"/>
     </LinearLayout>
     <LinearLayout

@@ -14,16 +14,15 @@ import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.android.synthetic.main.fragment_order_history.view.*
 import kotlinx.android.synthetic.main.old_orders_list_view.view.*
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.collections.ArrayList
 
 class OrderOldSubItemRecyclerAdapter(
     private val context: Context,
     private val productItems: ArrayList<OrderItemMain>,
-    private val mainItemPositions: Int
+    private val mainItemPositions: Int,
+    private val orderOldSubItemRecyclerAdapterInterfaceListener : OrderOldSubItemRecyclerAdapterInterface
 ) : RecyclerView.Adapter
     <OrderOldSubItemRecyclerAdapter.RecyclerViewHolder>() {
 
@@ -56,17 +55,16 @@ class OrderOldSubItemRecyclerAdapter(
             holder.statusTextView.setBackgroundColor(Color.parseColor("#EA594D"))
         }else{
             holder.statusTextView.text = productItems[position].orderStatus
-            holder.statusTextView.setBackgroundColor(Color.parseColor("#43A047"))
+            when(productItems[position].orderStatus){
+                "PENDING" -> holder.statusTextView.setBackgroundColor(Color.parseColor("#262626"))
+                "VERIFIED" -> holder.statusTextView.setBackgroundColor(Color.parseColor("#FA831B"))
+                "PROCESSING" -> holder.statusTextView.setBackgroundColor(Color.parseColor("#ED9D34"))
+                "PICKED UP" -> holder.statusTextView.setBackgroundColor(Color.parseColor("#ED9D34"))
+                "COMPLETED" -> holder.statusTextView.setBackgroundColor(Color.parseColor("#43A047"))
+            }
         }
         holder.cardView.setOnClickListener {
-            (context as OrdresActivity).selectedRecyclerAdapterItem = position
-            (context as OrdresActivity).mainItemPositionsRecyclerAdapter = mainItemPositions
-            val bundle = Bundle()
-            bundle.putString("orderID",productItems[position].docID)
-            bundle.putString("customerId",productItems[position].userId)
-            val fg = OrderHistoryFragment()
-            fg.arguments = bundle
-            fg.show((context as OrdresActivity).supportFragmentManager, "")
+            orderOldSubItemRecyclerAdapterInterfaceListener.openSelectedOrderItemAsDialog(position, mainItemPositions, productItems[position].docID, productItems[position].userId, productItems[position])
         }
     }
 
@@ -78,4 +76,8 @@ class OrderOldSubItemRecyclerAdapter(
         calendar.setTimeInMillis(milliSeconds)
         return formatter.format(calendar.getTime())
     }
+}
+
+interface OrderOldSubItemRecyclerAdapterInterface {
+    fun openSelectedOrderItemAsDialog(position : Int, mainItemPositions : Int, docId : String, userId : String, orderItemMain: OrderItemMain)
 }

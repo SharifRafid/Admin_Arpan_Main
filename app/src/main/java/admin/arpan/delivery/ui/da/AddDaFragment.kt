@@ -8,11 +8,14 @@ import android.view.ViewGroup
 import admin.arpan.delivery.R
 import admin.arpan.delivery.db.model.DaAgent
 import admin.arpan.delivery.db.model.ProductItem
+import admin.arpan.delivery.ui.interfaces.HomeMainNewInterface
 import admin.arpan.delivery.utils.Constants
 import admin.arpan.delivery.utils.createProgressDialog
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 import com.github.dhaval2404.imagepicker.ImagePicker
@@ -21,13 +24,24 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.android.synthetic.main.fragment_add_da.view.*
 import java.io.File
+import java.lang.ClassCastException
 import java.lang.Exception
 
-class AddDaFragment : DialogFragment() {
+class AddDaFragment : Fragment() {
 
     private var imagePath = Uri.parse("")
     private lateinit var mainView: View
-    private var daCount = 0
+    private var TAG = "AddDaFragment"
+    lateinit var homeMainNewInterface: HomeMainNewInterface
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        try {
+            homeMainNewInterface = context as HomeMainNewInterface
+        }catch (classCastException : ClassCastException){
+            Log.e(TAG, "This activity does not implement the interface / listener")
+        }
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -54,17 +68,17 @@ class AddDaFragment : DialogFragment() {
         }
         val progress = view.context.createProgressDialog()
         view.upload.setOnClickListener {
-            daCount = (activity as DaActivity).daList.size
             val userName = view.productTitle.text.toString()
             val bloodGroup = view.bloodGroupTitle.text.toString()
-            val password = view.productDesc.text.toString()
+            val password = ""
             val mobile = view.price.text.toString()
             val bkashNumber = view.offerPrice.text.toString()
-            if(userName.isNotEmpty() && password.isNotEmpty() && mobile.isNotEmpty()){
+            val daIDString = view.daId.text.toString()
+            if(userName.isNotEmpty() && mobile.isNotEmpty()&& daIDString.isNotEmpty()){
                 if(imagePath.toString().isEmpty()){
                     progress.show()
                     val daAgent = DaAgent()
-                    daAgent.da_uid = "DA"+100+daCount+1
+                    daAgent.da_uid = daIDString
                     daAgent.da_name = userName
                     daAgent.da_mobile = mobile
                     daAgent.da_bkash = bkashNumber
@@ -87,11 +101,11 @@ class AddDaFragment : DialogFragment() {
                                 .child("da_agents_realtime_details")
                                 .child(it.result!!.id)
                                 .setValue(mapDaDetails).addOnCompleteListener { _ ->
-                                    daAgent.key = it.result!!.id
-                                    (activity as DaActivity).daList.add(daAgent)
-                                    (activity as DaActivity).daItemRecyclerAdapter.notifyItemInserted((activity as DaActivity).daList.size-1)
+//                                    daAgent.key = it.result!!.id
+//                                    (activity as DaActivity).daList.add(daAgent)
+//                                    (activity as DaActivity).daItemRecyclerAdapter.notifyItemInserted((activity as DaActivity).daList.size-1)
                                     progress.dismiss()
-                                    dismiss()
+                                    homeMainNewInterface.callOnBackPressed()
                                 }
                         }
                 }else{
@@ -104,7 +118,7 @@ class AddDaFragment : DialogFragment() {
                             .putFile(imagePath)
                             .addOnSuccessListener {
                                 val daAgent = DaAgent()
-                                daAgent.da_uid = "DA"+100+daCount+1
+                                daAgent.da_uid = daIDString
                                 daAgent.da_name = userName
                                 daAgent.da_mobile = mobile
                                 daAgent.da_bkash = bkashNumber
@@ -127,12 +141,12 @@ class AddDaFragment : DialogFragment() {
                                                     .child("da_agents_realtime_details")
                                                 .child(it.result!!.id)
                                                     .setValue(mapDaDetails).addOnCompleteListener { _ ->
-                                                        daAgent.key = it.result!!.id
-                                                        (activity as DaActivity).daList.add(daAgent)
-                                                        (activity as DaActivity).daItemRecyclerAdapter.notifyItemInserted((activity as DaActivity).daList.size-1)
+//                                                        daAgent.key = it.result!!.id
+//                                                        (activity as DaActivity).daList.add(daAgent)
+//                                                        (activity as DaActivity).daItemRecyclerAdapter.notifyItemInserted((activity as DaActivity).daList.size-1)
                                                         progress.dismiss()
-                                                        dismiss()
-                                                    }
+                                                    homeMainNewInterface.callOnBackPressed()
+                                                }
                                         }
                             }
                 }

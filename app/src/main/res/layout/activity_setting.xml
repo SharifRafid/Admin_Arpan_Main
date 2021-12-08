@@ -21,7 +21,7 @@
         android:textSize="16sp"
         android:textStyle="bold"/>
 
-    <ScrollView
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">
         <LinearLayout
@@ -114,11 +114,13 @@
                 android:text="কাস্টম অর্ডার লিমিট"
                 android:textColor="@color/divider_text_color_1"
                 android:textSize="12sp"
+                android:visibility="gone"
                 android:padding="4dp"
                 android:layout_marginTop="10dp"
                 android:textStyle="bold"/>
             <LinearLayout
                 android:layout_width="match_parent"
+                android:visibility="gone"
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:orientation="vertical">
@@ -481,6 +483,6 @@
                 android:layout_height="wrap_content"
                 android:nestedScrollingEnabled="false"/>
         </LinearLayout>
-    </ScrollView>
+    </androidx.core.widget.NestedScrollView>
 
 </LinearLayout>

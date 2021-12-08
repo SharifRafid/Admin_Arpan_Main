@@ -18,6 +18,7 @@ import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.github.dhaval2404.colorpicker.ColorPickerDialog
+import com.github.dhaval2404.colorpicker.MaterialColorPickerDialog
 import com.github.dhaval2404.colorpicker.model.ColorShape
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -129,11 +130,11 @@ class SettingActivity : AppCompatActivity() {
                             var textColor = "#ffffff"
                             var bgColor = "#43A047"
                             locationAlertDialogViewMain.buttonTextColor.setOnClickListener {
-                                ColorPickerDialog
-                                    .Builder(this)        				// Pass Activity Instance
-                                    .setTitle("Pick Text Color")           	// Default "Choose Color"
-                                    .setColorShape(ColorShape.SQAURE)   // Default ColorShape.CIRCLE
-                                    .setDefaultColor(textColor)     // Pass Default Color
+                                // Kotlin Code
+                                MaterialColorPickerDialog
+                                    .Builder(this)  				// Pass Activity Instance
+                                    .setTitle("Pick Text Color")
+                                    .setColors(arrayListOf("#FFFFFF", "#000000", "#3D3D3D", "#29ABE2", "#F7931E", "#FFFF00", "#ED1C24", "#009245", "#662D91", "#D4145A"))
                                     .setColorListener { color, colorHex ->
                                         textColor = colorHex
                                         locationAlertDialogViewMain.specialOfferTextView.setTextColor(color)
@@ -141,11 +142,10 @@ class SettingActivity : AppCompatActivity() {
                                     .show()
                             }
                             locationAlertDialogViewMain.buttonBgColor.setOnClickListener {
-                                ColorPickerDialog
-                                    .Builder(this)        				// Pass Activity Instance
-                                    .setTitle("Pick Background Color")           	// Default "Choose Color"
-                                    .setColorShape(ColorShape.SQAURE)   // Default ColorShape.CIRCLE
-                                    .setDefaultColor(bgColor)     // Pass Default Color
+                                MaterialColorPickerDialog
+                                    .Builder(this)  				// Pass Activity Instance
+                                    .setTitle("Pick Text Color")
+                                    .setColors(arrayListOf("#FFFFFF", "#000000", "#3D3D3D", "#29ABE2", "#F7931E", "#FFFF00", "#ED1C24", "#009245", "#662D91", "#D4145A"))
                                     .setColorListener { color, colorHex ->
                                         bgColor = colorHex
                                         locationAlertDialogViewMain.specialOfferTextView.setBackgroundColor(color)
@@ -238,11 +238,10 @@ class SettingActivity : AppCompatActivity() {
                             var textColor = "#ffffff"
                             var bgColor = "#43A047"
                             locationAlertDialogViewMain.buttonTextColor.setOnClickListener {
-                                ColorPickerDialog
-                                    .Builder(this)        				// Pass Activity Instance
-                                    .setTitle("Pick Text Color")           	// Default "Choose Color"
-                                    .setColorShape(ColorShape.SQAURE)   // Default ColorShape.CIRCLE
-                                    .setDefaultColor(textColor)     // Pass Default Color
+                                MaterialColorPickerDialog
+                                    .Builder(this)  				// Pass Activity Instance
+                                    .setTitle("Pick Text Color")
+                                    .setColors(arrayListOf("#FFFFFF", "#000000", "#3D3D3D", "#29ABE2", "#F7931E", "#FFFF00", "#ED1C24", "#009245", "#662D91", "#D4145A"))
                                     .setColorListener { color, colorHex ->
                                         textColor = colorHex
                                         locationAlertDialogViewMain.specialOfferTextView.setTextColor(color)
@@ -250,11 +249,10 @@ class SettingActivity : AppCompatActivity() {
                                     .show()
                             }
                             locationAlertDialogViewMain.buttonBgColor.setOnClickListener {
-                                ColorPickerDialog
-                                    .Builder(this)        				// Pass Activity Instance
-                                    .setTitle("Pick Background Color")           	// Default "Choose Color"
-                                    .setColorShape(ColorShape.SQAURE)   // Default ColorShape.CIRCLE
-                                    .setDefaultColor(bgColor)     // Pass Default Color
+                                MaterialColorPickerDialog
+                                    .Builder(this)  				// Pass Activity Instance
+                                    .setTitle("Pick Text Color")
+                                    .setColors(arrayListOf("#FFFFFF", "#000000", "#3D3D3D", "#29ABE2", "#F7931E", "#FFFF00", "#ED1C24", "#009245", "#662D91", "#D4145A"))
                                     .setColorListener { color, colorHex ->
                                         bgColor = colorHex
                                         locationAlertDialogViewMain.specialOfferTextView.setBackgroundColor(color)
@@ -316,13 +314,21 @@ class SettingActivity : AppCompatActivity() {
                 if(it.isSuccessful){
                     normalLocationsItemsArrayList.clear()
                     for (snap in it.result!!.children) {
+                        val locationItem = LocationItem(
+                            key = snap.key.toString(),
+                            locationName = snap.child("name").value.toString(),
+                            deliveryCharge = snap.child("deliveryCharge").value.toString().toInt(),
+                            daCharge = snap.child("daCharge").value.toString().toInt(),
+                        )
+                        if(snap.hasChild("deliveryChargeClient")){
+                            if(snap.child("deliveryChargeClient").value != null){
+                                if(snap.child("deliveryChargeClient").value.toString().isNotEmpty()){
+                                    locationItem.deliveryChargeClient  =  snap.child("deliveryChargeClient").value.toString().toInt()
+                                }
+                            }
+                        }
                         normalLocationsItemsArrayList.add(
-                            LocationItem(
-                                key = snap.key.toString(),
-                                locationName = snap.child("name").value.toString(),
-                                deliveryCharge = snap.child("deliveryCharge").value.toString().toInt(),
-                                daCharge = snap.child("daCharge").value.toString().toInt(),
-                            )
+                            locationItem
                         )
                     }
                     deliveryChargeRecyclerView.layoutManager = LinearLayoutManager(this)
@@ -334,18 +340,20 @@ class SettingActivity : AppCompatActivity() {
                         val alertDialog = AlertDialog.Builder(this).create()
                         val locationAlertDialogViewMain = LayoutInflater.from(this)
                             .inflate(R.layout.dialog_add_location, null)
+                        locationAlertDialogViewMain.edt_client_delivery_charge_container.visibility = View.VISIBLE
                         locationAlertDialogViewMain.addLocationConfirmButton.setOnClickListener {
                             val locationName = locationAlertDialogViewMain.edt_location_name.text.toString()
                             val deliveryCharge = locationAlertDialogViewMain.edt_delivery_charge.text.toString()
+                            val clientDeliveryCharge = locationAlertDialogViewMain.edt_client_delivery_charge.text.toString()
                             val daCharge = locationAlertDialogViewMain.edt_da_charge.text.toString()
-                            if(
-                                locationName.isNotEmpty() && deliveryCharge.isNotEmpty()
-                                && daCharge.isNotEmpty()
+                            if(locationName.isNotEmpty() && deliveryCharge.isNotEmpty()
+                                && daCharge.isNotEmpty() && clientDeliveryCharge.isNotEmpty()
                             ){
                                 locationAlertDialogViewMain.addLocationConfirmButton.isEnabled = false
                                 locationAlertDialogViewMain.edt_location_name.isEnabled = false
                                 locationAlertDialogViewMain.edt_delivery_charge.isEnabled = false
                                 locationAlertDialogViewMain.edt_da_charge.isEnabled = false
+                                locationAlertDialogViewMain.edt_client_delivery_charge.isEnabled = false
                                 alertDialog.setCancelable(false)
                                 alertDialog.setCanceledOnTouchOutside(false)
                                 val key = "NLI"+System.currentTimeMillis()
@@ -353,6 +361,7 @@ class SettingActivity : AppCompatActivity() {
                                 locationItem["name"] = locationName
                                 locationItem["deliveryCharge"] = deliveryCharge
                                 locationItem["daCharge"] = daCharge
+                                locationItem["deliveryChargeClient"] = clientDeliveryCharge
                                 FirebaseDatabase.getInstance()
                                     .reference
                                     .child("data")
@@ -365,6 +374,7 @@ class SettingActivity : AppCompatActivity() {
                                                 key,
                                                 locationName,
                                                 deliveryCharge.toInt(),
+                                                clientDeliveryCharge.toInt(),
                                                 daCharge.toInt()
                                             )
                                         )
@@ -390,14 +400,20 @@ class SettingActivity : AppCompatActivity() {
                 if(it.isSuccessful){
                     pickDropLocationsItemsArrayList.clear()
                     for (snap in it.result!!.children) {
-                        pickDropLocationsItemsArrayList.add(
-                            LocationItem(
-                                key = snap.key.toString(),
-                                locationName = snap.child("name").value.toString(),
-                                deliveryCharge = snap.child("deliveryCharge").value.toString().toInt(),
-                                daCharge = snap.child("daCharge").value.toString().toInt(),
-                            )
+                        val locationItem = LocationItem(
+                            key = snap.key.toString(),
+                            locationName = snap.child("name").value.toString(),
+                            deliveryCharge = snap.child("deliveryCharge").value.toString().toInt(),
+                            daCharge = snap.child("daCharge").value.toString().toInt(),
                         )
+                        if(snap.hasChild("deliveryChargeClient")){
+                            if(snap.child("deliveryChargeClient").value != null){
+                                if(snap.child("deliveryChargeClient").value.toString().isNotEmpty()){
+                                    locationItem.deliveryChargeClient  =  snap.child("deliveryChargeClient").value.toString().toInt()
+                                }
+                            }
+                        }
+                        pickDropLocationsItemsArrayList.add(locationItem)
                     }
                     pickDropDeliveryChargeRecyclerView.layoutManager = LinearLayoutManager(this)
                     pickDropLocationsItemsRecyclerAdapter =

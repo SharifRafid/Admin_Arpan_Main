@@ -63,6 +63,7 @@ class UpdateProductFragment : DialogFragment() {
         itemToUpdate.shopCategoryId = requireArguments().getString("shopCategoryId").toString()
         itemToUpdate.shopCategoryKey = requireArguments().getString("shopCategoryKey").toString()
         itemToUpdate.price = requireArguments().getString("price").toString()
+        itemToUpdate.arpanCharge = requireArguments().getString("arpanCharge").toString().toInt()
         itemToUpdate.image1 = requireArguments().getString("image1").toString()
         itemToUpdate.image2 = requireArguments().getString("image2").toString()
         itemToUpdate.image3 = requireArguments().getString("image3").toString()
@@ -85,6 +86,7 @@ class UpdateProductFragment : DialogFragment() {
         productDesc.setText(itemToUpdate.shortDescription)
         price.setText(itemToUpdate.price)
         offerPrice.setText(itemToUpdate.offerPrice)
+        arpanProfitPrice.setText(itemToUpdate.arpanCharge.toString())
 
         if(itemToUpdate.image1.isNotEmpty()){
             val storageReference = FirebaseStorage.getInstance().getReference("shops")
@@ -134,6 +136,11 @@ class UpdateProductFragment : DialogFragment() {
                         hashMap["offerPrice"] = offerPrice.text.toString()
                     }else{
                         hashMap["offerPrice"] = price.text.toString()
+                    }
+                    if(arpanProfitPrice.text.isEmpty()){
+                        hashMap["arpanCharge"] = 0
+                    }else{
+                        hashMap["arpanCharge"] = arpanProfitPrice.text.toString().toInt()
                     }
                     hashMap["shortDescription"] = productDesc.text.toString()
                     //hashMap["inStock"] = "active"
@@ -186,6 +193,11 @@ class UpdateProductFragment : DialogFragment() {
                     hashMap["offerPrice"] = price.text.toString()
                 }
                 hashMap["shortDescription"] = productDesc.text.toString()
+                if(arpanProfitPrice.text.isEmpty()){
+                    hashMap["arpanCharge"] = 0
+                }else{
+                    hashMap["arpanCharge"] = arpanProfitPrice.text.toString().toInt()
+                }
                 //hashMap["inStock"] = "active"
                 //hashMap["offerStatus"] = "inactive"
                 //hashMap["order"] = product_order

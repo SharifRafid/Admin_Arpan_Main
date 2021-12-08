@@ -4,6 +4,8 @@ import admin.arpan.delivery.R
 import admin.arpan.delivery.db.adapter.OrderItemRecyclerAdapter
 import admin.arpan.delivery.db.adapter.OrderProductItemRecyclerAdapter
 import admin.arpan.delivery.db.model.*
+import admin.arpan.delivery.ui.home.HomeActivity
+import admin.arpan.delivery.ui.home.HomeViewModel
 import admin.arpan.delivery.utils.Constants
 import admin.arpan.delivery.utils.callPermissionCheck
 import admin.arpan.delivery.utils.createProgressDialog
@@ -21,18 +23,25 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.*
 import com.google.firebase.storage.FirebaseStorage
 import com.google.gson.Gson
 import com.shashank.sony.fancytoastlib.FancyToast
 import com.squareup.okhttp.*
 import kotlinx.android.synthetic.main.assign_da_list_view.view.*
+import kotlinx.android.synthetic.main.dialog_add_normal_banner.*
+import kotlinx.android.synthetic.main.edit_order_item.view.*
 import kotlinx.android.synthetic.main.fragment_order_history.view.*
+import kotlinx.android.synthetic.main.fragment_order_history.view.imageView
+import kotlinx.android.synthetic.main.fragment_order_history.view.orderIDText
 import kotlinx.android.synthetic.main.fragment_order_history.view.txtAllPrice
+import kotlinx.android.synthetic.main.product_image_big_view.view.*
 import java.io.IOException
 
 // TODO: Rename parameter arguments, choose names that match
@@ -63,6 +72,9 @@ class OrderHistoryFragment : DialogFragment() {
     private var orderItemMain = OrderItemMain()
     private var orderId = ""
     private var customerId = ""
+    private lateinit var homeViewModel: HomeViewModel
+    private var listenerRegistration : ListenerRegistration? = null
+    private var eventListener : EventListener<DocumentSnapshot>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -102,111 +114,547 @@ class OrderHistoryFragment : DialogFragment() {
             }
     }
 
+    override fun onStop() {
+        super.onStop()
+        if (listenerRegistration != null) {
+            listenerRegistration!!.remove()
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        if(eventListener!=null){
+            listenerRegistration = FirebaseFirestore.getInstance()
+                .collection("users")
+                .document(customerId)
+                .collection("users_order_collection")
+                .document(orderId)
+                .addSnapshotListener(eventListener!!)
+        }
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         initVars(view)
+        homeViewModel = ViewModelProvider(requireActivity()).get(HomeViewModel::class.java)
         orderId = arguments?.getString("orderID").toString()
         customerId = arguments?.getString("customerId").toString()
+
+        val eventListener: EventListener<DocumentSnapshot> =
+            EventListener<DocumentSnapshot> { snapshot, e ->
+                e?.printStackTrace()
+                progressDialog.dismiss()
+                if (snapshot != null && snapshot.exists()) {
+                    workWithTheDocumentData(view, snapshot)
+                }else{
+                    view.shopsProgress.visibility = View.GONE
+                    view.noProductsText.visibility = View.VISIBLE
+                    view.mainLayout.visibility = View.GONE
+                }
+            }
+
         if(FirebaseAuth.getInstance().currentUser == null){
             view.shopsProgress.visibility = View.GONE
             view.noProductsText.visibility = View.VISIBLE
             view.mainLayout.visibility = View.GONE
         }else{
-            FirebaseFirestore.getInstance().collection("users")
+//            progressDialog.show()
+//            FirebaseFirestore.getInstance().collection("users")
+//                    .document(customerId)
+//                    .collection("users_order_collection")
+//                    .document(orderId)
+//                    .get().addOnCompleteListener { it1 ->
+//                    progressDialog.dismiss()
+//                    if(it1.isSuccessful){
+//                            if(it1.result!!.exists()){
+//                                orderItemMain = it1.result!!.toObject(OrderItemMain::class.java) as OrderItemMain
+//                                if(orderItemMain.pickDropOrder){
+//                                    view.customOrderLinearLayout.visibility = View.GONE
+//                                    view.nestedScrollView.visibility = View.GONE
+//                                    view.pickDropScrollView.visibility = View.VISIBLE
+//                                    view.text_name_container.visibility = View.GONE
+//                                    view.text_number_container.visibility = View.GONE
+//                                    view.edt_name.setText(orderItemMain.pickDropOrderItem.senderName)
+//                                    view.edt_mobile.setText(orderItemMain.pickDropOrderItem.senderPhone)
+//                                    view.edt_address.setText(orderItemMain.pickDropOrderItem.senderAddress)
+//                                    view.edt_aboutParcel.setText(orderItemMain.pickDropOrderItem.parcelDetails)
+//                                    view.edt_name_reciver.setText(orderItemMain.pickDropOrderItem.recieverName)
+//                                    view.edt_mobile_reciver.setText(orderItemMain.pickDropOrderItem.recieverPhone)
+//                                    view.edt_address_reciver.setText(orderItemMain.pickDropOrderItem.recieverAddress)
+//                                    view.txt_number.visibility = View.GONE
+//                                    orderItemMain.userAddress = "From "+orderItemMain.pickDropOrderItem.senderLocation+"To "+orderItemMain.pickDropOrderItem.recieverLocation
+//                                }else{
+//                                    view.text_number_container.visibility = View.VISIBLE
+//                                    view.text_name_container.visibility = View.VISIBLE
+//                                    view.txt_number.visibility = View.VISIBLE
+//                                    if(orderItemMain.products.size==1 && !orderItemMain.products[0].product_item){
+//                                        view.customOrderLinearLayout.visibility = View.VISIBLE
+//                                        view.nestedScrollView.visibility = View.GONE
+//                                        view.pickDropScrollView.visibility = View.GONE
+//                                        if(orderItemMain.products[0].parcel_item){
+//                                            view.titleCustomOrderLinear.text = "পার্সেল অর্ডার"
+//                                            view.customOrderTitleTextView.text = "কুরিয়ার নেমঃ "+ orderItemMain.products[0].parcel_order_text
+//                                            view.customOrderDetailsTextView.text = "ডিটেইলসঃ "+ orderItemMain.products[0].parcel_order_text_2
+//                                            if(orderItemMain.products[0].parcel_order_image.isNotEmpty()){
+//                                                val firebaseStorage = FirebaseStorage.getInstance()
+//                                                    .reference.child("ORDER_IMAGES")
+//                                                    .child(orderItemMain.key)
+//                                                    .child(orderItemMain.products[0].parcel_order_image)
+//
+//                                                Glide.with(requireContext())
+//                                                    .load(firebaseStorage)
+//                                                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+//                                                    .centerInside()
+//                                                    .placeholder(R.drawable.loading_image_glide).into(view.shopImageItem)
+//
+//                                                view.shopImageItem.setOnClickListener {
+//                                                    val dialog = AlertDialog.Builder(context, R.style.Theme_AdminArpan).create()
+//                                                    val view2 = LayoutInflater.from(context).inflate(R.layout.product_image_big_view,null)
+//                                                    view2.floatingActionButton.setOnClickListener{
+//                                                        dialog.dismiss()
+//                                                    }
+//                                                    Glide.with(requireContext())
+//                                                        .load(firebaseStorage)
+//                                                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+//                                                        .centerInside()
+//                                                        .into(view2.imageView)
+//                                                    dialog.setView(view2)
+//                                                    //dialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+//                                                    dialog.show()
+//                                                }
+//                                            }else{
+//                                                view.shopImageItem.visibility = View.GONE
+//                                            }
+//                                        }else if(orderItemMain.products[0].medicine_item){
+//                                            view.titleCustomOrderLinear.text = "মেডিসিন অর্ডার"
+//                                            view.customOrderTitleTextView.text = "ফার্মেসিঃ "+ orderItemMain.products[0].medicine_order_text
+//                                            view.customOrderDetailsTextView.text = "ঔষোধঃ "+ orderItemMain.products[0].medicine_order_text_2
+//                                            if(orderItemMain.products[0].medicine_order_image.isNotEmpty()){
+//                                                val firebaseStorage = FirebaseStorage.getInstance()
+//                                                    .reference.child("ORDER_IMAGES")
+//                                                    .child(orderItemMain.key)
+//                                                    .child(orderItemMain.products[0].medicine_order_image)
+//
+//                                                Glide.with(requireContext())
+//                                                    .load(firebaseStorage)
+//                                                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+//                                                    .centerInside()
+//                                                    .placeholder(R.drawable.loading_image_glide).into(view.shopImageItem)
+//
+//                                                view.shopImageItem.setOnClickListener {
+//
+//                                                    val dialog = AlertDialog.Builder(context, R.style.Theme_AdminArpan).create()
+//                                                    val view2 = LayoutInflater.from(context).inflate(R.layout.product_image_big_view,null)
+//                                                    view2.floatingActionButton.setOnClickListener{
+//                                                        dialog.dismiss()
+//                                                    }
+//                                                    Glide.with(requireContext())
+//                                                        .load(firebaseStorage)
+//                                                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+//                                                        .centerInside()
+//                                                        .into(view2.imageView)
+//                                                    dialog.setView(view2)
+//                                                    //dialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+//                                                    dialog.show()
+//                                                }
+//                                            }else{
+//                                                view.shopImageItem.visibility = View.GONE
+//                                            }
+//                                        }else if(orderItemMain.products[0].custom_order_item){
+//                                            view.titleCustomOrderLinear.text = "কাস্টম অর্ডার"
+//                                            if(orderItemMain.adminOrder){
+//                                                view.customOrderTitleTextView.text = "অ্যাডমিন অর্ডার"
+//                                            }else{
+//                                                view.customOrderTitleTextView.text = "জেনারেল অর্ডার"
+//                                            }
+//                                            view.customOrderDetailsTextView.text = "ডিটেইলসঃ "+ orderItemMain.products[0].custom_order_text
+//                                            if(orderItemMain.products[0].custom_order_image.isNotEmpty()){
+//                                                val firebaseStorage = FirebaseStorage.getInstance()
+//                                                    .reference.child("ORDER_IMAGES")
+//                                                    .child(orderItemMain.key)
+//                                                    .child(orderItemMain.products[0].custom_order_image)
+//
+//                                                Glide.with(requireContext())
+//                                                    .load(firebaseStorage)
+//                                                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+//                                                    .centerInside()
+//                                                    .placeholder(R.drawable.loading_image_glide).into(view.shopImageItem)
+//
+//                                                view.shopImageItem.setOnClickListener {
+//                                                    val dialog = AlertDialog.Builder(context, R.style.Theme_AdminArpan).create()
+//                                                    val view2 = LayoutInflater.from(context).inflate(R.layout.product_image_big_view,null)
+//                                                    view2.floatingActionButton.setOnClickListener{
+//                                                        dialog.dismiss()
+//                                                    }
+//                                                    Glide.with(requireContext())
+//                                                        .load(firebaseStorage)
+//                                                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+//                                                        .centerInside()
+//                                                        .into(view2.imageView)
+//                                                    dialog.setView(view2)
+//                                                    //dialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+//                                                    dialog.show()
+//                                                }
+//                                            }else{
+//                                                view.shopImageItem.visibility = View.GONE
+//                                            }
+//                                        }
+//                                    }else{
+//                                        view.nestedScrollView.visibility = View.VISIBLE
+//                                        view.pickDropScrollView.visibility = View.GONE
+//                                        view.customOrderLinearLayout.visibility = View.GONE
+//                                        workWithTheArrayList(orderItemMain.products, view)
+//                                    }
+//                                }
+//                                if(orderItemMain.userAddress.isEmpty()){
+//                                    view.text_address_container.visibility = View.GONE
+//                                }else{
+//                                    view.text_address_container.visibility = View.VISIBLE
+//                                    view.txt_address.setText(orderItemMain.userAddress)
+//                                }
+//                                priceTotal = orderItemMain.totalPrice
+//                                deliveryCharge = orderItemMain.deliveryCharge
+//                                promoCodeActive = orderItemMain.promoCodeApplied
+//                                promoCode = orderItemMain.promoCode
+//                                setPriceTotalOnView(view)
+//                                view.orderIDText.text = orderItemMain.orderId
+//                                if(orderItemMain.orderCompletedStatus == "CANCELLED") {
+//                                    view.orderStatusText2.text = "CANCELLED"
+//                                }else{
+//                                    view.orderStatusText2.text = orderItemMain.orderStatus
+//                                }
+//                                detectOrderItemStatus(view)
+//                                view.txt_name.setText(orderItemMain.userName)
+//                                view.txt_number.setText(orderItemMain.userNumber)
+//                                view.call_now.setOnClickListener {
+//                                    if (callPermissionCheck(requireContext(), requireActivity())) {
+//                                        val callIntent = Intent(
+//                                            Intent.ACTION_CALL,
+//                                            Uri.parse("tel:" + orderItemMain.userNumber)
+//                                        )
+//                                        startActivity(callIntent)
+//                                    }
+//                                }
+//                                if(orderItemMain.userNote.isEmpty()){
+//                                    view.text_note_container.visibility = View.GONE
+//                                }else{
+//                                    view.text_note_container.visibility = View.VISIBLE
+//                                    view.txt_note.setText(orderItemMain.userNote)
+//                                }
+//                                if(orderItemMain.pickDropOrderItem.parcelImage.isEmpty()){
+//                                    view.cardViewPickDropImaage.visibility = View.GONE
+//                                }else{
+//                                    view.cardViewPickDropImaage.visibility = View.VISIBLE
+//                                    val storageReference = FirebaseStorage.getInstance().reference.child("ORDER_IMAGES")
+//                                            .child(orderItemMain.key).child(orderItemMain.pickDropOrderItem.parcelImage)
+//
+//                                    Glide.with(view.context)
+//                                            .load(storageReference)
+//                                            .diskCacheStrategy(DiskCacheStrategy.ALL)
+//                                            .centerCrop()
+//                                            .override(300,300)
+//                                            .placeholder(R.drawable.loading_image_glide).into(view.imageView)
+//                                }
+//                                view.paymentText.text = getString(R.string.payment_method) + orderItemMain.paymentMethod
+//                                view.shopsProgress.visibility = View.GONE
+//                                view.noProductsText.visibility = View.GONE
+//                                view.mainLayout.visibility = View.VISIBLE
+//                            }else{
+//                                view.shopsProgress.visibility = View.GONE
+//                                view.noProductsText.visibility = View.VISIBLE
+//                                view.mainLayout.visibility = View.GONE
+//                            }
+//                        }else{
+//                            view.shopsProgress.visibility = View.GONE
+//                            view.noProductsText.visibility = View.VISIBLE
+//                            view.mainLayout.visibility = View.GONE
+//                        }
+//                    }
+            if (listenerRegistration == null ) {
+                progressDialog.show()
+                listenerRegistration = FirebaseFirestore.getInstance().collection("users")
                     .document(customerId)
                     .collection("users_order_collection")
-                    .document(orderId)
-                    .get().addOnCompleteListener { it1 ->
-                    if(it1.isSuccessful){
-                            if(it1.result!!.exists()){
-                                orderItemMain = it1.result!!.toObject(OrderItemMain::class.java) as OrderItemMain
-                                if(orderItemMain.pickDropOrder){
-                                    view.nestedScrollView.visibility = View.GONE
-                                    view.pickDropScrollView.visibility = View.VISIBLE
-                                    view.text_name_container.visibility = View.GONE
-                                    view.text_number_container.visibility = View.GONE
-                                    view.txt_number.visibility = View.GONE
-                                    orderItemMain.userAddress = "From "+orderItemMain.pickDropOrderItem.senderLocation+"To "+orderItemMain.pickDropOrderItem.recieverLocation
-                                }else{
-                                    view.text_number_container.visibility = View.VISIBLE
-                                    view.text_name_container.visibility = View.VISIBLE
-                                    view.txt_number.visibility = View.VISIBLE
-                                    view.nestedScrollView.visibility = View.VISIBLE
-                                    view.pickDropScrollView.visibility = View.GONE
-                                    workWithTheArrayList(orderItemMain.products, view)
-                                    if(orderItemMain.userAddress.isEmpty()){
-                                        view.text_address_container.visibility = View.GONE
-                                    }else{
-                                        view.text_address_container.visibility = View.VISIBLE
-                                        view.txt_address.setText(orderItemMain.userAddress)
-                                    }
-                                }
-                                view.edt_name.setText(orderItemMain.pickDropOrderItem.senderName)
-                                view.edt_mobile.setText(orderItemMain.pickDropOrderItem.senderPhone)
-                                view.edt_address.setText(orderItemMain.pickDropOrderItem.senderAddress)
-                                view.edt_aboutParcel.setText(orderItemMain.pickDropOrderItem.parcelDetails)
-                                view.edt_name_reciver.setText(orderItemMain.pickDropOrderItem.recieverName)
-                                view.edt_mobile_reciver.setText(orderItemMain.pickDropOrderItem.recieverPhone)
-                                view.edt_address_reciver.setText(orderItemMain.pickDropOrderItem.recieverAddress)
-                                priceTotal = orderItemMain.totalPrice
-                                deliveryCharge = orderItemMain.deliveryCharge
-                                promoCodeActive = orderItemMain.promoCodeApplied
-                                promoCode = orderItemMain.promoCode
-                                setPriceTotalOnView(view)
-                                view.orderIDText.text = orderItemMain.orderId
-                                if(orderItemMain.orderCompletedStatus == "CANCELLED") {
-                                    view.orderStatusText2.text = "CANCELLED"
-                                }else{
-                                    view.orderStatusText2.text = orderItemMain.orderStatus
-                                }
-                                detectOrderItemStatus(view)
-                                view.txt_name.setText(orderItemMain.userName)
-                                view.txt_number.setText(orderItemMain.userNumber)
-                                view.call_now.setOnClickListener {
-                                    if (callPermissionCheck(requireContext(), requireActivity())) {
-                                        val callIntent = Intent(
-                                            Intent.ACTION_CALL,
-                                            Uri.parse("tel:" + orderItemMain.userNumber)
-                                        )
-                                        startActivity(callIntent)
-                                    }
-                                }
-                                if(orderItemMain.userNote.isEmpty()){
-                                    view.text_note_container.visibility = View.GONE
-                                }else{
-                                    view.text_note_container.visibility = View.VISIBLE
-                                    view.txt_note.setText(orderItemMain.userNote)
-                                }
-                                if(orderItemMain.pickDropOrderItem.parcelImage.isEmpty()){
-                                    view.cardViewPickDropImaage.visibility = View.GONE
-                                }else{
-                                    view.cardViewPickDropImaage.visibility = View.VISIBLE
-                                    val storageReference = FirebaseStorage.getInstance().reference.child("ORDER_IMAGES")
-                                            .child(orderItemMain.key).child(orderItemMain.pickDropOrderItem.parcelImage)
-
-                                    Glide.with(view.context)
-                                            .load(storageReference)
-                                            .diskCacheStrategy(DiskCacheStrategy.ALL)
-                                            .centerCrop()
-                                            .override(300,300)
-                                            .placeholder(R.drawable.loading_image_glide).into(view.imageView)
-                                }
-                                view.paymentText.text = getString(R.string.payment_method) + orderItemMain.paymentMethod
-                                view.shopsProgress.visibility = View.GONE
-                                view.noProductsText.visibility = View.GONE
-                                view.mainLayout.visibility = View.VISIBLE
-                            }else{
-                                view.shopsProgress.visibility = View.GONE
-                                view.noProductsText.visibility = View.VISIBLE
-                                view.mainLayout.visibility = View.GONE
-                            }
-                        }else{
-                            view.shopsProgress.visibility = View.GONE
-                            view.noProductsText.visibility = View.VISIBLE
-                            view.mainLayout.visibility = View.GONE
-                        }
-                    }
+                    .document(orderId).addSnapshotListener(eventListener)
+            }
         }
 
+    }
+
+    private fun workWithTheDocumentData(view: View, snapshot: DocumentSnapshot) {
+        orderItemMain = snapshot.toObject(OrderItemMain::class.java) as OrderItemMain
+        orderItemMain.docID = snapshot.id
+
+        val alertDialogToEditOrderDetails = AlertDialog.Builder(requireContext()).create()
+        val alertDialogToEditOrderDetailsView = LayoutInflater.from(requireContext()).inflate(R.layout.edit_order_item, null)
+
+        alertDialogToEditOrderDetailsView.nameEdittextEditOrder.setText(orderItemMain.userName)
+        alertDialogToEditOrderDetailsView.phoneEdittextEditOrder.setText(orderItemMain.userNumber)
+        alertDialogToEditOrderDetailsView.addressEdittextEditOrder.setText(orderItemMain.userAddress)
+        alertDialogToEditOrderDetailsView.noteEdittextEditOrder.setText(orderItemMain.userNote)
+
+        alertDialogToEditOrderDetailsView.deliveryChargeTotalEditOrder.setText(orderItemMain.deliveryCharge.toString())
+        alertDialogToEditOrderDetailsView.daChargeTotalEditOrder.setText(orderItemMain.daCharge.toString())
+
+        var changeTotalValue = false
+        var customOrder = false
+        var medicineOrder = false
+        var parcelOrder = false
+        var shopOrder = false
+
+        if(orderItemMain.pickDropOrder){
+            alertDialogToEditOrderDetailsView.totalChargeEdittextEditOrder.visibility = View.VISIBLE
+            changeTotalValue = true
+            view.customOrderLinearLayout.visibility = View.GONE
+            view.nestedScrollView.visibility = View.GONE
+            view.pickDropScrollView.visibility = View.VISIBLE
+            view.text_name_container.visibility = View.GONE
+            view.text_number_container.visibility = View.GONE
+            view.edt_name.setText(orderItemMain.pickDropOrderItem.senderName)
+            view.edt_mobile.setText(orderItemMain.pickDropOrderItem.senderPhone)
+            view.edt_address.setText(orderItemMain.pickDropOrderItem.senderAddress)
+            view.edt_aboutParcel.setText(orderItemMain.pickDropOrderItem.parcelDetails)
+            view.edt_name_reciver.setText(orderItemMain.pickDropOrderItem.recieverName)
+            view.edt_mobile_reciver.setText(orderItemMain.pickDropOrderItem.recieverPhone)
+            view.edt_address_reciver.setText(orderItemMain.pickDropOrderItem.recieverAddress)
+            view.txt_number.visibility = View.GONE
+            orderItemMain.userAddress = "From "+orderItemMain.pickDropOrderItem.senderLocation+"To "+orderItemMain.pickDropOrderItem.recieverLocation
+        }else{
+            view.text_number_container.visibility = View.VISIBLE
+            view.text_name_container.visibility = View.VISIBLE
+            view.txt_number.visibility = View.VISIBLE
+            if(orderItemMain.products.size==1 && !orderItemMain.products[0].product_item){
+                alertDialogToEditOrderDetailsView.totalChargeEdittextEditOrderContainer.visibility = View.VISIBLE
+                changeTotalValue = true
+                view.customOrderLinearLayout.visibility = View.VISIBLE
+                view.nestedScrollView.visibility = View.GONE
+                view.pickDropScrollView.visibility = View.GONE
+                if(orderItemMain.products[0].parcel_item){
+                    parcelOrder = true
+                    alertDialogToEditOrderDetailsView.detailsCustomOrderEdittextEditOrderContainer.hint = "ডিটেইলস"
+                    alertDialogToEditOrderDetailsView.titleCustomOrderEdittextEditOrderContainer.hint = "কুরিয়ার নেম"
+                    alertDialogToEditOrderDetailsView.titleCustomOrderEdittextEditOrder.setText(orderItemMain.products[0].parcel_order_text)
+                    alertDialogToEditOrderDetailsView.detailsCustomOrderEdittextEditOrder.setText(orderItemMain.products[0].parcel_order_text_2)
+                    view.titleCustomOrderLinear.text = "পার্সেল অর্ডার"
+                    view.customOrderTitleTextView.text = "কুরিয়ার নেমঃ "+ orderItemMain.products[0].parcel_order_text
+                    view.customOrderDetailsTextView.text = "ডিটেইলসঃ "+ orderItemMain.products[0].parcel_order_text_2
+                    if(orderItemMain.products[0].parcel_order_image.isNotEmpty()){
+                        val firebaseStorage = FirebaseStorage.getInstance()
+                            .reference.child("ORDER_IMAGES")
+                            .child(orderItemMain.key)
+                            .child(orderItemMain.products[0].parcel_order_image)
+
+                        Glide.with(requireContext())
+                            .load(firebaseStorage)
+                            .diskCacheStrategy(DiskCacheStrategy.ALL)
+                            .centerInside()
+                            .placeholder(R.drawable.loading_image_glide)
+                            .into(view.shopImageItem)
+
+                        view.shopImageItem.setOnClickListener {
+                            val dialog = AlertDialog.Builder(context, R.style.Theme_AdminArpan).create()
+                            val view2 = LayoutInflater.from(context).inflate(R.layout.product_image_big_view,null)
+                            view2.floatingActionButton.setOnClickListener{
+                                dialog.dismiss()
+                            }
+                            Glide.with(requireContext())
+                                .load(firebaseStorage)
+                                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                                .centerInside()
+                                .into(view2.imageView)
+                            dialog.setView(view2)
+                            //dialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                            dialog.show()
+                        }
+                    }else{
+                        view.shopImageItem.visibility = View.GONE
+                    }
+                }else if(orderItemMain.products[0].medicine_item){
+                    medicineOrder = true
+                    alertDialogToEditOrderDetailsView.detailsCustomOrderEdittextEditOrderContainer.hint = "ঔষোধ "
+                    alertDialogToEditOrderDetailsView.titleCustomOrderEdittextEditOrderContainer.hint = "ফার্মেসি "
+                    alertDialogToEditOrderDetailsView.titleCustomOrderEdittextEditOrder.setText(orderItemMain.products[0].medicine_order_text)
+                    alertDialogToEditOrderDetailsView.detailsCustomOrderEdittextEditOrder.setText(orderItemMain.products[0].medicine_order_text_2)
+                    view.titleCustomOrderLinear.text = "মেডিসিন অর্ডার"
+                    view.customOrderTitleTextView.text = "ফার্মেসিঃ "+ orderItemMain.products[0].medicine_order_text
+                    view.customOrderDetailsTextView.text = "ঔষোধঃ "+ orderItemMain.products[0].medicine_order_text_2
+                    if(orderItemMain.products[0].medicine_order_image.isNotEmpty()){
+                        val firebaseStorage = FirebaseStorage.getInstance()
+                            .reference.child("ORDER_IMAGES")
+                            .child(orderItemMain.key)
+                            .child(orderItemMain.products[0].medicine_order_image)
+
+                        Glide.with(requireContext())
+                            .load(firebaseStorage)
+                            .diskCacheStrategy(DiskCacheStrategy.ALL)
+                            .centerInside()
+                            .placeholder(R.drawable.loading_image_glide).into(view.shopImageItem)
+
+                        view.shopImageItem.setOnClickListener {
+
+                            val dialog = AlertDialog.Builder(context, R.style.Theme_AdminArpan).create()
+                            val view2 = LayoutInflater.from(context).inflate(R.layout.product_image_big_view,null)
+                            view2.floatingActionButton.setOnClickListener{
+                                dialog.dismiss()
+                            }
+                            Glide.with(requireContext())
+                                .load(firebaseStorage)
+                                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                                .centerInside()
+                                .into(view2.imageView)
+                            dialog.setView(view2)
+                            //dialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                            dialog.show()
+                        }
+                    }else{
+                        view.shopImageItem.visibility = View.GONE
+                    }
+                }else if(orderItemMain.products[0].custom_order_item){
+                    customOrder = true
+                    alertDialogToEditOrderDetailsView.detailsCustomOrderEdittextEditOrderContainer.hint = "ডিটেইলস"
+                    alertDialogToEditOrderDetailsView.detailsCustomOrderEdittextEditOrder.setText(orderItemMain.products[0].custom_order_text)
+
+                    alertDialogToEditOrderDetailsView.titleCustomOrderEdittextEditOrderContainer.visibility = View.GONE
+                    view.titleCustomOrderLinear.text = "কাস্টম অর্ডার"
+                    if(orderItemMain.adminOrder){
+                        view.customOrderTitleTextView.text = "অ্যাডমিন অর্ডার"
+                    }else{
+                        view.customOrderTitleTextView.text = "জেনারেল অর্ডার"
+                    }
+                    view.customOrderDetailsTextView.text = "ডিটেইলসঃ "+ orderItemMain.products[0].custom_order_text
+                    if(orderItemMain.products[0].custom_order_image.isNotEmpty()){
+                        val firebaseStorage = FirebaseStorage.getInstance()
+                            .reference.child("ORDER_IMAGES")
+                            .child(orderItemMain.key)
+                            .child(orderItemMain.products[0].custom_order_image)
+
+                        Glide.with(requireContext())
+                            .load(firebaseStorage)
+                            .diskCacheStrategy(DiskCacheStrategy.ALL)
+                            .centerInside()
+                            .placeholder(R.drawable.loading_image_glide).into(view.shopImageItem)
+
+                        view.shopImageItem.setOnClickListener {
+                            val dialog = AlertDialog.Builder(context, R.style.Theme_AdminArpan).create()
+                            val view2 = LayoutInflater.from(context).inflate(R.layout.product_image_big_view,null)
+                            view2.floatingActionButton.setOnClickListener{
+                                dialog.dismiss()
+                            }
+                            Glide.with(requireContext())
+                                .load(firebaseStorage)
+                                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                                .centerInside()
+                                .into(view2.imageView)
+                            dialog.setView(view2)
+                            //dialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                            dialog.show()
+                        }
+                    }else{
+                        view.shopImageItem.visibility = View.GONE
+                    }
+                }
+            }else{
+                shopOrder = true
+                alertDialogToEditOrderDetailsView.totalChargeEdittextEditOrderContainer.visibility = View.GONE
+                alertDialogToEditOrderDetailsView.titleCustomOrderEdittextEditOrderContainer.visibility = View.GONE
+                alertDialogToEditOrderDetailsView.detailsCustomOrderEdittextEditOrderContainer.visibility = View.GONE
+                view.nestedScrollView.visibility = View.VISIBLE
+                view.pickDropScrollView.visibility = View.GONE
+                view.customOrderLinearLayout.visibility = View.GONE
+                workWithTheArrayList(orderItemMain.products, view)
+            }
+        }
+        if(orderItemMain.userAddress.isEmpty()){
+            view.text_address_container.visibility = View.GONE
+        }else{
+            view.text_address_container.visibility = View.VISIBLE
+            view.txt_address.setText(orderItemMain.userAddress)
+        }
+        priceTotal = orderItemMain.totalPrice
+        deliveryCharge = orderItemMain.deliveryCharge
+        promoCodeActive = orderItemMain.promoCodeApplied
+        promoCode = orderItemMain.promoCode
+        setPriceTotalOnView(view)
+        view.orderIDText.text = orderItemMain.orderId
+        if(orderItemMain.orderCompletedStatus == "CANCELLED") {
+            view.orderStatusText2.text = "CANCELLED"
+        }else{
+            view.orderStatusText2.text = orderItemMain.orderStatus
+        }
+        detectOrderItemStatus(view)
+        view.txt_name.setText(orderItemMain.userName)
+        view.txt_number.setText(orderItemMain.userNumber)
+        view.call_now.setOnClickListener {
+            if (callPermissionCheck(requireContext(), requireActivity())) {
+                val callIntent = Intent(
+                    Intent.ACTION_CALL,
+                    Uri.parse("tel:" + orderItemMain.userNumber)
+                )
+                startActivity(callIntent)
+            }
+        }
+        if(orderItemMain.userNote.isEmpty()){
+            view.text_note_container.visibility = View.GONE
+        }else{
+            view.text_note_container.visibility = View.VISIBLE
+            view.txt_note.setText(orderItemMain.userNote)
+        }
+        if(orderItemMain.pickDropOrderItem.parcelImage.isEmpty()){
+            view.cardViewPickDropImaage.visibility = View.GONE
+        }else{
+            view.cardViewPickDropImaage.visibility = View.VISIBLE
+            val storageReference = FirebaseStorage.getInstance().reference.child("ORDER_IMAGES")
+                .child(orderItemMain.key).child(orderItemMain.pickDropOrderItem.parcelImage)
+
+            Glide.with(view.context)
+                .load(storageReference)
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .centerCrop()
+                .override(300,300)
+                .placeholder(R.drawable.loading_image_glide).into(view.imageView)
+        }
+        view.paymentText.text = getString(R.string.payment_method) + orderItemMain.paymentMethod
+
+        alertDialogToEditOrderDetailsView.saveNowEditOrderButton.setOnClickListener {
+            alertDialogToEditOrderDetails.dismiss()
+            val updateOrderItem = HashMap<String,Any>()
+            updateOrderItem["userName"] = alertDialogToEditOrderDetailsView.nameEdittextEditOrder.text.toString()
+            updateOrderItem["userNumber"] = alertDialogToEditOrderDetailsView.phoneEdittextEditOrder.text.toString()
+            updateOrderItem["userAddress"] = alertDialogToEditOrderDetailsView.addressEdittextEditOrder.text.toString()
+            updateOrderItem["userNote"] = alertDialogToEditOrderDetailsView.noteEdittextEditOrder.text.toString()
+
+            updateOrderItem["daCharge"] = alertDialogToEditOrderDetailsView.daChargeTotalEditOrder.text.toString().toInt()
+            updateOrderItem["deliveryCharge"] = alertDialogToEditOrderDetailsView.deliveryChargeTotalEditOrder.text.toString().toInt()
+            val products = ArrayList<CartProductEntity>()
+            products.add(orderItemMain.products[0].copy())
+            if(changeTotalValue){
+                updateOrderItem["totalPrice"] = alertDialogToEditOrderDetailsView.totalChargeEdittextEditOrder.text.toString().toInt()
+            }
+            if(parcelOrder){
+                products[0].parcel_order_text = alertDialogToEditOrderDetailsView.titleCustomOrderEdittextEditOrder.text.toString()
+                products[0].parcel_order_text_2 = alertDialogToEditOrderDetailsView.detailsCustomOrderEdittextEditOrder.text.toString()
+            }
+            if(medicineOrder){
+                products[0].medicine_order_text = alertDialogToEditOrderDetailsView.titleCustomOrderEdittextEditOrder.text.toString()
+                products[0].medicine_order_text_2 = alertDialogToEditOrderDetailsView.detailsCustomOrderEdittextEditOrder.text.toString()
+               }
+            if(customOrder){
+                products[0].custom_order_text = alertDialogToEditOrderDetailsView.detailsCustomOrderEdittextEditOrder.text.toString()
+            }
+            updateOrderItem["products"] = products
+            FirebaseFirestore.getInstance().collection("users")
+                .document(customerId)
+                .collection("users_order_collection")
+                .document(orderId)
+                .update(updateOrderItem)
+        }
+        alertDialogToEditOrderDetails.setView(alertDialogToEditOrderDetailsView)
+        view.orderStatusText2.setOnClickListener {
+            alertDialogToEditOrderDetails.show()
+        }
+
+        view.shopsProgress.visibility = View.GONE
+        view.noProductsText.visibility = View.GONE
+        view.mainLayout.visibility = View.VISIBLE
     }
 
     private fun detectOrderItemStatus(view: View) {
@@ -227,23 +675,23 @@ class OrderHistoryFragment : DialogFragment() {
                                 .collection("users_order_collection")
                                 .document(orderId)
                                 .update("orderStatus", "VERIFIED")
-                                .addOnCompleteListener {task2 ->
+                                .addOnCompleteListener{task2 ->
                                     if(task2.isSuccessful){
                                             orderItemMain.orderStatus = "VERIFIED"
-                                        (activity as OrdresActivity)
-                                            .ordersMainOldItemsArrayList[(activity as OrdresActivity)
-                                            .mainItemPositionsRecyclerAdapter]
-                                            .orders[(activity as OrdresActivity)
-                                            .selectedRecyclerAdapterItem].orderStatus = "VERIFIED"
-                                        (activity as OrdresActivity).orderAdapterMain
-                                            .notifyItemChanged((activity as OrdresActivity)
-                                                .mainItemPositionsRecyclerAdapter)
+//                                        (activity as OrdresActivity)
+//                                            .ordersMainOldItemsArrayList[(activity as OrdresActivity)
+//                                            .mainItemPositionsRecyclerAdapter]
+//                                            .orders[(activity as OrdresActivity)
+//                                            .selectedRecyclerAdapterItem].orderStatus = "VERIFIED"
+//                                        (activity as OrdresActivity).orderAdapterMain
+//                                            .notifyItemChanged((activity as OrdresActivity)
+//                                                .mainItemPositionsRecyclerAdapter)
                                         sendNotification(
                                             orderItemMain.userId,
                                             "আপনার অর্ডার ${orderItemMain.orderId} টি কনফার্ম করা হয়েছে ।",
                                             "আপনার অর্ডারটি কনফার্ম করা হয়েছে, দ্রুতই অর্ডারটি আপনার কাছে পৌছে যাবে ।",
                                             orderId)
-                                        detectOrderItemStatus(view)
+                                        //detectOrderItemStatus(view)
                                     }else{
                                         task2.exception!!.printStackTrace()
                                     }
@@ -274,25 +722,25 @@ class OrderHistoryFragment : DialogFragment() {
                                     if(task2.isSuccessful){
                                             orderItemMain.orderStatus = "COMPLETED"
                                             orderItemMain.orderCompletedStatus = "CANCELLED"
-                                        (activity as OrdresActivity)
-                                            .ordersMainOldItemsArrayList[(activity as OrdresActivity)
-                                            .mainItemPositionsRecyclerAdapter]
-                                            .orders[(activity as OrdresActivity)
-                                            .selectedRecyclerAdapterItem].orderStatus = "COMPLETED"
-                                        (activity as OrdresActivity)
-                                            .ordersMainOldItemsArrayList[(activity as OrdresActivity)
-                                            .mainItemPositionsRecyclerAdapter]
-                                            .orders[(activity as OrdresActivity)
-                                            .selectedRecyclerAdapterItem].orderCompletedStatus = "CANCELLED"
-                                        (activity as OrdresActivity).orderAdapterMain
-                                            .notifyItemChanged((activity as OrdresActivity)
-                                            .mainItemPositionsRecyclerAdapter)
+//                                        (activity as HomeActivity)
+//                                            .ordersMainOldItemsArrayList[(activity as HomeActivity)
+//                                            .mainItemPositionsRecyclerAdapter]
+//                                            .orders[(activity as HomeActivity)
+//                                            .selectedRecyclerAdapterItem].orderStatus = "COMPLETED"
+//                                        (activity as HomeActivity)
+//                                            .ordersMainOldItemsArrayList[(activity as HomeActivity)
+//                                            .mainItemPositionsRecyclerAdapter]
+//                                            .orders[(activity as HomeActivity)
+//                                            .selectedRecyclerAdapterItem].orderCompletedStatus = "CANCELLED"
+//                                        (activity as HomeActivity).orderAdapterMain
+//                                            .notifyItemChanged((activity as HomeActivity)
+//                                            .mainItemPositionsRecyclerAdapter)
                                         sendNotification(
                                             orderItemMain.userId,
                                             "আপনার অর্ডার ${orderItemMain.orderId} টি ক্যান্সেল করা হয়েছে ।",
                                             "অর্পণের সাথে থাকার জন্য ধন্যবাদ ।",
                                             orderId)
-                                        detectOrderItemStatus(view)
+                                        //detectOrderItemStatus(view)
                                     }else{
                                         task2.exception!!.printStackTrace()
                                     }
@@ -315,13 +763,84 @@ class OrderHistoryFragment : DialogFragment() {
                     view.button.text = "ASSIGN DA"
                 }
                 view.buttonCancel.visibility = View.VISIBLE
+                view.buttonCancel.setOnClickListener {
+                    AlertDialog.Builder(requireContext())
+                        .setTitle("Are you sure you want to cancel this order?")
+                        .setMessage("By clicking yes you're cancelling this order")
+                        .setPositiveButton("Yes", DialogInterface.OnClickListener { dialog, which ->
+                            dialog.dismiss()
+                            progressDialog.show()
+                            val hashMap = HashMap<String,Any>()
+                            hashMap["orderStatus"] = "COMPLETED"
+                            hashMap["orderCompletedStatus"] = "CANCELLED"
+                            hashMap["daID"] = ""
+                            FirebaseFirestore.getInstance().collection("users")
+                                .document(customerId)
+                                .collection("users_order_collection")
+                                .document(orderId)
+                                .update(hashMap)
+                                .addOnCompleteListener {task2 ->
+                                    if(task2.isSuccessful){
+                                        orderItemMain.orderStatus = "COMPLETED"
+                                        orderItemMain.orderCompletedStatus = "CANCELLED"
+//                                        (activity as HomeActivity)
+//                                            .ordersMainOldItemsArrayList[(activity as HomeActivity)
+//                                            .mainItemPositionsRecyclerAdapter]
+//                                            .orders[(activity as HomeActivity)
+//                                            .selectedRecyclerAdapterItem].orderStatus = "COMPLETED"
+//                                        (activity as HomeActivity)
+//                                            .ordersMainOldItemsArrayList[(activity as HomeActivity)
+//                                            .mainItemPositionsRecyclerAdapter]
+//                                            .orders[(activity as HomeActivity)
+//                                            .selectedRecyclerAdapterItem].orderCompletedStatus = "CANCELLED"
+//                                        (activity as HomeActivity).orderAdapterMain
+//                                            .notifyItemChanged((activity as HomeActivity)
+//                                            .mainItemPositionsRecyclerAdapter)
+                                        sendNotification(
+                                            orderItemMain.userId,
+                                            "আপনার অর্ডার ${orderItemMain.orderId} টি ক্যান্সেল করা হয়েছে ।",
+                                            "অর্পণের সাথে থাকার জন্য ধন্যবাদ ।",
+                                            orderId)
+                                        //detectOrderItemStatus(view)
+                                    }else{
+                                        task2.exception!!.printStackTrace()
+                                    }
+                                    progressDialog.dismiss()
+                                }
+                        })
+                        .setNegativeButton("No", DialogInterface.OnClickListener { dialog, which ->
+                            dialog.dismiss()
+                        })
+                        .create().show()
+                }
                 view.button.setOnClickListener {
                     val alertDialogForDa = AlertDialog.Builder(context).create()
                     val alertDialogForDaView = LayoutInflater.from(context).inflate(R.layout.assign_da_list_view, null)
-                    val arrayListDaStatus = (activity as OrdresActivity).daStatusList
+                    val arrayListDaStatus = homeViewModel.getDaStatusList()
                     val arrayListDaStatusString = ArrayList<String>()
                     for(daStatus in arrayListDaStatus){
-                        arrayListDaStatusString.add(daStatus.name)
+                        var daListItem = ""
+                        if(daStatus.status == "Active"){
+                            daListItem += "🟢 "+daStatus.name+" "
+                        }else{
+                            daListItem += "🔴 "+daStatus.name+" "
+                        }
+                        var daCompleted = 0
+                        var daProcessing = 0
+                        var daPickedUp = 0
+                        var daAssigned = 0
+                        for(order in homeViewModel.getOrderItemMainList()){
+                            if(order.daID == daStatus.key){
+                                when(order.orderStatus){
+                                    "VERIFIED" -> daAssigned += 1
+                                    "PROCESSING" -> daProcessing += 1
+                                    "PICKED UP" -> daProcessing += 1
+                                    "COMPLETED" -> daCompleted += 1
+                                }
+                            }
+                        }
+                        daListItem += "[$daProcessing] [$daCompleted]"
+                        arrayListDaStatusString.add(daListItem)
                     }
                     alertDialogForDaView.listView.adapter = ArrayAdapter(requireContext(),R.layout.custom_spinner_item_view, arrayListDaStatusString)
                     alertDialogForDa.setView(alertDialogForDaView)
@@ -345,19 +864,19 @@ class OrderHistoryFragment : DialogFragment() {
                                         .addOnCompleteListener {_->
                                             orderItemMain.daDetails = daAgent
                                             orderItemMain.daID = it.result!!.id
-                                            (activity as OrdresActivity)
-                                                .ordersMainOldItemsArrayList[(activity as OrdresActivity)
-                                                .mainItemPositionsRecyclerAdapter]
-                                                .orders[(activity as OrdresActivity)
-                                                .selectedRecyclerAdapterItem].daDetails = daAgent
-                                            (activity as OrdresActivity)
-                                                .ordersMainOldItemsArrayList[(activity as OrdresActivity)
-                                                .mainItemPositionsRecyclerAdapter]
-                                                .orders[(activity as OrdresActivity)
-                                                .selectedRecyclerAdapterItem].daID = it.result!!.id
-                                            (activity as OrdresActivity).orderAdapterMain
-                                                .notifyItemChanged((activity as OrdresActivity)
-                                                    .mainItemPositionsRecyclerAdapter)
+//                                            (activity as HomeActivity)
+//                                                .ordersMainOldItemsArrayList[(activity as HomeActivity)
+//                                                .mainItemPositionsRecyclerAdapter]
+//                                                .orders[(activity as HomeActivity)
+//                                                .selectedRecyclerAdapterItem].daDetails = daAgent
+//                                            (activity as HomeActivity)
+//                                                .ordersMainOldItemsArrayList[(activity as HomeActivity)
+//                                                .mainItemPositionsRecyclerAdapter]
+//                                                .orders[(activity as HomeActivity)
+//                                                .selectedRecyclerAdapterItem].daID = it.result!!.id
+//                                            (activity as HomeActivity).orderAdapterMain
+//                                                .notifyItemChanged((activity as HomeActivity)
+//                                                    .mainItemPositionsRecyclerAdapter)
                                             sendNotificationToDa(
                                                 orderItemMain.userId,
                                                 it.result!!.id,
@@ -366,7 +885,7 @@ class OrderHistoryFragment : DialogFragment() {
                                                 orderId
                                             )
                                             alertDialogForDa.dismiss()
-                                            detectOrderItemStatus(view)
+                                            //detectOrderItemStatus(view)
                                             progressDialog.dismiss()
                                             requireContext().showToast("SUCCESS", FancyToast.SUCCESS)
                                         }
@@ -381,6 +900,12 @@ class OrderHistoryFragment : DialogFragment() {
                 }
             }
             else -> {
+                if(orderItemMain.daID.isNotEmpty()){
+                    view.txtDaStatus.visibility = View.VISIBLE
+                    view.txtDaStatus.text = "ASSIGNED TO -> ${orderItemMain.daDetails.da_name}"
+                }else{
+                    view.txtDaStatus.visibility = View.GONE
+                }
                 view.buttonCancel.visibility = View.GONE
                 if(orderItemMain.orderCompletedStatus == "CANCELLED") {
                     view.orderStatusText2.text = "CANCELLED"
@@ -618,16 +1143,7 @@ class OrderHistoryFragment : DialogFragment() {
                 "= ${priceTotal+deliveryCharge} "+getString(R.string.taka_text)
         if(promoCodeActive){
             view.promoCodeAppliedLinear.visibility = View.VISIBLE
-            view.promoCodeAppliedText.text  = getString(R.string.you_got_part_1)+" "+promoCode.discountPrice+" "+getString(R.string.you_got_part_2)
-            if(priceTotal <= promoCode.discountPrice){
-                view.txtAllPrice.text = getString(R.string.total_total_text)+"${0}+${deliveryCharge} " +
-                        "= ${0+deliveryCharge} "+getString(R.string.taka_text)
-            }else{
-                view.txtAllPrice.text = getString(R.string.total_total_text)+
-                        "${priceTotal - promoCode.discountPrice}+${deliveryCharge} " +
-                        "= ${priceTotal - promoCode.discountPrice+deliveryCharge} "+
-                        getString(R.string.taka_text)
-            }
+            view.promoCodeAppliedText.text  = "THE USER HAS APPLIED ${orderItemMain.promoCode.promoCodeName} PROMO CODE"
         }else{
             view.promoCodeAppliedLinear.visibility = View.GONE
         }
@@ -641,9 +1157,5 @@ class OrderHistoryFragment : DialogFragment() {
         mainCartCustomObjectHashMap["parcel_item"] = ArrayList()
         mainCartCustomObjectHashMap["custom_order_item"] = ArrayList()
         mainCartCustomObjectHashMap["medicine_item"] = ArrayList()
-    }
-
-    override fun onResume() {
-        super.onResume()
     }
 }

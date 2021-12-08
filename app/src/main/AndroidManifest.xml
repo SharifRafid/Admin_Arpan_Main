@@ -14,16 +14,23 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AdminArpan">
-        <activity android:name=".ui.home.AddOffers"/>
-        <activity android:name=".ui.settings.SettingActivity"
-            android:windowSoftInputMode="adjustNothing"/>
-        <activity android:name=".ui.order.OrdresActivity">
+        <activity
+            android:name=".ui.auth.MainActivity2"
+            android:exported="false" />
+        <activity
+            android:name=".ui.home.HomeActivityMain"
+            android:exported="true">
             <intent-filter>
                 <action android:name=".ui.order.OrdresActivity" />
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+        <activity android:name=".ui.home.AddOffers" />
+        <activity
+            android:name=".ui.settings.SettingActivity"
+            android:windowSoftInputMode="adjustNothing" />
+        <activity android:name=".ui.order.OrdresActivity" />
         <activity android:name=".ui.da.DaActivity" />
         <activity android:name=".ui.products.UpdateProductActivity" />
         <activity android:name=".ui.shops.ShopCategoryActivity" />

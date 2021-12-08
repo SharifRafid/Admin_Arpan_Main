@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/home_navigation_main"
+    app:startDestination="@id/homeFragment">
+
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="admin.arpan.delivery.ui.fragments.HomeFragment"
+        android:label="fragment_home"
+        tools:layout="@layout/fragment_home" />
+    <fragment
+        android:id="@+id/shopsFragment"
+        android:name="admin.arpan.delivery.ui.fragments.ShopsFragment"
+        android:label="ShopsFragment" />
+    <fragment
+        android:id="@+id/offersFragment"
+        android:name="admin.arpan.delivery.OffersFragment"
+        android:label="fragment_offers"
+        tools:layout="@layout/fragment_offers" />
+    <fragment
+        android:id="@+id/daManagementFragment"
+        android:name="admin.arpan.delivery.DaManagementFragment"
+        android:label="fragment_da_management"
+        tools:layout="@layout/fragment_da_management" />
+    <fragment
+        android:id="@+id/feedbacksFragment"
+        android:name="admin.arpan.delivery.FeedbacksFragment"
+        android:label="fragment_feedbacks"
+        tools:layout="@layout/fragment_feedbacks" />
+    <fragment
+        android:id="@+id/orderHistoryFragmentNew22"
+        android:name="admin.arpan.delivery.ui.order.OrderHistoryFragmentNew2"
+        android:label="OrderHistoryFragmentNew2" />
+    <fragment
+        android:id="@+id/addCustomOrder"
+        android:name="admin.arpan.delivery.ui.order.AddCustomOrder"
+        android:label="AddCustomOrder" />
+    <fragment
+        android:id="@+id/ordersFilterDate"
+        android:name="admin.arpan.delivery.ui.fragments.OrdersFilterDate"
+        android:label="fragment_orders_filter_date"
+        tools:layout="@layout/fragment_orders_filter_date" />
+    <fragment
+        android:id="@+id/updateDaFragment"
+        android:name="admin.arpan.delivery.ui.da.UpdateDaFragment"
+        android:label="UpdateDaFragment" />
+    <fragment
+        android:id="@+id/addDaFragment"
+        android:name="admin.arpan.delivery.ui.da.AddDaFragment"
+        android:label="AddDaFragment" />
+    <fragment
+        android:id="@+id/daStatsFragment"
+        android:name="admin.arpan.delivery.ui.da.DaStatsFragment"
+        android:label="fragment_da_stats"
+        tools:layout="@layout/fragment_da_stats" />
+    <fragment
+        android:id="@+id/usersFragment"
+        android:name="admin.arpan.delivery.ui.fragments.UsersFragment"
+        android:label="fragment_users"
+        tools:layout="@layout/fragment_users" />
+</navigation>

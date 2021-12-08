@@ -60,7 +60,7 @@ class OrderItemRecyclerAdapter(
                 //Product Item
                 holder.textView.text = cartProductEntity.product_item_name
                 holder.amountTextView.text = cartProductEntity.product_item_amount.toString()
-                holder.price.text = "৳ ${cartProductEntity.product_item_price*cartProductEntity.product_item_amount}"
+                holder.price.text = "(${cartProductEntity.product_item_price-cartProductEntity.product_arpan_profit} + ${cartProductEntity.product_arpan_profit}) * ${cartProductEntity.product_item_amount} = ${cartProductEntity.product_item_price*cartProductEntity.product_item_amount}"
             }
         }
     }

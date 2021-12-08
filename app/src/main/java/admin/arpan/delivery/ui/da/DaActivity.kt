@@ -6,13 +6,17 @@ import admin.arpan.delivery.db.model.DaAgent
 import admin.arpan.delivery.utils.createProgressDialog
 import admin.arpan.delivery.utils.showToast
 import android.app.Dialog
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.firestore.FirebaseFirestore
 import com.shashank.sony.fancytoastlib.FancyToast
 import kotlinx.android.synthetic.main.activity_da.*
+import java.util.*
+import kotlin.Comparator
+import kotlin.collections.ArrayList
+
 
 class DaActivity : AppCompatActivity() {
 
@@ -45,9 +49,11 @@ class DaActivity : AppCompatActivity() {
                                 da!!.key = document.id
                                 daList.add(da)
                             }
+                            Collections.sort(daList,
+                                Comparator<DaAgent?> { m1, m2 ->
+                                    m1!!.da_uid.toInt().compareTo(m2!!.da_uid.toInt())
+                                })
                             mainRecyclerView.layoutManager = LinearLayoutManager(this)
-                            daItemRecyclerAdapter = DaItemRecyclerAdapter(this, daList)
-                            mainRecyclerView.adapter = daItemRecyclerAdapter
                             progressDialog.dismiss()
                         }
                     }
@@ -60,6 +66,6 @@ class DaActivity : AppCompatActivity() {
     }
 
     fun addDaClick(view: View) {
-        AddDaFragment().show(supportFragmentManager, "")
+
     }
 }

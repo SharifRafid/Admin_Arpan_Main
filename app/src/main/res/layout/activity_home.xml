@@ -8,25 +8,121 @@
     android:background="@color/white"
     android:orientation="vertical"
     android:gravity="center_horizontal">
-
-    <TextView
-        android:id="@+id/title_text_view"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:fontFamily="@font/hind_siliguri_font"
-        android:gravity="center"
-        android:text="অর্পন শপ"
-        android:textColor="@color/white"
-        android:textSize="16sp"
         android:background="@color/colorPrimary"
-        android:padding="7dp"
-        android:drawableRight="@drawable/ic_power_button"
-        android:drawableTint="@color/white"
-        android:textStyle="bold" />
+        android:gravity="center"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/hind_siliguri_font"
+            android:gravity="center"
+            android:text="                Admin Panel"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:padding="7dp"
+            android:textStyle="bold" />
+        <ImageView
+            android:id="@+id/title_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/Widget.AppCompat.ActionButton"
+            android:src="@drawable/ic_power_button"
+            app:tint="@color/white" />
+    </LinearLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/mainRecyclerView"
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="5dp"/>
+        android:orientation="vertical"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:background="@color/bg_color"
+        android:id="@+id/nestedScrollView"
+        android:layout_height="match_parent">
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/app_bar"
+            android:layout_width="match_parent"
+            android:background="@color/bg_color"
+            android:layout_height="wrap_content">
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                app:layout_scrollFlags="scroll|exitUntilCollapsed"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    android:orientation="vertical">
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/mainRecyclerView"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:padding="5dp"/>
+                </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/hind_siliguri_font"
+                android:gravity="center"
+                android:text="Todays Orders"
+                android:textColor="@color/white"
+                android:visibility="gone"
+                android:textSize="16sp"
+                android:background="@color/colorPrimary"
+                android:padding="7dp"
+                android:textStyle="bold" />
+            <!-- add fixed single view here as title -->
+        </com.google.android.material.appbar.AppBarLayout>
+        <androidx.recyclerview.widget.RecyclerView
+            app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
+            android:id="@+id/recyclerView"
+            android:layout_width="match_parent"
+            android:visibility="gone"
+            app:layout_anchor="@id/app_bar"
+            android:overScrollMode="never"
+            android:background="@color/bg_color"
+            android:layout_height="wrap_content"/>
+        <com.google.android.material.progressindicator.CircularProgressIndicator
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
+            android:layout_gravity="center_horizontal"
+            android:indeterminateTint="@color/blue_normal"/>
+        <LinearLayout
+            android:id="@+id/noProductsText"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="vertical">
+            <ImageView
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:padding="10dp"
+                android:src="@drawable/ic_error_icon"/>
+            <TextView
+                android:id="@+id/noProductsTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
+                android:visibility="visible"
+                android:layout_marginEnd="5dp"
+                android:fontFamily="@font/hind_siliguri_font"
+                android:gravity="center"
+                android:text="No Orders Found"
+                android:textColor="#000000"
+                android:textColorHint="#6E8697"
+                android:textSize="16sp"
+                android:textStyle="bold"/>
+        </LinearLayout>
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
 </LinearLayout>

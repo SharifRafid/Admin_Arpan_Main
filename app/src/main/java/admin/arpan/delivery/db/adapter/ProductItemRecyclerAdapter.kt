@@ -86,7 +86,6 @@ class ProductItemRecyclerAdapter(
                         .update("inStock", "inactive")
                     productItems[position].inStock="inactive"
                 }
-
             }
         }
         holder.offerStatusSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
@@ -106,7 +105,6 @@ class ProductItemRecyclerAdapter(
                         .update("offerStatus", "inactive")
                     productItems[position].offerStatus="inactive"
                 }
-
             }
         }
         if(productItems[position].image1.isNotEmpty()){
@@ -150,6 +148,7 @@ class ProductItemRecyclerAdapter(
             bundle.putString("shopCategoryId",productItems[position].shopCategoryId)
             bundle.putString("shopCategoryKey",productItems[position].shopCategoryKey)
             bundle.putString("price",productItems[position].price)
+            bundle.putString("arpanCharge",productItems[position].arpanCharge.toString())
             bundle.putString("image1",productItems[position].image1)
             bundle.putString("image2",productItems[position].image2)
             bundle.putString("image3",productItems[position].image3)
@@ -210,5 +209,11 @@ class ProductItemRecyclerAdapter(
         }
     }
 
+    override fun getItemId(position: Int): Long {
+        return position.toLong()
+    }
 
+    override fun getItemViewType(position: Int): Int {
+        return position
+    }
 }

@@ -27,5 +27,22 @@ data class OrderItemMain(
     var longtitude : String = "",
     var orderCompletedStatus : String = "",
     var daDetails : DaAgent = DaAgent(),
-    var daID : String = ""
+    var daID : String = "",
+    var daCharge : Int = 0,
+    var adminOrder : Boolean = false,
+
+    var verifiedTimeStampMillis : Long = 0,
+    var processingTimeStampMillis : Long = 0,
+    var pickedUpTimeStampMillis : Long = 0,
+    var completedTimeStampMillis : Long = 0,
+    var assignedToDaTimeStampMillis : Long = 0,
+
+    var cancelledOrderReasonFromAdmin : String = "",
+
+    var adminOrderNote : String = "",
+
+    var paymentRequested : Boolean = false,
+    var paymentCompleted : Boolean = false,
+
+    var pickUpTime : String = "",
 )

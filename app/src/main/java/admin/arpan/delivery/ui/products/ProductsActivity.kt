@@ -4,11 +4,13 @@ import admin.arpan.delivery.R
 import admin.arpan.delivery.db.adapter.ProductItemRecyclerAdapter
 import admin.arpan.delivery.db.model.ProductCategoryItem
 import admin.arpan.delivery.db.model.ProductItem
+import admin.arpan.delivery.ui.shops.UpdateShop
 import admin.arpan.delivery.utils.Constants
 import admin.arpan.delivery.utils.createProgressDialog
 import admin.arpan.delivery.utils.showToast
 import android.app.AlertDialog
 import android.app.Dialog
+import android.content.DialogInterface
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -51,7 +53,6 @@ class ProductsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_products)
-
         initVars()
         initLogic()
     }
@@ -62,7 +63,21 @@ class ProductsActivity : AppCompatActivity() {
     }
 
     private fun initLogic() {
-        shop_key = intent.getStringExtra("shop_key").toString()
+        shop_key = intent.getStringExtra("key").toString()
+        title_text_view.text = intent.getStringExtra("name").toString()
+        title_text_view.setOnClickListener {
+            val intent = Intent(this, UpdateShop::class.java)
+            intent.putExtra("key",intent.getStringExtra("key").toString())
+            intent.putExtra("name",intent.getStringExtra("name").toString())
+            intent.putExtra("location",intent.getStringExtra("location").toString())
+            intent.putExtra("cover_image",intent.getStringExtra("cover_image").toString())
+            intent.putExtra("deliver_charge",intent.getStringExtra("deliver_charge").toString())
+            intent.putExtra("da_charge",intent.getStringExtra("da_charge").toString())
+            intent.putExtra("image",intent.getStringExtra("image").toString())
+            intent.putExtra("order",intent.getStringExtra("order").toString())
+            intent.putExtra("categories",intent.getStringExtra("categories").toString())
+            startActivity(intent)
+        }
         loadFirestoreShopCategories()
         categories_item_array_adapter = ArrayAdapter<String>(
                 this@ProductsActivity,
@@ -110,38 +125,77 @@ class ProductsActivity : AppCompatActivity() {
                                 loadProductsFromCategory()
                             }
                             mainRecyclerView.setOnItemLongClickListener { parent, view, position, id ->
-                                val mDialog = AlertDialog.Builder(this)
-                                    .setTitle("Are you sure to delete this category?")
-                                    .setMessage("This will delete all the products of the category and all other stuff.....")
-                                    .setPositiveButton(
-                                        getString(R.string.yes_ok)
-                                    ) { diaInt, _ ->
-                                        progressDialog.show()
-                                        val hashMap = HashMap<String,Any>()
-                                        hashMap[keysList[position]] = FieldValue.delete()
-                                        firebaseFirestore.collection(Constants.FC_SHOPS_MAIN_CATEGORY)
-                                            .document(Constants.FD_PRODUCTS_MAIN_CATEGORY)
-                                            .collection(Constants.FD_PRODUCTS_MAIN_CATEGORY)
-                                            .document(shop_key)
-                                            .update(hashMap).addOnCompleteListener {
-                                                if(it.isSuccessful){
-                                                    removeProductsDataFromFirestoreDatabaseViaApi(keysList[position])
-                                                    keysList.removeAt(position)
-                                                    namesList.removeAt(position)
+                                val dialogAskingEditOrDelete = AlertDialog.Builder(this)
+                                dialogAskingEditOrDelete.setPositiveButton("EDIT", DialogInterface.OnClickListener { dialog, which ->
+                                    dialog.dismiss()
+                                    val dialog = Dialog(this)
+                                    val dialogView = LayoutInflater.from(this)
+                                        .inflate(R.layout.dialog_add_category,null)
+                                    dialogView.edt_shop_name.setText(categoryItemsArray[position].name)
+                                    dialogView.addProductCategoriesButton.setOnClickListener{
+                                        val text = dialogView.edt_shop_name.text.toString()
+                                        if(text.isNotEmpty()){
+                                            dialogView.addProductCategoriesButton.isEnabled = false
+                                            val key = categoryItemsArray[position].key
+                                            val mapMain = HashMap<String,String>()
+                                            mapMain[Constants.FIELD_FD_PRODUCTS_MAIN_CATEGORY_NAME] = text
+                                            mapMain[Constants.FIELD_FD_PRODUCTS_MAIN_CATEGORY_KEY] = categoryItemsArray[position].category_key
+                                            mapMain[Constants.FIELD_FD_PRODUCTS_MAIN_CATEGORY_ORDER] = categoryItemsArray[position].order.toString()
+                                            val subMap = HashMap<String,HashMap<String,String>>()
+                                            subMap[key] = mapMain
+                                            firebaseFirestore.collection(Constants.FC_SHOPS_MAIN_CATEGORY)
+                                                .document(Constants.FD_PRODUCTS_MAIN_CATEGORY)
+                                                .collection(Constants.FD_PRODUCTS_MAIN_CATEGORY)
+                                                .document(shop_key)
+                                                .update(subMap as Map<String, Any>)
+                                                .addOnSuccessListener {
+                                                    categoryItemsArray[position].name = text
+                                                    namesList[position] = text
                                                     categories_item_array_adapter.notifyDataSetChanged()
-                                                    showToast("SUCCESS", FancyToast.SUCCESS)
-                                                }else{
-                                                    showToast("FAILURE", FancyToast.ERROR)
+                                                    dialog.dismiss()
+                                                    Toast.makeText(this, "Successfully Updated New Category", Toast.LENGTH_SHORT).show()
                                                 }
-                                                progressDialog.dismiss()
-                                            }
-
+                                        }
                                     }
-                                    .setNegativeButton(
-                                        getString(R.string.no_its_ok)
-                                    ) { dialogInterface, _ -> dialogInterface.dismiss() }
-                                    .create()
-                                mDialog.show()
+                                    dialog.setContentView(dialogView)
+                                    dialog.show()
+                                })
+                                dialogAskingEditOrDelete.setNegativeButton("DELETE", DialogInterface.OnClickListener { dialog, which ->
+                                    dialog.dismiss()
+                                    val mDialog = AlertDialog.Builder(this)
+                                        .setTitle("Are you sure to delete this category?")
+                                        .setMessage("This will delete all the products of the category and all other stuff.....")
+                                        .setPositiveButton(
+                                            getString(R.string.yes_ok)
+                                        ) { diaInt, _ ->
+                                            progressDialog.show()
+                                            val hashMap = HashMap<String,Any>()
+                                            hashMap[keysList[position]] = FieldValue.delete()
+                                            firebaseFirestore.collection(Constants.FC_SHOPS_MAIN_CATEGORY)
+                                                .document(Constants.FD_PRODUCTS_MAIN_CATEGORY)
+                                                .collection(Constants.FD_PRODUCTS_MAIN_CATEGORY)
+                                                .document(shop_key)
+                                                .update(hashMap).addOnCompleteListener {
+                                                    if(it.isSuccessful){
+                                                        removeProductsDataFromFirestoreDatabaseViaApi(keysList[position])
+                                                        keysList.removeAt(position)
+                                                        namesList.removeAt(position)
+                                                        categories_item_array_adapter.notifyDataSetChanged()
+                                                        showToast("SUCCESS", FancyToast.SUCCESS)
+                                                    }else{
+                                                        showToast("FAILURE", FancyToast.ERROR)
+                                                    }
+                                                    progressDialog.dismiss()
+                                                }
+
+                                        }
+                                        .setNegativeButton(
+                                            getString(R.string.no_its_ok)
+                                        ) { dialogInterface, _ -> dialogInterface.dismiss() }
+                                        .create()
+                                    mDialog.show()
+                                })
+                                dialogAskingEditOrDelete.create().show()
                                 true
                             }
                             mainRecyclerView.choiceMode = ListView.CHOICE_MODE_SINGLE

@@ -8,9 +8,12 @@ import android.app.Dialog
 import android.content.Context
 import android.content.pm.PackageManager
 import android.view.LayoutInflater
+import android.widget.EditText
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.shashank.sony.fancytoastlib.FancyToast
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 fun Context.showToast(message: String, status: Int){
@@ -25,6 +28,20 @@ fun Context.createProgressDialog() : Dialog {
     dialog.setCanceledOnTouchOutside(false)
     dialog.window!!.setBackgroundDrawableResource(android.R.color.transparent)
     return dialog
+}
+
+fun EditText.getNumValue() : Int {
+    var value = 0
+    if(text.isNullOrEmpty()){
+        value = 0
+    }else{
+        try{
+            value = text.toString().trim().toInt()
+        }catch (e : Exception){
+            value = 0
+        }
+    }
+    return value
 }
 
 fun callPermissionCheck(context: Context, activity: Activity): Boolean {
@@ -65,5 +82,14 @@ fun callPermissionCheck(context: Context, activity: Activity): Boolean {
     } else {
         true
     }
+}
+
+fun getDate(milliSeconds: Long, dateFormat: String?): String? {
+    // Create a DateFormatter object for displaying date in specified format.
+    val formatter = SimpleDateFormat(dateFormat, Locale.ENGLISH)
+    // Create a calendar object that will convert the date and time value in milliseconds to date.
+    val calendar: Calendar = Calendar.getInstance()
+    calendar.setTimeInMillis(milliSeconds)
+    return formatter.format(calendar.getTime())
 }
 

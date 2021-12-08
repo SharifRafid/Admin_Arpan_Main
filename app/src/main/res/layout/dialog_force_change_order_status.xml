@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center_horizontal">
+
+    <RadioGroup
+        android:id="@+id/statusRadioButtonGroup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center">
+        <com.google.android.material.radiobutton.MaterialRadioButton
+            android:id="@+id/pendingRadioButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:layout_margin="8dp"
+            android:checked="true"
+            android:background="@drawable/radio_selector"
+            android:text="PENDING"
+            android:textColor="@color/white"
+            android:button="@android:color/transparent" />
+        <com.google.android.material.radiobutton.MaterialRadioButton
+            android:id="@+id/verifiedRadioButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:layout_margin="8dp"
+            android:background="@drawable/radio_selector"
+            android:text="VERIFIED"
+            android:textColor="@color/white"
+            android:button="@android:color/transparent" />
+        <com.google.android.material.radiobutton.MaterialRadioButton
+            android:id="@+id/processingRadioButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:layout_margin="8dp"
+            android:background="@drawable/radio_selector"
+            android:text="PROCESSING"
+            android:textColor="@color/white"
+            android:button="@android:color/transparent" />
+        <com.google.android.material.radiobutton.MaterialRadioButton
+            android:id="@+id/pickedRadioButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:layout_margin="8dp"
+            android:background="@drawable/radio_selector"
+            android:text="PICKED UP"
+            android:textColor="@color/white"
+            android:button="@android:color/transparent" />
+        <com.google.android.material.radiobutton.MaterialRadioButton
+            android:id="@+id/completedRadio"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:layout_margin="8dp"
+            android:background="@drawable/radio_selector"
+            android:text="COMPLETED"
+            android:textColor="@color/white"
+            android:button="@android:color/transparent" />
+        <com.google.android.material.radiobutton.MaterialRadioButton
+            android:id="@+id/cancelledRadio"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:layout_margin="8dp"
+            android:background="@drawable/radio_selector"
+            android:text="CANCELLED"
+            android:textColor="@color/white"
+            android:button="@android:color/transparent" />
+    </RadioGroup>
+
+    <Button
+        android:id="@+id/saveForceOrderChangeStatusButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Save"
+        android:layout_margin="2dp"/>
+
+</LinearLayout>

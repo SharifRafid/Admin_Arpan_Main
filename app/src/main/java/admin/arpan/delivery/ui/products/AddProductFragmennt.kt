@@ -118,6 +118,11 @@ class AddProductFragmennt : DialogFragment() {
                             }else{
                                 hashMap.offerPrice = price.text.toString()
                             }
+                            if(arpanProfitPrice.text.isEmpty()){
+                                hashMap.arpanCharge = 0
+                            }else{
+                                hashMap.arpanCharge = arpanProfitPrice.text.toString().toInt()
+                            }
                             hashMap.shortDescription = productDesc.text.toString()
                             hashMap.order = product_order
                             hashMap.inStock = "active"
@@ -186,6 +191,11 @@ class AddProductFragmennt : DialogFragment() {
                             hashMap.offerPrice = offerPrice.text.toString()
                         }else{
                             hashMap.offerPrice = price.text.toString()
+                        }
+                        if(arpanProfitPrice.text.isEmpty()){
+                            hashMap.arpanCharge = 0
+                        }else{
+                            hashMap.arpanCharge = arpanProfitPrice.text.toString().toInt()
                         }
                         hashMap.shortDescription = productDesc.text.toString()
                         hashMap.inStock = "active"

@@ -28,6 +28,20 @@
             android:layout_height="wrap_content"/>
     </com.google.android.material.textfield.TextInputLayout>
     <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/edt_client_delivery_charge_container"
+        android:layout_width="match_parent"
+        android:visibility="gone"
+        android:layout_height="wrap_content"
+        android:hint="Client Delivery Charge"
+        android:layout_margin="2dp"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <EditText
+            android:id="@+id/edt_client_delivery_charge"
+            android:layout_width="match_parent"
+            android:inputType="number"
+            android:layout_height="wrap_content"/>
+    </com.google.android.material.textfield.TextInputLayout>
+    <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Da Charge"

@@ -52,6 +52,7 @@ class AddOffers : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_offers)
 
+
         initVars()
         initOnClicks()
 
@@ -111,22 +112,15 @@ class AddOffers : AppCompatActivity() {
     }
 
     private fun initOnClicks() {
-        imagePick2.setOnClickListener {
+        upload2.setOnClickListener {
             ImagePicker.with(this)
                 .crop(200f, 70f)	    			//Crop image(Optional), Check Customization for more option
                 .compress(256)			//Final image size will be less than 1 MB(Optional)
                 .maxResultSize(1080, 1080)	//Final image resolution will be less than 1080 x 1080(Optional)
                 .start()
         }
-
-        upload2.setOnClickListener {
-            dialog.show()
-            if(imagePath.toString().isNotEmpty()){
-                uploadFile()
-            }else{
-                Toast.makeText(this,"fill everything",
-                    Toast.LENGTH_SHORT).show()
-            }
+        title_text_view.setOnClickListener {
+            onBackPressed()
         }
     }
 
@@ -168,9 +162,15 @@ class AddOffers : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == Activity.RESULT_OK) {
             val fullPhotoUri = data!!.data
-            imagePick2.setImageURI(fullPhotoUri)
             imagePath = fullPhotoUri!!
             imageName = getFileName(imagePath)!!
+            dialog.show()
+            if(imagePath.toString().isNotEmpty()){
+                uploadFile()
+            }else{
+                Toast.makeText(this,"fill everything",
+                    Toast.LENGTH_SHORT).show()
+            }
         } else if (resultCode == ImagePicker.RESULT_ERROR) {
         } else {
         }

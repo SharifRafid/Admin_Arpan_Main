@@ -159,6 +159,11 @@ class AddShop : AppCompatActivity() {
                 map[Constants.FIELD_FD_SM_PASSWORD] = passWord.text.toString()
                 map[Constants.FIELD_FD_SM_STATUS] = "open"
                 map[Constants.FIELD_FD_SM_USERNAME] = userName.text.toString()
+                map[Constants.FIELD_FD_SM_IS_CLIENT] = if(clientShopSwitchMaterial.isChecked){
+                    "yes"
+                }else{
+                    "no"
+                }
 
                 firebaseFirestore
                     .collection(Constants.FC_SHOPS_MAIN)
@@ -188,7 +193,11 @@ class AddShop : AppCompatActivity() {
         map[Constants.FIELD_FD_SM_PASSWORD] = passWord.text.toString()
         map[Constants.FIELD_FD_SM_STATUS] = "open"
         map[Constants.FIELD_FD_SM_USERNAME] = userName.text.toString()
-
+        map[Constants.FIELD_FD_SM_IS_CLIENT] = if(clientShopSwitchMaterial.isChecked){
+            "yes"
+        }else{
+            "no"
+        }
         firebaseFirestore
             .collection(Constants.FC_SHOPS_MAIN)
             .document(key)
@@ -220,7 +229,11 @@ class AddShop : AppCompatActivity() {
                 map[Constants.FIELD_FD_SM_PASSWORD] = passWord.text.toString()
                 map[Constants.FIELD_FD_SM_STATUS] = "open"
                 map[Constants.FIELD_FD_SM_USERNAME] = userName.text.toString()
-
+                map[Constants.FIELD_FD_SM_IS_CLIENT] = if(clientShopSwitchMaterial.isChecked){
+                    "yes"
+                }else{
+                    "no"
+                }
                 firebaseFirestore
                     .collection(Constants.FC_SHOPS_MAIN)
                     .document(key)
@@ -258,7 +271,11 @@ class AddShop : AppCompatActivity() {
                         map[Constants.FIELD_FD_SM_PASSWORD] = passWord.text.toString()
                         map[Constants.FIELD_FD_SM_STATUS] = "open"
                         map[Constants.FIELD_FD_SM_USERNAME] = userName.text.toString()
-
+                        map[Constants.FIELD_FD_SM_IS_CLIENT] = if(clientShopSwitchMaterial.isChecked){
+                            "yes"
+                        }else{
+                            "no"
+                        }
                         firebaseFirestore
                             .collection(Constants.FC_SHOPS_MAIN)
                             .document(key)

@@ -14,7 +14,7 @@
         android:gravity="center"
         android:padding="10dp"
         android:background="@color/blue"
-        android:text="শপ ম্যানেজমেন্ট"
+        android:text="Shop Management"
         android:textColor="@color/white"
         android:textSize="18sp"
         android:textStyle="bold"
@@ -35,7 +35,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
-                android:hint="ইউজার নেম">
+                android:hint="User Name">
 
                 <EditText
                     android:id="@+id/userName"
@@ -53,7 +53,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
-                android:hint="পাসওয়ার্ড">
+                android:hint="Password">
 
                 <EditText
                     android:id="@+id/passWord"
@@ -80,7 +80,7 @@
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:padding="10dp"
-                        android:text="কভার ফটো দিন"
+                        android:text="Cover Photo"
                         android:textColor="#8E8B8B"
                         android:textSize="12sp"
                         android:textStyle="bold"
@@ -106,7 +106,7 @@
                         android:layout_height="wrap_content"
                         android:gravity="center"
                         android:padding="10dp"
-                        android:text="আইকন দিন"
+                        android:text="Icon"
                         android:textColor="#8E8B8B"
                         android:textSize="12sp"
                         android:textStyle="bold"
@@ -143,7 +143,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
-                android:hint="শপের নাম">
+                android:hint="Shop Name">
 
                 <EditText
                     android:id="@+id/bookTitle"
@@ -156,12 +156,84 @@
                     android:textSize="12sp" />
             </com.google.android.material.textfield.TextInputLayout>
 
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/clientShopSwitchMaterial"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_margin="8dp"
+                android:text="Client Shop"/>
+
             <com.google.android.material.textfield.TextInputLayout
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
-                android:hint="ডিএ চার্জ">
+                android:hint="Shop Order">
+
+                <EditText
+                    android:id="@+id/shopOrderEdittext"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="#fff"
+                    android:ems="10"
+                    android:inputType="numberSigned"
+                    android:textColor="#000"
+                    android:textSize="12sp" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_margin="2dp"
+                android:id="@+id/mCardViewShopNoteTop"
+                app:cardElevation="5dp"
+                android:visibility="visible"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:orientation="vertical"
+                android:gravity="center"
+                app:layout_constraintTop_toBottomOf="@+id/linearLayout8">
+                <TextView
+                    android:id="@+id/addShopNoteTextView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/hind_siliguri_font"
+                    android:gravity="center"
+                    android:background="@color/green_normal"
+                    android:text="Add Shop Top Note"
+                    android:padding="11dp"
+                    android:layout_gravity="center"
+                    android:textColor="@color/white"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center">
+                <Button
+                    android:id="@+id/buttonTextColor"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="Set Text Color"
+                    android:layout_margin="2dp"
+                    android:layout_weight="1"/>
+                <Button
+                    android:id="@+id/buttonBgColor"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="Set Bg Color"
+                    android:layout_margin="2dp"
+                    android:layout_weight="1"/>
+            </LinearLayout>
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:hint="DA Charge">
 
                 <EditText
                     android:id="@+id/da_charge"
@@ -179,7 +251,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
-                android:hint="ডেলিভারি চার্জ">
+                android:hint="Delivery Charge">
 
                 <EditText
                     android:id="@+id/delivery_charge"
@@ -197,7 +269,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
-                android:hint="লোকেশন">
+                android:hint="Location">
 
                 <EditText
                     android:id="@+id/location"
@@ -233,7 +305,7 @@
                 android:gravity="center"
                 android:textColor="#fff"
                 app:backgroundTint="@color/blue"
-                android:text="আপডেট করুন"
+                android:text="Save Changes"
                 android:layout_marginTop="10dp"
                 android:textStyle="bold"
                 android:textSize="16sp" />

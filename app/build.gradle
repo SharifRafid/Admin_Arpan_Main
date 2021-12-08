@@ -71,6 +71,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-storage-ktx'
     implementation 'com.google.firebase:firebase-firestore-ktx'
     implementation 'com.google.firebase:firebase-auth-ktx'
+    implementation 'com.google.firebase:firebase-dynamic-links-ktx'
     implementation "com.firebaseui:firebase-ui-storage:$firebase_ui_storage_version"
     implementation "androidx.multidex:multidex:$multidex_version"
     implementation "com.airbnb.android:lottie:$lottie_version"
@@ -82,4 +83,10 @@ dependencies {
     implementation "com.github.linger1216:labelview:v$label_view_version"
     implementation "com.github.dhaval2404:imagepicker:$image_picker_version"
     implementation 'com.github.dhaval2404:colorpicker:2.0'
+    implementation 'com.jsibbold:zoomage:1.3.1'
+    implementation 'com.github.baoyachi:StepView:1.9'
+    //implementation 'com.jzxiang.pickerview:TimePickerDialog:1.0.1'
+    implementation 'com.github.SharifRafid:BDLocationPicker:1.0.0'
+    implementation 'com.wdullaer:materialdatetimepicker:4.2.3'
+
 }

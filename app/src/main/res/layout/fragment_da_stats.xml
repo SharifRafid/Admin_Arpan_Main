@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:fitsSystemWindows="true"
+    android:background="@color/bg_color"
+    tools:context=".ui.home.HomeActivityMain">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolBar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/blue"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
+        <TextView
+            android:id="@+id/title_text_view2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/hind_siliguri_font"
+            android:gravity="center"
+            android:text="DA Statistics         "
+            android:layout_marginEnd="15dp"
+            android:textColor="@color/white"
+            android:textSize="14sp"
+            android:background="@color/colorPrimary"
+            android:padding="2dp"
+            android:drawableStart="@drawable/ic_baseline_arrow_back_24"
+            android:drawableTint="@color/white"
+            android:textStyle="bold" />
+    </androidx.appcompat.widget.Toolbar>
+
+    <RadioGroup
+        android:id="@+id/ordersDateMonthRadioGroup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/title_text_view">
+
+        <com.google.android.material.radiobutton.MaterialRadioButton
+            android:id="@+id/pendingRadioButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:layout_weight="1"
+            android:background="@drawable/radio_selector"
+            android:button="@android:color/transparent"
+            android:checked="false"
+            android:gravity="center"
+            android:padding="5dp"
+            android:text="THIS MONTH"
+            android:textColor="@color/white" />
+
+        <com.google.android.material.radiobutton.MaterialRadioButton
+            android:id="@+id/verifiedRadioButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:layout_weight="1"
+            android:background="@drawable/radio_selector"
+            android:button="@android:color/transparent"
+            android:gravity="center"
+            android:padding="5dp"
+            android:text="LAST MONTH"
+            android:textColor="@color/white" />
+    </RadioGroup>
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:id="@+id/thisMonthsLayout"
+        android:layout_height="match_parent">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                app:cardCornerRadius="13dp"
+                android:layout_margin="2dp"
+                android:layout_height="wrap_content">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:orientation="vertical"
+                    android:background="@drawable/cart_item_bg_main"
+                    android:layout_height="wrap_content"
+                    android:gravity="center">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/hind_siliguri_font"
+                        android:gravity="center"
+                        android:background="@color/colorPrimary"
+                        android:text="Statistic"
+                        android:textColor="@color/divider_text_color_1"
+                        android:textSize="12sp"
+                        android:padding="4dp"
+                        android:textStyle="bold"/>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+                        <androidx.cardview.widget.CardView
+                            android:layout_weight=".33"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_margin="2dp"
+                            app:cardCornerRadius="8dp">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:gravity="center"
+                                android:orientation="vertical"
+                                android:padding="15dp">
+
+                                <TextView
+                                    android:id="@+id/totalOrderThisMonthTextView"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="@font/hind_siliguri_font"
+                                    android:gravity="center"
+                                    android:text="0"
+                                    android:textColor="#000000"
+                                    android:textColorHint="#6E8697"
+                                    android:textSize="20sp"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="@font/hind_siliguri_font"
+                                    android:gravity="center"
+                                    android:text="No. of Orders"
+                                    android:textColor="#000000"
+                                    android:textColorHint="#6E8697"
+                                    android:textSize="13sp"
+                                    android:textStyle="bold"
+                                    android:visibility="visible" />
+                            </LinearLayout>
+                        </androidx.cardview.widget.CardView>
+                        <androidx.cardview.widget.CardView
+                            android:layout_weight=".33"
+                            android:layout_margin="2dp"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            app:cardCornerRadius="8dp">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:gravity="center"
+                                android:orientation="vertical"
+                                android:padding="15dp">
+
+                                <TextView
+                                    android:id="@+id/myIncomeTextView"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="@font/hind_siliguri_font"
+                                    android:gravity="center"
+                                    android:text="0"
+                                    android:textColor="#000000"
+                                    android:textColorHint="#6E8697"
+                                    android:textSize="20sp"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="@font/hind_siliguri_font"
+                                    android:gravity="center"
+                                    android:text="Total Balance (Monthly)"
+                                    android:textColor="#000000"
+                                    android:textColorHint="#6E8697"
+                                    android:textSize="13sp"
+                                    android:textStyle="bold"
+                                    android:visibility="visible" />
+                            </LinearLayout>
+                        </androidx.cardview.widget.CardView>
+                        <androidx.cardview.widget.CardView
+                            android:layout_weight=".33"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_margin="2dp"
+                            app:cardCornerRadius="8dp">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:gravity="center"
+                                android:orientation="vertical"
+                                android:padding="15dp">
+
+                                <TextView
+                                    android:id="@+id/arpanBokeyaTextView"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="@font/hind_siliguri_font"
+                                    android:gravity="center"
+                                    android:text="0"
+                                    android:textColor="#000000"
+                                    android:textColorHint="#6E8697"
+                                    android:textSize="20sp"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="@font/hind_siliguri_font"
+                                    android:gravity="center"
+                                    android:text="Due to Arpan (Monthly)"
+                                    android:textColor="#000000"
+                                    android:textColorHint="#6E8697"
+                                    android:textSize="13sp"
+                                    android:textStyle="bold"
+                                    android:visibility="visible" />
+                            </LinearLayout>
+                        </androidx.cardview.widget.CardView>
+                    </LinearLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/thisMonthDaRecycler"
+                android:layout_width="match_parent"
+                android:layout_margin="5dp"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+</LinearLayout>

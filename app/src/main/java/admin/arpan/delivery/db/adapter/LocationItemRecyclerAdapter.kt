@@ -57,48 +57,101 @@ class LocationItemRecyclerAdapter(val context : Context,
             val alertDialog = AlertDialog.Builder(context).create()
             val locationAlertDialogViewMain = LayoutInflater.from(context)
                 .inflate(R.layout.dialog_add_location, null)
-            locationAlertDialogViewMain.edt_location_name.setText(locations[position].locationName)
-            locationAlertDialogViewMain.edt_delivery_charge.setText(locations[position].deliveryCharge.toString())
-            locationAlertDialogViewMain.edt_da_charge.setText(locations[position].daCharge.toString())
-            locationAlertDialogViewMain.addLocationConfirmButton.setOnClickListener {
-                val locationName = locationAlertDialogViewMain.edt_location_name.text.toString()
-                val deliveryCharge = locationAlertDialogViewMain.edt_delivery_charge.text.toString()
-                val daCharge = locationAlertDialogViewMain.edt_da_charge.text.toString()
-                if(
-                    locationName.isNotEmpty() && deliveryCharge.isNotEmpty()
-                    && daCharge.isNotEmpty()
-                ){
-                    locationAlertDialogViewMain.addLocationConfirmButton.isEnabled = false
-                    locationAlertDialogViewMain.edt_location_name.isEnabled = false
-                    locationAlertDialogViewMain.edt_delivery_charge.isEnabled = false
-                    locationAlertDialogViewMain.edt_da_charge.isEnabled = false
-                    alertDialog.setCancelable(false)
-                    alertDialog.setCanceledOnTouchOutside(false)
-                    val key = locations[position].key
-                    val locationItem = HashMap<String,String>()
-                    locationItem["name"] = locationName
-                    locationItem["deliveryCharge"] = deliveryCharge
-                    locationItem["daCharge"] = daCharge
-                    FirebaseDatabase.getInstance()
-                        .reference
-                        .child("data")
-                        .child(firebaseDatabaseLocation)
-                        .child(key)
-                        .setValue(locationItem)
-                        .addOnCompleteListener {
-                            locations[position] = LocationItem(
-                                key,
-                                locationName,
-                                deliveryCharge.toInt(),
-                                daCharge.toInt()
-                            )
-                            notifyItemChanged(position)
-                            alertDialog.dismiss()
-                        }
+            if(firebaseDatabaseLocation == "delivery_charges"){
+                locationAlertDialogViewMain.edt_client_delivery_charge_container.visibility = View.VISIBLE
+                locationAlertDialogViewMain.edt_client_delivery_charge.setText(locations[position].deliveryChargeClient.toString())
+
+                locationAlertDialogViewMain.edt_location_name.setText(locations[position].locationName)
+                locationAlertDialogViewMain.edt_delivery_charge.setText(locations[position].deliveryCharge.toString())
+                locationAlertDialogViewMain.edt_da_charge.setText(locations[position].daCharge.toString())
+                locationAlertDialogViewMain.addLocationConfirmButton.setOnClickListener {
+                    val locationName = locationAlertDialogViewMain.edt_location_name.text.toString()
+                    val deliveryCharge = locationAlertDialogViewMain.edt_delivery_charge.text.toString()
+                    val daCharge = locationAlertDialogViewMain.edt_da_charge.text.toString()
+                    val clientDeliveryCharge = locationAlertDialogViewMain.edt_client_delivery_charge.text.toString()
+                    if(
+                        locationName.isNotEmpty() && deliveryCharge.isNotEmpty()
+                        && daCharge.isNotEmpty()&& clientDeliveryCharge.isNotEmpty()
+                    ){
+                        locationAlertDialogViewMain.addLocationConfirmButton.isEnabled = false
+                        locationAlertDialogViewMain.edt_location_name.isEnabled = false
+                        locationAlertDialogViewMain.edt_delivery_charge.isEnabled = false
+                        locationAlertDialogViewMain.edt_da_charge.isEnabled = false
+                        locationAlertDialogViewMain.edt_client_delivery_charge.isEnabled = false
+                        alertDialog.setCancelable(false)
+                        alertDialog.setCanceledOnTouchOutside(false)
+                        val key = locations[position].key
+                        val locationItem = HashMap<String,String>()
+                        locationItem["name"] = locationName
+                        locationItem["deliveryCharge"] = deliveryCharge
+                        locationItem["daCharge"] = daCharge
+                        locationItem["deliveryChargeClient"] = clientDeliveryCharge
+                        FirebaseDatabase.getInstance()
+                            .reference
+                            .child("data")
+                            .child(firebaseDatabaseLocation)
+                            .child(key)
+                            .setValue(locationItem)
+                            .addOnCompleteListener {
+                                locations[position] = LocationItem(
+                                    key,
+                                    locationName,
+                                    deliveryCharge.toInt(),
+                                    clientDeliveryCharge.toInt(),
+                                    daCharge.toInt()
+                                )
+                                notifyItemChanged(position)
+                                alertDialog.dismiss()
+                            }
+                    }
                 }
+                alertDialog.setView(locationAlertDialogViewMain)
+                alertDialog.show()
+            }else{
+                locationAlertDialogViewMain.edt_location_name.setText(locations[position].locationName)
+                locationAlertDialogViewMain.edt_delivery_charge.setText(locations[position].deliveryCharge.toString())
+                locationAlertDialogViewMain.edt_da_charge.setText(locations[position].daCharge.toString())
+                locationAlertDialogViewMain.addLocationConfirmButton.setOnClickListener {
+                    val locationName = locationAlertDialogViewMain.edt_location_name.text.toString()
+                    val deliveryCharge = locationAlertDialogViewMain.edt_delivery_charge.text.toString()
+                    val daCharge = locationAlertDialogViewMain.edt_da_charge.text.toString()
+                    if(
+                        locationName.isNotEmpty() && deliveryCharge.isNotEmpty()
+                        && daCharge.isNotEmpty()
+                    ){
+                        locationAlertDialogViewMain.addLocationConfirmButton.isEnabled = false
+                        locationAlertDialogViewMain.edt_location_name.isEnabled = false
+                        locationAlertDialogViewMain.edt_delivery_charge.isEnabled = false
+                        locationAlertDialogViewMain.edt_da_charge.isEnabled = false
+                        locationAlertDialogViewMain.edt_client_delivery_charge.isEnabled = false
+                        alertDialog.setCancelable(false)
+                        alertDialog.setCanceledOnTouchOutside(false)
+                        val key = locations[position].key
+                        val locationItem = HashMap<String,String>()
+                        locationItem["name"] = locationName
+                        locationItem["deliveryCharge"] = deliveryCharge
+                        locationItem["daCharge"] = daCharge
+                        FirebaseDatabase.getInstance()
+                            .reference
+                            .child("data")
+                            .child(firebaseDatabaseLocation)
+                            .child(key)
+                            .setValue(locationItem)
+                            .addOnCompleteListener {
+                                locations[position] = LocationItem(
+                                    key,
+                                    locationName,
+                                    deliveryCharge.toInt(),
+                                    daCharge.toInt()
+                                )
+                                notifyItemChanged(position)
+                                alertDialog.dismiss()
+                            }
+                    }
+                }
+                alertDialog.setView(locationAlertDialogViewMain)
+                alertDialog.show()
             }
-            alertDialog.setView(locationAlertDialogViewMain)
-            alertDialog.show()
         }
         holder.locationLinearMain.setOnLongClickListener {
             val progressDialog = context.createProgressDialog()

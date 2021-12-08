@@ -23,6 +23,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.widget.doOnTextChanged
 import androidx.recyclerview.widget.RecyclerView
 import com.github.dhaval2404.colorpicker.ColorPickerDialog
+import com.github.dhaval2404.colorpicker.MaterialColorPickerDialog
 import com.github.dhaval2404.colorpicker.model.ColorShape
 import com.google.android.material.switchmaterial.SwitchMaterial
 import com.google.firebase.database.FirebaseDatabase
@@ -104,11 +105,10 @@ class NormalBannersPopUpAdapter(val context : Context,
             locationAlertDialogViewMain.edt_name.setText(locations[position].textTitle)
             locationAlertDialogViewMain.order.setText(locations[position].order.toString())
             locationAlertDialogViewMain.buttonTextColor.setOnClickListener {
-                ColorPickerDialog
-                    .Builder(context)        				// Pass Activity Instance
-                    .setTitle("Pick Text Color")           	// Default "Choose Color"
-                    .setColorShape(ColorShape.SQAURE)   // Default ColorShape.CIRCLE
-                    .setDefaultColor(textColor)     // Pass Default Color
+                MaterialColorPickerDialog
+                    .Builder(context)  				// Pass Activity Instance
+                    .setTitle("Pick Text Color")
+                    .setColors(arrayListOf("#FFFFFF", "#000000", "#3D3D3D", "#29ABE2", "#F7931E", "#FFFF00", "#ED1C24", "#009245", "#662D91", "#D4145A"))
                     .setColorListener { color, colorHex ->
                         textColor = colorHex
                         locationAlertDialogViewMain.specialOfferTextView.setTextColor(color)
@@ -116,15 +116,13 @@ class NormalBannersPopUpAdapter(val context : Context,
                     .show()
             }
             locationAlertDialogViewMain.buttonBgColor.setOnClickListener {
-                ColorPickerDialog
-                    .Builder(context)        				// Pass Activity Instance
-                    .setTitle("Pick Background Color")           	// Default "Choose Color"
-                    .setColorShape(ColorShape.SQAURE)   // Default ColorShape.CIRCLE
-                    .setDefaultColor(bgColor)     // Pass Default Color
+                MaterialColorPickerDialog
+                    .Builder(context)  				// Pass Activity Instance
+                    .setTitle("Pick Text Color")
+                    .setColors(arrayListOf("#FFFFFF", "#000000", "#3D3D3D", "#29ABE2", "#F7931E", "#FFFF00", "#ED1C24", "#009245", "#662D91", "#D4145A"))
                     .setColorListener { color, colorHex ->
                         bgColor = colorHex
-                        locationAlertDialogViewMain.specialOfferTextView.setBackgroundColor(color)
-                    }
+                        locationAlertDialogViewMain.specialOfferTextView.setBackgroundColor(color) }
                     .show()
             }
             locationAlertDialogViewMain.edt_name.doOnTextChanged { text, start, before, count ->

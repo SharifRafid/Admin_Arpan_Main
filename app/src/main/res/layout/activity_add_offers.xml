@@ -6,6 +6,27 @@
     android:layout_height="match_parent"
     tools:context=".ui.home.AddOffers">
 
+    <TextView
+        android:id="@+id/title_text_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/grey"
+        android:drawableTint="@color/white"
+        android:fontFamily="@font/hind_siliguri_font"
+        android:gravity="center"
+        android:paddingStart="20dp"
+        android:paddingTop="7dp"
+        android:paddingEnd="20dp"
+        android:paddingBottom="7dp"
+        android:text="Offer Management"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:drawableStartCompat="@drawable/ic_baseline_arrow_back_24"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/mainRecyclerView"
         android:layout_width="0dp"
@@ -13,29 +34,20 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/upload2" />
+        app:layout_constraintTop_toBottomOf="@+id/title_text_view" />
 
-    <ImageView
-        android:id="@+id/imagePick2"
-        android:layout_width="150dp"
-        android:layout_height="40dp"
-        android:scaleType="centerCrop"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/test_shop_image" />
-
-    <com.google.android.material.button.MaterialButton
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/upload2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="32dp"
+        android:layout_marginBottom="32dp"
         android:backgroundTint="#8C9EFF"
         android:fontFamily="sans-serif"
         android:padding="8dp"
-        android:text="Upload"
+        android:src="@drawable/ic_round_add_24"
         android:textSize="16sp"
         android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imagePick2" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

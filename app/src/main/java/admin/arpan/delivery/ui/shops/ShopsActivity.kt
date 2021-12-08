@@ -23,6 +23,10 @@ class ShopsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_shops)
 
+        titleTextView.setOnClickListener {
+            onBackPressed()
+        }
+
         loadDataFirestore()
     }
 
@@ -36,26 +40,51 @@ class ShopsActivity : AppCompatActivity() {
                     if(it.result!!.documents.isNotEmpty()){
                         val arrayList = ArrayList<ShopItem>()
                         for(document in it.result!!.documents){
-                            arrayList.add(
-                                ShopItem(
-                                    key = document.id,
-                                    name = document.getString(Constants.FIELD_FD_SM_NAME).toString(),
-                                    categories = document.getString(Constants.FIELD_FD_SM_CATEGORY).toString(),
-                                    image = document.getString(Constants.FIELD_FD_SM_ICON).toString(),
-                                    cover_image = document.getString(Constants.FIELD_FD_SM_COVER).toString(),
-                                    da_charge = document.getString(Constants.FIELD_FD_SM_DA_CHARGE).toString(),
-                                    deliver_charge = document.getString(Constants.FIELD_FD_SM_DELIVERY).toString(),
-                                    location = document.getString(Constants.FIELD_FD_SM_LOCATION).toString(),
-                                    username = document.getString(Constants.FIELD_FD_SM_USERNAME).toString(),
-                                    password = document.getString(Constants.FIELD_FD_SM_PASSWORD).toString(),
-                                    order = document.getString(Constants.FIELD_FD_SM_ORDER).toString().toInt(),
-                                    status = document.getString(Constants.FIELD_FD_SM_STATUS).toString()
-                                )
+                            var shopItem = ShopItem(
+                                key = document.id,
+                                name = document.getString(Constants.FIELD_FD_SM_NAME).toString(),
+                                categories = document.getString(Constants.FIELD_FD_SM_CATEGORY).toString(),
+                                image = document.getString(Constants.FIELD_FD_SM_ICON).toString(),
+                                cover_image = document.getString(Constants.FIELD_FD_SM_COVER).toString(),
+                                da_charge = document.getString(Constants.FIELD_FD_SM_DA_CHARGE).toString(),
+                                deliver_charge = document.getString(Constants.FIELD_FD_SM_DELIVERY).toString(),
+                                location = document.getString(Constants.FIELD_FD_SM_LOCATION).toString(),
+                                username = document.getString(Constants.FIELD_FD_SM_USERNAME).toString(),
+                                password = document.getString(Constants.FIELD_FD_SM_PASSWORD).toString(),
+                                order = document.getString(Constants.FIELD_FD_SM_ORDER).toString().toInt(),
+                                status = document.getString(Constants.FIELD_FD_SM_STATUS).toString()
                             )
+                            if(document.contains("shopNotice")){
+                                shopItem.shopNotice = document.getString("shopNotice").toString()
+                            }
+                            if(document.contains("shopNoticeColor")){
+                                shopItem.shopNoticeColor = document.getString("shopNoticeColor").toString()
+                            }
+                            if(document.contains("shopNoticeColorBg")){
+                                shopItem.shopNoticeColorBg = document.getString("shopNoticeColorBg").toString()
+                            }
+                            if(document.contains("shopDiscount")){
+                                shopItem.shopDiscount = document.getBoolean("shopDiscount")!!
+                            }
+                            if(document.contains("shopCategoryDiscount")){
+                                shopItem.shopCategoryDiscount = document.getBoolean("shopCategoryDiscount")!!
+                            }
+                            if(document.contains("shopCategoryDiscountName")){
+                                shopItem.shopCategoryDiscountName = document.getString("shopCategoryDiscountName")!!
+                            }
+                            if(document.contains("shopDiscountPercentage")){
+                                shopItem.shopDiscountPercentage = document.getString("shopDiscountPercentage").toString().toFloat()
+                            }
+                            if(document.contains("shopDiscountMinimumPrice")){
+                                shopItem.shopDiscountMinimumPrice = document.getString("shopDiscountMinimumPrice").toString().toFloat()
+                            }
+                            arrayList.add(shopItem)
                         }
                         array_size = arrayList.size
                         mainRecyclerView.layoutManager = LinearLayoutManager(this)
-                        mainRecyclerView.adapter = ShopItemRecyclerAdapter(this, arrayList, "")
+                        val adapterShops = ShopItemRecyclerAdapter(this, arrayList, "")
+                        adapterShops.setHasStableIds(true)
+                        mainRecyclerView.adapter = adapterShops
                     }else{
                         Toast.makeText(this, "No data", Toast.LENGTH_SHORT).show()
 

@@ -13,7 +13,8 @@
         android:layout_width="250dp"
         android:layout_height="250dp"
         android:layout_marginTop="80dp"
-        android:src="@drawable/ic_arpan_icon_v2"/>
+        android:src="@drawable/ic_arpan_icon_v2"
+        app:tint="@color/white" />
 
     <EditText
         android:id="@+id/editTextTextPersonName"
@@ -42,7 +43,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        android:backgroundTint="#BF2B2B"
+        android:textColor="@color/grey_normal"
+        android:backgroundTint="@color/white"
         android:text="লগ ইন করুন" />
 
 </LinearLayout>

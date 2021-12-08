@@ -41,8 +41,8 @@
                 android:layout_weight="1"/>
             <ImageView
                 android:id="@+id/addProductCategoriesButton"
-                android:layout_width="35dp"
-                android:layout_height="35dp"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
                 android:layout_gravity="center_horizontal"
                 android:background="@drawable/add_button_bg"
                 android:padding="4dp"

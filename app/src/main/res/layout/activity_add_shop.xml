@@ -156,6 +156,14 @@
                     android:textSize="12sp" />
             </com.google.android.material.textfield.TextInputLayout>
 
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/clientShopSwitchMaterial"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_margin="8dp"
+                android:text="ক্লায়েন্ট শপ"/>
+
             <com.google.android.material.textfield.TextInputLayout
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"

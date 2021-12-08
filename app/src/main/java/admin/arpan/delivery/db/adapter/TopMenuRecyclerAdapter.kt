@@ -4,7 +4,11 @@ import admin.arpan.delivery.ui.shops.AddShop
 import admin.arpan.delivery.ui.auth.MainActivity
 import admin.arpan.delivery.R
 import admin.arpan.delivery.ui.da.DaActivity
+import admin.arpan.delivery.ui.feedback.UserFeedBackFragment
 import admin.arpan.delivery.ui.home.AddOffers
+import admin.arpan.delivery.ui.home.HomeActivity
+import admin.arpan.delivery.ui.home.HomeActivityMain
+import admin.arpan.delivery.ui.order.AddCustomOrder
 import admin.arpan.delivery.ui.order.OrdresActivity
 import admin.arpan.delivery.ui.settings.SettingActivity
 import admin.arpan.delivery.ui.shops.ShopsActivity
@@ -43,12 +47,10 @@ class TopMenuRecyclerAdapter(val context : Context,
         holder.textView.text = titles[position]
         holder.cardView.setOnClickListener {
             when(position){
-                0->{context.startActivity(Intent(context, ShopsActivity::class.java)) }
-                1->{context.startActivity(Intent(context, AddOffers::class.java))}
-                2->{context.startActivity(Intent(context, OrdresActivity::class.java))}
-                3->{context.startActivity(Intent(context, DaActivity::class.java))}
-                4->{context.startActivity(Intent(context, SettingActivity::class.java))}
-                5->{context.startActivity(Intent(context, SettingActivity::class.java))}
+                0->{(context as HomeActivityMain)}
+                1->{(context as HomeActivityMain)}
+                2->{(context as HomeActivityMain)}
+                4-> UserFeedBackFragment().show((context as HomeActivity).supportFragmentManager, "")
             }
         }
     }

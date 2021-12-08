@@ -36,6 +36,8 @@ class Constants {
         const val FIELD_FD_SM_PASSWORD = "shop_main_password"
         const val FIELD_FD_SM_ORDER = "shop_main_order"
         const val FIELD_FD_SM_STATUS = "shop_main_status"
+        const val FIELD_FD_SM_IS_CLIENT = "shop_main_is_client"
+        const val FIELD_FD_SM_DYNAMIC_LINK = "shop_main_dynamic_link"
 
         //FirebaseFirestore Shops Category Main
         const val FC_SHOPS_MAIN_CATEGORY = "shop_categories"
