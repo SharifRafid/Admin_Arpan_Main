@@ -15,14 +15,13 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AdminArpan">
         <activity
-            android:name=".ui.auth.MainActivity2"
+            android:name=".ui.auth.MainActivity"
             android:exported="false" />
         <activity
             android:name=".ui.home.HomeActivityMain"
             android:exported="true">
             <intent-filter>
-                <action android:name=".ui.order.OrdresActivity" />
-
+                <action android:name=".ui.home.HomeActivityMain" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
@@ -41,15 +40,9 @@
             android:label=""
             android:theme="@style/Theme.UserDialog" />
         <activity android:name=".ui.products.ProductsActivity" />
-        <activity android:name=".ui.home.HomeActivity">
-            <intent-filter>
-                <action android:name=".ui.home.HomeActivity" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
+        <activity android:name=".ui.home.HomeActivity"/>
         <activity android:name=".ui.shops.AddShop" />
-        <activity android:name=".ui.auth.MainActivity">
+        <activity android:name=".ui.auth.MainActivity2">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

@@ -19,6 +19,7 @@ import android.content.Context.CLIPBOARD_SERVICE
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -89,6 +90,7 @@ class OrderHistoryFragmentNew2 : Fragment() {
     private var orderItemMain : OrderItemMain? = null
     private var currentCalc = 0
     lateinit var contextMain : Context
+    lateinit var viewMain : View
     private lateinit var homeViewModelMainData: HomeViewModelMainData
     private lateinit var homeMainNewInterface: HomeMainNewInterface
 
@@ -100,8 +102,8 @@ class OrderHistoryFragmentNew2 : Fragment() {
         }catch (classCastException : ClassCastException){
             Log.e(TAG, "This activity does not implement the interface / listener")
         }
-    }
 
+    }
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_order_history_new, container, false)
     }
@@ -124,6 +126,7 @@ class OrderHistoryFragmentNew2 : Fragment() {
         }
     }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        viewMain = view
         initVars(view)
         if(FirebaseAuth.getInstance().currentUser == null){
             view.orderHistoryProgressBarContainer.visibility = View.GONE
@@ -189,23 +192,6 @@ class OrderHistoryFragmentNew2 : Fragment() {
         view.mainOrderDetailsDataContainerLinearLayout.visibility = View.VISIBLE
     }
 
-//    private fun setLogicForCardsAndCountsOnStatistics(view: View, orderItemMain: OrderItemMain) {
-//        view.orderTotalPrice.text = (orderItemMain.totalPrice + orderItemMain.deliveryCharge).toString()
-//        view.orderDeliveryPrice.text = orderItemMain.deliveryCharge.toString()
-//        view.orderDaPrice.text = orderItemMain.daCharge.toString()
-//        var arpanProfit = orderItemMain.deliveryCharge - orderItemMain.daCharge
-//        for(productItem in orderItemMain.products){
-//            arpanProfit += (productItem.product_arpan_profit*productItem.product_item_amount)
-//        }
-//        if(orderItemMain.promoCodeApplied){
-//            var totalcalculated = 0
-//            for(productItem in orderItemMain.products){
-//                totalcalculated += (productItem.product_item_price*productItem.product_item_amount)
-//            }
-//            arpanProfit -= (totalcalculated-orderItemMain.totalPrice)
-//        }
-//        view.orderArpanChargePrice.text = arpanProfit.toString()
-//    }
     private fun setLogicForCardsAndCountsOnStatistics(view: View, orderItemMain: OrderItemMain) {
         view.orderTotalPrice.text = (orderItemMain.totalPrice + orderItemMain.deliveryCharge).toString()
         view.orderDeliveryPrice.text = orderItemMain.deliveryCharge.toString()
@@ -470,7 +456,7 @@ class OrderHistoryFragmentNew2 : Fragment() {
     }
 
     private fun setOrderImageOnView(view: View, firebaseStorage: StorageReference) {
-        Glide.with(requireActivity())
+        Glide.with(contextMain)
             .load(firebaseStorage)
             .diskCacheStrategy(DiskCacheStrategy.ALL)
             .centerInside()
@@ -519,6 +505,8 @@ class OrderHistoryFragmentNew2 : Fragment() {
         }
     }
     private fun fillUpShopDetailsValueInMainShopItemList(view: View) {
+        Log.e(TAG, mainShopItemHashMap[currentCalc].shop_doc_id)
+        Log.e(TAG, mainShopItemHashMap.size.toString())
         firebaseFirestore.collection(Constants.FC_SHOPS_MAIN)
             .document(mainShopItemHashMap[currentCalc].shop_doc_id)
             .get(Source.CACHE).addOnSuccessListener { document ->
@@ -555,10 +543,6 @@ class OrderHistoryFragmentNew2 : Fragment() {
                         )
                     }
                 if(currentCalc+1 >= mainShopItemHashMap.size){
-                    // The data is downloaded all of those
-                    view.orderItemsMainRecyclerView.layoutManager = LinearLayoutManager(contextMain)
-                    view.orderItemsMainRecyclerView.adapter = productRecyclerViewAdapter
-
                     newMainShopItemHashMap.clear()
                     newMainShopItemHashMap = ArrayList()
                     for(item in mainShopItemHashMap){
@@ -573,6 +557,9 @@ class OrderHistoryFragmentNew2 : Fragment() {
                         }
                         newMainShopItemHashMap.add(mainShopCartItem)
                     }
+                    // The data is downloaded all of those
+                    view.orderItemsMainRecyclerView.layoutManager = LinearLayoutManager(contextMain)
+                    view.orderItemsMainRecyclerView.adapter = productRecyclerViewAdapter
                 }else{
                     currentCalc ++
                     fillUpShopDetailsValueInMainShopItemList(view)
@@ -581,7 +568,11 @@ class OrderHistoryFragmentNew2 : Fragment() {
     }
 
     private fun setTextOnRestOrderDetailsTextView(view: View, orderItemMain: OrderItemMain) {
-        view.pickUpTimeTV.text = orderItemMain.pickUpTime
+        view.pickUpTimeTV.text = if(orderItemMain.pickUpTime.isNotEmpty()){
+            orderItemMain.pickUpTime
+        }else{
+            "Now"
+        }
         view.dateOrder.text = getDate(orderItemMain.orderPlacingTimeStamp, "dd/MM/yyyy")
         if(orderItemMain.promoCodeApplied){
             view.appliedPromoCodeButton.visibility = View.VISIBLE
@@ -603,6 +594,7 @@ class OrderHistoryFragmentNew2 : Fragment() {
         view.cancelOrderButton.visibility = View.GONE
         when(orderItemMain.orderStatus){
             "PENDING" -> {
+                stop()
                 val setpview5 = view.findViewById<View>(R.id.step_view_order_progress) as HorizontalStepView
                 val stepsBeanList: MutableList<StepBean> = ArrayList()
                 val stepBean4 = StepBean("     PENDING     ", 1)
@@ -664,7 +656,8 @@ class OrderHistoryFragmentNew2 : Fragment() {
 
                 if(orderItemMain.daID.isNotEmpty()){
                     view.linearAssignedDA.visibility = View.VISIBLE
-                    view.assignedToDaTextView.text = "Waiting For "+orderItemMain.daDetails.da_name
+                    view.assignedToDaTextView.text = "Waiting For "+orderItemMain.daDetails.da_name+" ("+getDate((System.currentTimeMillis() - orderItemMain.assignedToDaTimeStampMillis), "mm:ss")+")"
+                    start()
                     view.callDaNowImageView.setOnClickListener {
                         callNow(orderItemMain.daDetails.da_mobile)
                     }
@@ -681,6 +674,7 @@ class OrderHistoryFragmentNew2 : Fragment() {
                         true
                     }
                 }else{
+                    stop()
                     view.linearAssignedDA.visibility = View.GONE
                     view.acceptOrderButton.text = "Assign DA"
                     view.acceptOrderButton.setOnClickListener {
@@ -693,6 +687,7 @@ class OrderHistoryFragmentNew2 : Fragment() {
                 }
             }
             "PROCESSING" -> {
+                stop()
                 val setpview5 = view.findViewById<View>(R.id.step_view_order_progress) as HorizontalStepView
                 val stepsBeanList: MutableList<StepBean> = ArrayList()
                 val stepBean4 = StepBean("     PENDING     ", 1)
@@ -729,12 +724,11 @@ class OrderHistoryFragmentNew2 : Fragment() {
 
                 if(orderItemMain.daID.isNotEmpty()){
                     view.linearAssignedDA.visibility = View.VISIBLE
-                    view.assignedToDaTextView.text = "Assigned to "+orderItemMain.daDetails.da_name
+                    view.assignedToDaTextView.text = "Assigned to "+orderItemMain.daDetails.da_name+" ("+getDate((orderItemMain.processingTimeStampMillis - orderItemMain.assignedToDaTimeStampMillis), "mm:ss")+")"
                     view.callDaNowImageView.setOnClickListener {
                         callNow(orderItemMain.daDetails.da_mobile)
                     }
                     view.acceptOrderButton.visibility = View.GONE
-                    view.cancelOrderButton.visibility = View.GONE
                     view.assignedToDaTextView.setOnClickListener {
                         showAssignOrderToDaListDialog(view, orderItemMain)
                     }
@@ -745,6 +739,7 @@ class OrderHistoryFragmentNew2 : Fragment() {
                 }
             }
             "PICKED UP" -> {
+                stop()
                 view.step_view_order_progress.visibility = View.VISIBLE
                 val setpview5 = view.findViewById<View>(R.id.step_view_order_progress) as HorizontalStepView
                 val stepsBeanList: MutableList<StepBean> = ArrayList()
@@ -784,12 +779,11 @@ class OrderHistoryFragmentNew2 : Fragment() {
 
                 if(orderItemMain.daID.isNotEmpty()){
                     view.linearAssignedDA.visibility = View.VISIBLE
-                    view.assignedToDaTextView.text = "Assigned to "+orderItemMain.daDetails.da_name
+                    view.assignedToDaTextView.text = "Assigned to "+orderItemMain.daDetails.da_name+" ("+getDate((orderItemMain.processingTimeStampMillis - orderItemMain.assignedToDaTimeStampMillis), "mm:ss")+")"
                     view.callDaNowImageView.setOnClickListener {
                         callNow(orderItemMain.daDetails.da_mobile)
                     }
                     view.acceptOrderButton.visibility = View.GONE
-                    view.cancelOrderButton.visibility = View.GONE
                     view.assignedToDaTextView.setOnClickListener {
                         showAssignOrderToDaListDialog(view, orderItemMain)
                     }
@@ -800,6 +794,7 @@ class OrderHistoryFragmentNew2 : Fragment() {
                 }
             }
             "COMPLETED" -> {
+                stop()
                 if(orderItemMain.daID.isNotEmpty()) {
                     view.linearAssignedDA.visibility = View.VISIBLE
                     view.assignedToDaTextView.text =
@@ -864,6 +859,29 @@ class OrderHistoryFragmentNew2 : Fragment() {
             }
         }
     }
+
+    private var started = false
+    private val handler: Handler = Handler()
+
+    private val runnable = Runnable {
+        if(orderItemMain != null){
+            viewMain.assignedToDaTextView.text = "Waiting For "+ orderItemMain!!.daDetails.da_name+" ("+getDate((System.currentTimeMillis() - orderItemMain!!.assignedToDaTimeStampMillis), "mm:ss")+")"
+        }
+        if (started) {
+            start()
+        }
+    }
+
+    fun stop() {
+        started = false
+        handler.removeCallbacks(runnable)
+    }
+
+    fun start() {
+        started = true
+        handler.postDelayed(runnable, 1000)
+    }
+
 
     private fun showAssignOrderToDaListDialog(view: View, orderItemMain: OrderItemMain) {
         val alertDialogForDa = AlertDialog.Builder(context).create()

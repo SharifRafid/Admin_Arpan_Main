@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Admin Arpan</string>
+    <string name="app_name">Moderator Arpan</string>
     <string name="confirm_delete">Confirm Delete</string>
     <string name="enter_password_to_confirm">Enter Password To Confirm</string>
     <string name="error_image_for_not_finding_any_data">Error Image For Not Finding Any Data</string>

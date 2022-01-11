@@ -35,7 +35,6 @@ import java.lang.ClassCastException
 import java.util.*
 import kotlin.collections.ArrayList
 
-
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
 private const val ARG_PARAM1 = "param1"
@@ -82,7 +81,8 @@ class HomeFragment : Fragment(), OrderOldSubItemRecyclerAdapterInterface {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        homeViewModelMainData = activity?.let { ViewModelProvider(it).get(HomeViewModelMainData::class.java) }!!
+        homeViewModelMainData = activity?.let { ViewModelProvider(it)
+            .get(HomeViewModelMainData::class.java) }!!
         loadTopItemsRecyclerData(view)
         loadOrdersMainOneDayData(view)
         view.addCustomOrderButton.setOnClickListener {
@@ -92,8 +92,8 @@ class HomeFragment : Fragment(), OrderOldSubItemRecyclerAdapterInterface {
             homeMainNewInterface.logOutUser()
         }
         view.settingsImageView.setOnClickListener {
-            contextMain.startActivity(Intent(contextMain, SettingActivity::class.java))
-//            homeMainNewInterface.navigateToFragment(R.id.daManagementFragment)
+//            contextMain.startActivity(Intent(contextMain, SettingActivity::class.java))
+            homeMainNewInterface.navigateToFragment(R.id.daManagementFragment)
         }
         view.materialCardViewOrders.setOnClickListener {
             homeMainNewInterface.navigateToFragment(R.id.usersFragment)

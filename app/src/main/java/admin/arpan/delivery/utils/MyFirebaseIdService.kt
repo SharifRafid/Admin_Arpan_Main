@@ -14,6 +14,7 @@ import android.os.Build
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.google.android.gms.tasks.OnCompleteListener
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
@@ -104,7 +105,12 @@ class MyFirebaseIdService : FirebaseMessagingService() {
             )
             manager.createNotificationChannel(channel)
         }
-        manager.notify(0, builder.build())
+        val sharedPreferences = getSharedPreferences("MODERATOR", MODE_PRIVATE)
+        if(sharedPreferences.contains("email") && sharedPreferences.getString("email","").toString().isNotEmpty()){
+            manager.notify(0, builder.build())
+        }else if(FirebaseAuth.getInstance().currentUser != null){
+            manager.notify(0, builder.build())
+        }
     }
 
     companion object {

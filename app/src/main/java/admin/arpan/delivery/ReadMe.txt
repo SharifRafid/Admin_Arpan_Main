@@ -24,3 +24,5 @@ Moderator To Admin App Conversion
     cart_product_item_view / OrderOldMainItemRecyclerAdapter View -> Income Card => Visible
 
     fragment_orders_filter_date.xml -> Income Card Visible
+
+    MyFirebaseIdService  ->  Comment intent MainActivity2 and Uncomment HomeActivityMain

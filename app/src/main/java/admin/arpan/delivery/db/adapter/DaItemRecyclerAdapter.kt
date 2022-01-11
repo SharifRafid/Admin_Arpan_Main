@@ -138,85 +138,85 @@ class DaItemRecyclerAdapter(
                 }
             })
 
-        holder.cardView.setOnClickListener {
-            val bundle = Bundle()
-            bundle.putString("key",  daAgent.key.toString())
-            bundle.putString("da_uid",  daAgent.da_uid.toString())
-            bundle.putString("da_name",  daAgent.da_name.toString())
-            bundle.putString("da_mobile",  daAgent.da_mobile.toString())
-            bundle.putString("da_bkash",  daAgent.da_bkash.toString())
-            bundle.putString("da_password",  daAgent.da_password.toString())
-            bundle.putString("da_blood_group",  daAgent.da_blood_group.toString())
-            bundle.putString("da_category",  daAgent.da_category.toString())
-            bundle.putString("da_image",  daAgent.da_image.toString())
-            bundle.putString("da_address",  daAgent.da_address.toString())
-            bundle.putString("da_status_active",  daAgent.da_status_active.toString())
-            homeMainNewInterface.navigateToFragment(R.id.daStatsFragment, bundle)
-        }
-
-        holder.cardView.setOnLongClickListener {
-            val dialogMain = AlertDialog.Builder(context)
-                .setPositiveButton("Edit", DialogInterface.OnClickListener { dialog_main, which ->
-                    val bundle = Bundle()
-                    bundle.putString("key",  daAgent.key.toString())
-                    bundle.putString("da_uid",  daAgent.da_uid.toString())
-                    bundle.putString("da_name",  daAgent.da_name.toString())
-                    bundle.putString("da_mobile",  daAgent.da_mobile.toString())
-                    bundle.putString("da_bkash",  daAgent.da_bkash.toString())
-                    bundle.putString("da_password",  daAgent.da_password.toString())
-                    bundle.putString("da_blood_group",  daAgent.da_blood_group.toString())
-                    bundle.putString("da_category",  daAgent.da_category.toString())
-                    bundle.putString("da_image",  daAgent.da_image.toString())
-                    bundle.putString("da_address",  daAgent.da_address.toString())
-                    bundle.putString("da_status_active",  daAgent.da_status_active.toString())
-                    homeMainNewInterface.navigateToFragment(R.id.updateDaFragment, bundle)
-                })
-                .setNegativeButton("Delete", DialogInterface.OnClickListener { dialog_main, which ->
-                    val mDialog = AlertDialog.Builder(context)
-                        .setTitle("Are you sure to delete this agent?")
-                        .setPositiveButton(
-                            context.getString(R.string.yes_ok)
-                        ) { diaInt, _ ->
-                            FirebaseFirestore.getInstance()
-                                .collection("da_agents_main_list_collection")
-                                .document(daAgents[position].key)
-                                .delete().addOnCompleteListener {
-                                    if(it.isSuccessful){
-                                        firebaseDatabase.child("da_agents_realtime_details")
-                                            .child(daAgent.key).removeValue()
-//                                (context as DaActivity).daList.removeAt(position)
-//                                (context as DaActivity).daItemRecyclerAdapter.notifyItemRemoved(position)
-//                                (context as DaActivity).daItemRecyclerAdapter.notifyItemRangeChanged(position, daAgents.size)
-                                        context.showToast("Success Deleted", FancyToast.SUCCESS)
-                                    }else{
-                                        it.exception!!.printStackTrace()
-                                        context.showToast("Failed", FancyToast.SUCCESS)
-                                    }
-                                }
-                            diaInt.dismiss()
-                        }
-                        .setNegativeButton(
-                            context.getString(R.string.no_its_ok)
-                        ) { dialogInterface, _ -> dialogInterface.dismiss() }
-                        .create()
-                    mDialog.show()
-                })
-                .create().show()
-            true
-        }
+//        holder.cardView.setOnClickListener {
+//            val bundle = Bundle()
+//            bundle.putString("key",  daAgent.key.toString())
+//            bundle.putString("da_uid",  daAgent.da_uid.toString())
+//            bundle.putString("da_name",  daAgent.da_name.toString())
+//            bundle.putString("da_mobile",  daAgent.da_mobile.toString())
+//            bundle.putString("da_bkash",  daAgent.da_bkash.toString())
+//            bundle.putString("da_password",  daAgent.da_password.toString())
+//            bundle.putString("da_blood_group",  daAgent.da_blood_group.toString())
+//            bundle.putString("da_category",  daAgent.da_category.toString())
+//            bundle.putString("da_image",  daAgent.da_image.toString())
+//            bundle.putString("da_address",  daAgent.da_address.toString())
+//            bundle.putString("da_status_active",  daAgent.da_status_active.toString())
+//            homeMainNewInterface.navigateToFragment(R.id.daStatsFragment, bundle)
+//        }
+//
+//        holder.cardView.setOnLongClickListener {
+//            val dialogMain = AlertDialog.Builder(context)
+//                .setPositiveButton("Edit", DialogInterface.OnClickListener { dialog_main, which ->
+//                    val bundle = Bundle()
+//                    bundle.putString("key",  daAgent.key.toString())
+//                    bundle.putString("da_uid",  daAgent.da_uid.toString())
+//                    bundle.putString("da_name",  daAgent.da_name.toString())
+//                    bundle.putString("da_mobile",  daAgent.da_mobile.toString())
+//                    bundle.putString("da_bkash",  daAgent.da_bkash.toString())
+//                    bundle.putString("da_password",  daAgent.da_password.toString())
+//                    bundle.putString("da_blood_group",  daAgent.da_blood_group.toString())
+//                    bundle.putString("da_category",  daAgent.da_category.toString())
+//                    bundle.putString("da_image",  daAgent.da_image.toString())
+//                    bundle.putString("da_address",  daAgent.da_address.toString())
+//                    bundle.putString("da_status_active",  daAgent.da_status_active.toString())
+//                    homeMainNewInterface.navigateToFragment(R.id.updateDaFragment, bundle)
+//                })
+//                .setNegativeButton("Delete", DialogInterface.OnClickListener { dialog_main, which ->
+//                    val mDialog = AlertDialog.Builder(context)
+//                        .setTitle("Are you sure to delete this agent?")
+//                        .setPositiveButton(
+//                            context.getString(R.string.yes_ok)
+//                        ) { diaInt, _ ->
+//                            FirebaseFirestore.getInstance()
+//                                .collection("da_agents_main_list_collection")
+//                                .document(daAgents[position].key)
+//                                .delete().addOnCompleteListener {
+//                                    if(it.isSuccessful){
+//                                        firebaseDatabase.child("da_agents_realtime_details")
+//                                            .child(daAgent.key).removeValue()
+////                                (context as DaActivity).daList.removeAt(position)
+////                                (context as DaActivity).daItemRecyclerAdapter.notifyItemRemoved(position)
+////                                (context as DaActivity).daItemRecyclerAdapter.notifyItemRangeChanged(position, daAgents.size)
+//                                        context.showToast("Success Deleted", FancyToast.SUCCESS)
+//                                    }else{
+//                                        it.exception!!.printStackTrace()
+//                                        context.showToast("Failed", FancyToast.SUCCESS)
+//                                    }
+//                                }
+//                            diaInt.dismiss()
+//                        }
+//                        .setNegativeButton(
+//                            context.getString(R.string.no_its_ok)
+//                        ) { dialogInterface, _ -> dialogInterface.dismiss() }
+//                        .create()
+//                    mDialog.show()
+//                })
+//                .create().show()
+//            true
+//        }
 
         val calculationResult = ordersAll?.let { CalculationLogics()
             .calculateArpansStatsForArpan(it.filter { item ->  item.daID == daAgent.key} as ArrayList<OrderItemMain>) }
         if(daAgent.da_category=="পারমানেন্ট"){
-            holder.myIncomeTextView.text = calculationResult!!.agentsIncomePermanent.toString()
-            holder.arpanBokeyaTextView.text = calculationResult.agentsDueToArpanPermanent.toString()
-//            holder.arpanBokeyaTextView.text = (calculationResult!!.totalOrders-calculationResult.completed).toString()
-//            holder.myIncomeTextView.text = calculationResult.completed.toString()
+//            holder.myIncomeTextView.text = calculationResult!!.agentsIncomePermanent.toString()
+//            holder.arpanBokeyaTextView.text = calculationResult.agentsDueToArpanPermanent.toString()
+            holder.arpanBokeyaTextView.text = (calculationResult!!.totalOrders-calculationResult.completed).toString()
+            holder.myIncomeTextView.text = calculationResult.completed.toString()
         }else{
-            holder.myIncomeTextView.text = calculationResult!!.agentsIncome.toString()
-            holder.arpanBokeyaTextView.text = calculationResult.agentsDueToArpan.toString()
-//            holder.arpanBokeyaTextView.text = (calculationResult!!.totalOrders-calculationResult.completed).toString()
-//            holder.myIncomeTextView.text = calculationResult.completed.toString()
+//            holder.myIncomeTextView.text = calculationResult!!.agentsIncome.toString()
+//            holder.arpanBokeyaTextView.text = calculationResult.agentsDueToArpan.toString()
+            holder.arpanBokeyaTextView.text = (calculationResult!!.totalOrders-calculationResult.completed).toString()
+            holder.myIncomeTextView.text = calculationResult.completed.toString()
         }
         holder.totalOrderThisMonthTextView.text = calculationResult.totalOrders.toString()
     }

@@ -381,7 +381,32 @@ class HomeActivityMain : AppCompatActivity(), HomeMainNewInterface{
     }
 
     private fun initFirebaseMessaging() {
+        val sharedPreferences = getSharedPreferences("MODERATOR", MODE_PRIVATE)
         if(FirebaseAuth.getInstance().currentUser!=null){
+            FirebaseMessaging.getInstance().isAutoInitEnabled = true
+            val token = getSharedPreferences("FCM_TOKEN", MODE_PRIVATE)
+                .getString("TOKEN", "")
+            FirebaseMessaging.getInstance().token.addOnCompleteListener(
+                OnCompleteListener { task ->
+                    if (!task.isSuccessful) {
+                        return@OnCompleteListener
+                    }
+                    val t = task.result!!
+                    Log.e("TOKEN", t)
+                    if (token != t) {
+                        val tokenArray: MutableMap<String, Any> = HashMap()
+                        tokenArray["registrationTokens"] = FieldValue.arrayUnion(t)
+                        val map = HashMap<String, String>()
+                        map["registration_token"] = t
+                        getSharedPreferences("FCM_TOKEN", MODE_PRIVATE)
+                            .edit().putString("TOKEN", t).apply()
+                        FirebaseFirestore.getInstance()
+                            .collection("admin_app_notification_data_tokens")
+                            .document("admin_app_notification_data_tokens")
+                            .update(tokenArray)
+                    }
+                })
+        }else if(sharedPreferences.contains("email") && sharedPreferences.getString("email","").toString().isNotEmpty()){
             FirebaseMessaging.getInstance().isAutoInitEnabled = true
             val token = getSharedPreferences("FCM_TOKEN", MODE_PRIVATE)
                 .getString("TOKEN", "")
@@ -407,6 +432,17 @@ class HomeActivityMain : AppCompatActivity(), HomeMainNewInterface{
                 })
         }
     }
+
+//    private fun checkNotificationPopUpStatus() {
+//        if(intent.hasExtra("orderID")){
+//            val bundle = Bundle()
+//            Log.e(TAG, intent.getStringExtra("orderID").toString())
+//            Log.e(TAG, intent.getStringExtra("user_id").toString())
+//            bundle.putString("orderID", intent.getStringExtra("orderID").toString())
+//            bundle.putString("customerId", intent.getStringExtra("user_id").toString())
+//            navController.navigate(R.id.orderHistoryFragmentNew22, bundle)
+//        }
+//    }
 
     override fun openSelectedOrderItemAsDialog(position: Int, mainItemPositions: Int, docId: String, userId: String, orderItemMain: OrderItemMain){
         selectedRecyclerAdapterItem = position
@@ -458,4 +494,8 @@ class HomeActivityMain : AppCompatActivity(), HomeMainNewInterface{
         loadUsersListData()
     }
 
+    override fun onResume() {
+        super.onResume()
+//        checkNotificationPopUpStatus()
+    }
 }
