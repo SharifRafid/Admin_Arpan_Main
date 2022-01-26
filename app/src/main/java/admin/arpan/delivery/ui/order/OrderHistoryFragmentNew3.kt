@@ -1052,7 +1052,7 @@ class OrderHistoryFragmentNew3 : DialogFragment() {
                 json
             )
         val request: Request = Request.Builder()
-            .url("https://arpan-fcm.herokuapp.com/send-order-status-changed-notification")
+            .url("https://admin.arpan.delivery/api/notification/send-order-status-changed-notification")
             .post(body)
             .build()
         OkHttpClient().newCall(request).enqueue(object : Callback{
@@ -1091,7 +1091,7 @@ class OrderHistoryFragmentNew3 : DialogFragment() {
                 json
             )
         val request: Request = Request.Builder()
-            .url("https://arpan-fcm.herokuapp.com/send-notification-to-da-about-a-new-order-that-he-recieved")
+            .url("https://admin.arpan.delivery/api/notification/send-notification-to-da-about-a-new-order-that-he-recieved")
             .post(body)
             .build()
         OkHttpClient().newCall(request).enqueue(object : Callback{
