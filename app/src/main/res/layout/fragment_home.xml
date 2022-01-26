@@ -50,7 +50,7 @@
                             android:layout_height="wrap_content"
                             android:fontFamily="@font/hind_siliguri_font"
                             android:gravity="center"
-                            android:text="Admin Panel"
+                            android:text="Moderator Panel"
                             android:textColor="@color/white"
                             android:textSize="16sp"
                             android:padding="7dp"
