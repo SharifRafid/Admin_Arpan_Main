@@ -59,6 +59,7 @@
         <entry key="app/src/main/res/layout/fragment_home.xml" value="0.22" />
         <entry key="app/src/main/res/layout/fragment_order_history_copy.xml" value="0.1" />
         <entry key="app/src/main/res/layout/fragment_order_history_new.xml" value="0.33" />
+        <entry key="app/src/main/res/layout/fragment_orders_filter_by_day.xml" value="0.1" />
         <entry key="app/src/main/res/layout/fragment_orders_filter_date.xml" value="0.33" />
         <entry key="app/src/main/res/layout/list_view_layout.xml" value="0.1" />
         <entry key="app/src/main/res/layout/old_orders_list_view.xml" value="0.1" />

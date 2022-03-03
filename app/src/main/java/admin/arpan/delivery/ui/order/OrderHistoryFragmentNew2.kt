@@ -1184,12 +1184,16 @@ class OrderHistoryFragmentNew2 : Fragment() {
                 mediaType,
                 json
             )
+
+        Log.e("notifiication response" , json)
+
         val request: Request = Request.Builder()
             .url("https://admin.arpan.delivery/api/notification/send-notification-to-da-about-a-new-order-that-he-recieved")
             .post(body)
             .build()
         OkHttpClient().newCall(request).enqueue(object : Callback{
             override fun onFailure(request: Request?, e: IOException?) {
+                Log.e("notifiication response" , e!!.message.toString())
                 e!!.printStackTrace()
             }
 
