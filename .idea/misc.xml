@@ -50,19 +50,24 @@
         <entry key="app/src/main/res/layout/activity_shops.xml" value="0.35572916666666665" />
         <entry key="app/src/main/res/layout/activity_update_shop.xml" value="0.25" />
         <entry key="app/src/main/res/layout/cart_product_item_view.xml" value="0.35520833333333335" />
+        <entry key="app/src/main/res/layout/custom_top_item_view.xml" value="0.35625" />
         <entry key="app/src/main/res/layout/da_list_items.xml" value="0.33" />
         <entry key="app/src/main/res/layout/dialog_add_normal_banner.xml" value="0.27314814814814814" />
         <entry key="app/src/main/res/layout/dialog_add_time_based_banner.xml" value="0.35572916666666665" />
         <entry key="app/src/main/res/layout/fragment_add_custom_order.xml" value="0.33" />
         <entry key="app/src/main/res/layout/fragment_da_management.xml" value="0.35520833333333335" />
         <entry key="app/src/main/res/layout/fragment_edit_order.xml" value="0.33" />
-        <entry key="app/src/main/res/layout/fragment_home.xml" value="0.22" />
+        <entry key="app/src/main/res/layout/fragment_home.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/fragment_order_history.xml" value="0.35625" />
         <entry key="app/src/main/res/layout/fragment_order_history_copy.xml" value="0.1" />
         <entry key="app/src/main/res/layout/fragment_order_history_new.xml" value="0.33" />
-        <entry key="app/src/main/res/layout/fragment_orders_filter_by_day.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/fragment_orders_filter_by_day.xml" value="0.33" />
         <entry key="app/src/main/res/layout/fragment_orders_filter_date.xml" value="0.33" />
+        <entry key="app/src/main/res/layout/fragment_shop_statistics.xml" value="0.25" />
         <entry key="app/src/main/res/layout/list_view_layout.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/location_item_recycler_view.xml" value="0.35625" />
         <entry key="app/src/main/res/layout/old_orders_list_view.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/shop_stat_recycler_item.xml" value="0.30185185185185187" />
         <entry key="app/src/main/res/layout/switch_textview_item_file.xml" value="0.35572916666666665" />
       </map>
     </option>

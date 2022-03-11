@@ -142,24 +142,6 @@ class OrdersFilterDate : Fragment(), OrderOldSubItemRecyclerAdapterInterface {
     private fun placeOrderMainData(ordersMainArrayList : ArrayList<OrderItemMain>, view: View) {
         val ordersMainHashMap = HashMap<String, ArrayList<OrderItemMain>>()
         val ordersMainOldItemsArrayList = ArrayList<OrderOldItems>()
-//        val ordersCount = ordersMainArrayList.size
-//        var income = 0
-//        var completed = 0
-//        var cancelled = 0
-//        for(order in ordersMainArrayList){
-//            if(order.orderStatus=="COMPLETED"){
-//                if(order.orderCompletedStatus=="CANCELLED"){
-//                    cancelled += 1
-//                }else{
-//                    completed += 1
-//                    var arpansCharge = 0
-//                    for(productItem in order.products){
-//                        arpansCharge += (productItem.product_arpan_profit*productItem.product_item_amount)
-//                    }
-//                    income += (order.deliveryCharge - order.daCharge) + arpansCharge
-//                }
-//            }
-//        }
         val calculationResult = CalculationLogics().calculateArpansStatsForArpan(ordersMainArrayList)
         view.ordersTotalTextView.text = calculationResult.totalOrders.toString()
         view.totalIncomeTextView.text = calculationResult.arpansIncome.toString()

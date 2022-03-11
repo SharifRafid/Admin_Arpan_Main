@@ -45,10 +45,9 @@ class OrdersFilterByDay : Fragment(), OrderOldSubItemRecyclerAdapterInterface {
     private var param2: String? = null
     private lateinit var contextMain : Context
     private lateinit var selectedStartDate : String
-    private lateinit var selectedEndDate : String
     private lateinit var homeViewModelMainData: HomeViewModelMainData
     private lateinit var homeMainNewInterface: HomeMainNewInterface
-    private val TAG = "OrdersFilterDate"
+    private val TAG = "OrdersFilterDay"
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -93,8 +92,8 @@ class OrdersFilterByDay : Fragment(), OrderOldSubItemRecyclerAdapterInterface {
                     view.setDateButton.text = ""+selectedStartDate
                     loadLastMonthData(view, year, month, dayOfMonth)
                 }
-            }, yy, mm, dd);
-            datePicker.show();
+            }, yy, mm, dd)
+            datePicker.show()
         }
     }
 
@@ -127,24 +126,6 @@ class OrdersFilterByDay : Fragment(), OrderOldSubItemRecyclerAdapterInterface {
     private fun placeOrderMainData(ordersMainArrayList : ArrayList<OrderItemMain>, view: View) {
         val ordersMainHashMap = HashMap<String, ArrayList<OrderItemMain>>()
         val ordersMainOldItemsArrayList = ArrayList<OrderOldItems>()
-//        val ordersCount = ordersMainArrayList.size
-//        var income = 0
-//        var completed = 0
-//        var cancelled = 0
-//        for(order in ordersMainArrayList){
-//            if(order.orderStatus=="COMPLETED"){
-//                if(order.orderCompletedStatus=="CANCELLED"){
-//                    cancelled += 1
-//                }else{
-//                    completed += 1
-//                    var arpansCharge = 0
-//                    for(productItem in order.products){
-//                        arpansCharge += (productItem.product_arpan_profit*productItem.product_item_amount)
-//                    }
-//                    income += (order.deliveryCharge - order.daCharge) + arpansCharge
-//                }
-//            }
-//        }
         val calculationResult = CalculationLogics().calculateArpansStatsForArpan(ordersMainArrayList)
         view.ordersTotalTextView.text = calculationResult.totalOrders.toString()
         view.totalIncomeTextView.text = calculationResult.arpansIncome.toString()
@@ -183,7 +164,6 @@ class OrdersFilterByDay : Fragment(), OrderOldSubItemRecyclerAdapterInterface {
             da_category = ""
         )
         view.recyclerView.adapter = orderAdapterMain
-
         view.noProductsText.visibility = View.GONE
         view.progressBar.visibility = View.GONE
         view.recyclerView.visibility = View.VISIBLE
