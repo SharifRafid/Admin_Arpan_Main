@@ -25,6 +25,7 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.firestore.FirebaseFirestore
+import com.wdullaer.materialdatetimepicker.time.TimePickerDialog
 import kotlinx.android.synthetic.main.activity_setting.*
 import kotlinx.android.synthetic.main.dialog_add_location.view.*
 import kotlinx.android.synthetic.main.dialog_add_location.view.addLocationConfirmButton
@@ -498,6 +499,20 @@ class SettingActivity : AppCompatActivity() {
         allowOverTimeCheckBox.isEnabled = true
     }
     private fun initListenersForOrderLimitEdittextsAndCheckBoxes() {
+        startTimeOrder.setOnClickListener{
+            var timePicker = TimePickerDialog.newInstance(
+                { view, hourOfDay, minute, second ->
+                    startTimeOrder.setText("$hourOfDay:$minute")
+                }, false)
+            timePicker.show(supportFragmentManager, "Start_Time")
+        }
+        endTimeOrder.setOnClickListener{
+            var timePicker = TimePickerDialog.newInstance(
+                { view, hourOfDay, minute, second ->
+                    endTimeOrder.setText("$hourOfDay:$minute")
+                }, false)
+            timePicker.show(supportFragmentManager, "End_Time")
+        }
         startTimeOrder.doOnTextChanged { text, start, before, count ->
             checkButtonShouldBeEnabledOrNotStatus()
         }
