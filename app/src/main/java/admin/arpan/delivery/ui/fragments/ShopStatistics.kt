@@ -142,7 +142,7 @@ class ShopStatistics : Fragment() {
                 clientId = if(i == 0){
                     ""
                 }else{
-                    arrayListPrefsMain[i].user_mobile
+                    arrayListPrefsMain[i].user_name
                 }
                 placeOrderMainData()
             }
@@ -287,7 +287,7 @@ class ShopStatistics : Fragment() {
                 }
             }
             if(clientId != ""){
-                if(item.userNumber.contains(clientId)){
+                if(item.userName.trim().contains(clientId.trim())){
                     clientSales += 1
                 }
             }
