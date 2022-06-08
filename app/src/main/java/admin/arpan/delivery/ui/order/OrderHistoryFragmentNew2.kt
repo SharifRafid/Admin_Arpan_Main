@@ -1134,42 +1134,42 @@ class OrderHistoryFragmentNew2 : Fragment() {
                         alertDialogToCancelUserDataView.edt_enter_password_field.setText(arrayListPrefsMain[position])
                         alertDialogPrefs.dismiss()
                     }
-                    alertDialogPrefsView.listView.setOnItemLongClickListener { parent, view, position, id ->
-                        AlertDialog.Builder(contextMain)
-                            .setTitle("Delete ?")
-                            .setPositiveButton("Yes", DialogInterface.OnClickListener { dialog, which ->
-                                FirebaseDatabase.getInstance().reference
-                                    .child("cancellationResponses")
-                                    .child(arrayListPrefs[position])
-                                    .removeValue()
-                                dialog.dismiss()
-                            })
-                            .create()
-                            .show()
-                        alertDialogPrefs.dismiss()
-                        true
-                    }
+//                    alertDialogPrefsView.listView.setOnItemLongClickListener { parent, view, position, id ->
+//                        AlertDialog.Builder(contextMain)
+//                            .setTitle("Delete ?")
+//                            .setPositiveButton("Yes", DialogInterface.OnClickListener { dialog, which ->
+//                                FirebaseDatabase.getInstance().reference
+//                                    .child("cancellationResponses")
+//                                    .child(arrayListPrefs[position])
+//                                    .removeValue()
+//                                dialog.dismiss()
+//                            })
+//                            .create()
+//                            .show()
+//                        alertDialogPrefs.dismiss()
+//                        true
+//                    }
                     alertDialogPrefs.setView(alertDialogPrefsView)
                     alertDialogPrefs.show()
                 }
         }
-        alertDialogToCancelUserDataView.addRspnceImageButton.setOnLongClickListener{
-            val savedPrefClientTf = SavedPrefClientTf()
-            savedPrefClientTf.key = "SPC"+System.currentTimeMillis()
-            savedPrefClientTf.user_name = alertDialogToCancelUserDataView.edt_enter_password_field.text.toString()
-            if(savedPrefClientTf.key.isNotEmpty()&&savedPrefClientTf.user_name.isNotEmpty()){
-                FirebaseDatabase.getInstance().reference
-                    .child("cancellationResponses")
-                    .child(savedPrefClientTf.key)
-                    .setValue(savedPrefClientTf.user_name)
-                    .addOnCompleteListener {
-                        contextMain.showToast("Success", FancyToast.SUCCESS)
-                    }
-            }else{
-                contextMain.showToast("Is Empty", FancyToast.ERROR)
-            }
-            true
-        }
+//        alertDialogToCancelUserDataView.addRspnceImageButton.setOnLongClickListener{
+//            val savedPrefClientTf = SavedPrefClientTf()
+//            savedPrefClientTf.key = "SPC"+System.currentTimeMillis()
+//            savedPrefClientTf.user_name = alertDialogToCancelUserDataView.edt_enter_password_field.text.toString()
+//            if(savedPrefClientTf.key.isNotEmpty()&&savedPrefClientTf.user_name.isNotEmpty()){
+//                FirebaseDatabase.getInstance().reference
+//                    .child("cancellationResponses")
+//                    .child(savedPrefClientTf.key)
+//                    .setValue(savedPrefClientTf.user_name)
+//                    .addOnCompleteListener {
+//                        contextMain.showToast("Success", FancyToast.SUCCESS)
+//                    }
+//            }else{
+//                contextMain.showToast("Is Empty", FancyToast.ERROR)
+//            }
+//            true
+//        }
         alertDialogToCancelUserDataView.deleteOrderItemMainDialogButton.setOnClickListener {
             contextMain.showToast("Long Click To Confirm", FancyToast.CONFUSING)
         }
