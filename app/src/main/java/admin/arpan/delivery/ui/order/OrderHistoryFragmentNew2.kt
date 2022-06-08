@@ -50,10 +50,16 @@ import com.squareup.okhttp.*
 import kotlinx.android.synthetic.main.assign_da_list_view.view.*
 import kotlinx.android.synthetic.main.dialog_add_normal_banner.*
 import kotlinx.android.synthetic.main.dialog_alert_layout_main.view.*
+import kotlinx.android.synthetic.main.dialog_ask_cancellation_reason.view.*
 import kotlinx.android.synthetic.main.dialog_ask_password.view.*
+import kotlinx.android.synthetic.main.dialog_ask_password.view.deleteOrderItemMainDialogButton
+import kotlinx.android.synthetic.main.dialog_ask_password.view.edt_enter_password_field
+import kotlinx.android.synthetic.main.dialog_ask_password.view.edt_enter_password_field_container
 import kotlinx.android.synthetic.main.dialog_force_change_order_status.view.*
 import kotlinx.android.synthetic.main.edit_order_item.view.*
+import kotlinx.android.synthetic.main.fragment_add_custom_order.view.*
 import kotlinx.android.synthetic.main.fragment_edit_order.view.*
+import kotlinx.android.synthetic.main.fragment_edit_order.view.autofillAllTextBoxesId
 import kotlinx.android.synthetic.main.fragment_order_history_new.view.*
 import kotlinx.android.synthetic.main.fragment_order_history_new.view.mainOrderDetailsDataContainerLinearLayout
 import kotlinx.android.synthetic.main.fragment_order_history_new.view.noDataFoundLinearLayoutContainer
@@ -66,6 +72,7 @@ import kotlinx.android.synthetic.main.fragment_order_history_new.view.orderImage
 import kotlinx.android.synthetic.main.fragment_order_history_new.view.orderTotalPrice
 import kotlinx.android.synthetic.main.fragment_order_history_new.view.title_text_view
 import kotlinx.android.synthetic.main.product_image_big_view.view.*
+import kotlinx.android.synthetic.main.product_image_big_view.view.imageView
 import java.io.IOException
 import java.lang.ClassCastException
 import java.text.SimpleDateFormat
@@ -1109,6 +1116,60 @@ class OrderHistoryFragmentNew2 : Fragment() {
         val alertDialogToCancelUserDataView = LayoutInflater.from(contextMain).inflate(R.layout.dialog_ask_cancellation_reason, null)
         alertDialogToCancelUserDataView.deleteOrderItemMainDialogButton.text = "Confirm Cancellation"
         alertDialogToCancelUserDataView.edt_enter_password_field_container.hint = "Cancellation Reason"
+        alertDialogToCancelUserDataView.addRspnceImageButton.setOnClickListener {
+            val arrayListPrefs = ArrayList<String>()
+            val arrayListPrefsMain= ArrayList<String>()
+            FirebaseDatabase.getInstance().reference.child("cancellationResponses").get()
+                .addOnSuccessListener {
+                    for(item in it.children){
+                        item.key?.let { it1 -> arrayListPrefs.add(it1) }
+                        arrayListPrefsMain.add(item.value as String)
+                    }
+                    val arrayAdapter = ArrayAdapter(contextMain, R.layout.custom_spinner_item_view, arrayListPrefsMain)
+                    val alertDialogPrefs = AlertDialog.Builder(contextMain).create()
+                    val alertDialogPrefsView = LayoutInflater.from(contextMain).inflate(R.layout.assign_da_list_view, null)
+                    alertDialogPrefsView.txtAllPrice.text = "Select Cancellation Reason"
+                    alertDialogPrefsView.listView.adapter = arrayAdapter
+                    alertDialogPrefsView.listView.setOnItemClickListener { parent, view2, position, id ->
+                        alertDialogToCancelUserDataView.edt_enter_password_field.setText(arrayListPrefsMain[position])
+                        alertDialogPrefs.dismiss()
+                    }
+                    alertDialogPrefsView.listView.setOnItemLongClickListener { parent, view, position, id ->
+                        AlertDialog.Builder(contextMain)
+                            .setTitle("Delete ?")
+                            .setPositiveButton("Yes", DialogInterface.OnClickListener { dialog, which ->
+                                FirebaseDatabase.getInstance().reference
+                                    .child("cancellationResponses")
+                                    .child(arrayListPrefs[position])
+                                    .removeValue()
+                                dialog.dismiss()
+                            })
+                            .create()
+                            .show()
+                        alertDialogPrefs.dismiss()
+                        true
+                    }
+                    alertDialogPrefs.setView(alertDialogPrefsView)
+                    alertDialogPrefs.show()
+                }
+        }
+        alertDialogToCancelUserDataView.addRspnceImageButton.setOnLongClickListener{
+            val savedPrefClientTf = SavedPrefClientTf()
+            savedPrefClientTf.key = "SPC"+System.currentTimeMillis()
+            savedPrefClientTf.user_name = alertDialogToCancelUserDataView.edt_enter_password_field.text.toString()
+            if(savedPrefClientTf.key.isNotEmpty()&&savedPrefClientTf.user_name.isNotEmpty()){
+                FirebaseDatabase.getInstance().reference
+                    .child("cancellationResponses")
+                    .child(savedPrefClientTf.key)
+                    .setValue(savedPrefClientTf.user_name)
+                    .addOnCompleteListener {
+                        contextMain.showToast("Success", FancyToast.SUCCESS)
+                    }
+            }else{
+                contextMain.showToast("Is Empty", FancyToast.ERROR)
+            }
+            true
+        }
         alertDialogToCancelUserDataView.deleteOrderItemMainDialogButton.setOnClickListener {
             contextMain.showToast("Long Click To Confirm", FancyToast.CONFUSING)
         }
@@ -1202,12 +1263,16 @@ class OrderHistoryFragmentNew2 : Fragment() {
                 mediaType,
                 json
             )
+
+        Log.e("notifiication response" , json)
+
         val request: Request = Request.Builder()
             .url("https://admin.arpan.delivery/api/notification/send-notification-to-da-about-a-new-order-that-he-recieved")
             .post(body)
             .build()
         OkHttpClient().newCall(request).enqueue(object : Callback{
             override fun onFailure(request: Request?, e: IOException?) {
+                Log.e("notifiication response" , e!!.message.toString())
                 e!!.printStackTrace()
             }
 

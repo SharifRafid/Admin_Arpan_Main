@@ -1,11 +1,6 @@
-package admin.arpan.delivery.ui.fragments
+package admin.arpan.delivery.ui.order
 
 import admin.arpan.delivery.CalculationLogics
-import android.os.Bundle
-import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import admin.arpan.delivery.R
 import admin.arpan.delivery.db.adapter.OrderOldMainItemRecyclerAdapter
 import admin.arpan.delivery.db.adapter.OrderOldSubItemRecyclerAdapterInterface
@@ -14,14 +9,22 @@ import admin.arpan.delivery.db.model.OrderOldItems
 import admin.arpan.delivery.ui.home.HomeViewModelMainData
 import admin.arpan.delivery.ui.interfaces.HomeMainNewInterface
 import admin.arpan.delivery.utils.getDate
+import admin.arpan.delivery.utils.parseDate
+import android.app.Activity
 import android.app.DatePickerDialog
 import android.content.Context
+import android.os.Bundle
 import android.util.Log
-import android.widget.DatePicker
+import androidx.fragment.app.Fragment
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.lifecycle.Observer
+import android.widget.DatePicker
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import kotlinx.android.synthetic.main.fragment_orders_filter_date.view.*
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.android.synthetic.main.fragment_orders_filter_by_day.view.*
 import java.lang.ClassCastException
 import java.util.*
 import kotlin.collections.ArrayList
@@ -33,19 +36,18 @@ private const val ARG_PARAM2 = "param2"
 
 /**
  * A simple [Fragment] subclass.
- * Use the [OrdersFilterDate.newInstance] factory method to
+ * Use the [OrdersFilterByDay.newInstance] factory method to
  * create an instance of this fragment.
  */
-class OrdersFilterDate : Fragment(), OrderOldSubItemRecyclerAdapterInterface {
+class OrdersFilterByDay : Fragment(), OrderOldSubItemRecyclerAdapterInterface {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
     private lateinit var contextMain : Context
     private lateinit var selectedStartDate : String
-    private lateinit var selectedEndDate : String
     private lateinit var homeViewModelMainData: HomeViewModelMainData
     private lateinit var homeMainNewInterface: HomeMainNewInterface
-    private val TAG = "OrdersFilterDate"
+    private val TAG = "OrdersFilterDay"
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -70,7 +72,7 @@ class OrdersFilterDate : Fragment(), OrderOldSubItemRecyclerAdapterInterface {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_orders_filter_date, container, false)
+        return inflater.inflate(R.layout.fragment_orders_filter_by_day, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -79,64 +81,46 @@ class OrdersFilterDate : Fragment(), OrderOldSubItemRecyclerAdapterInterface {
     }
 
     private fun initLogic(view: View) {
-        view.startDateButton.setOnClickListener {
+        view.setDateButton.setOnClickListener {
             val calendar = Calendar.getInstance()
             val yy = calendar.get(Calendar.YEAR)
             val mm = calendar.get(Calendar.MONTH)
             val dd = calendar.get(Calendar.DAY_OF_MONTH)
             val datePicker = DatePickerDialog(contextMain,object : DatePickerDialog.OnDateSetListener {
                 override fun onDateSet(view2: DatePicker?, year: Int, month: Int, dayOfMonth: Int) {
-                    selectedStartDate = "Date"+dayOfMonth+"-"+month+"-"+year
-                    view.startDateButton.text = "Start Date"+selectedStartDate
-                }
-            }, yy, mm, dd);
-            datePicker.show();
-        }
-        view.endDateButton.setOnClickListener {
-            val calendar = Calendar.getInstance()
-            val yy = calendar.get(Calendar.YEAR)
-            val mm = calendar.get(Calendar.MONTH)
-            val dd = calendar.get(Calendar.DAY_OF_MONTH)
-            val datePicker = DatePickerDialog(contextMain,object : DatePickerDialog.OnDateSetListener {
-                override fun onDateSet(view2: DatePicker?, year: Int, month: Int, dayOfMonth: Int) {
-                    selectedEndDate = "Date"+dayOfMonth+"-"+month+"-"+year
-                    view.endDateButton.text = "End Date"+selectedStartDate
+                    selectedStartDate = ""+dayOfMonth+"-"+month+"-"+year
+                    view.setDateButton.text = ""+selectedStartDate
+                    loadLastMonthData(view, year, month, dayOfMonth)
                 }
             }, yy, mm, dd)
             datePicker.show()
         }
-        view.ordersDateMonthRadioGroup.setOnCheckedChangeListener { group, checkedId ->
-            if(checkedId == R.id.pendingRadioButton){
-                loadThisMonthdata(view)
-            }else{
-                loadLastMonthData(view)
-            }
-        }
-        view.ordersDateMonthRadioGroup.check(R.id.pendingRadioButton)
     }
 
-    private fun loadLastMonthData(view : View) {
-        if(homeViewModelMainData.getLastMonthOrdersMainData().value.isNullOrEmpty()){
-            homeMainNewInterface.loadLastMonthOrdersMainData()
-        }
-        homeViewModelMainData.getLastMonthOrdersMainData().observe(requireActivity(), Observer {
-            if(it.isNotEmpty()){
-                placeOrderMainData(it, view)
-                homeViewModelMainData.getLastMonthOrdersMainData().removeObservers(requireActivity())
+    private fun loadLastMonthData(view : View, yyyy:Int, mm:Int, dd:Int) {
+        FirebaseFirestore.getInstance().collectionGroup("users_order_collection")
+            .whereGreaterThanOrEqualTo("orderPlacingTimeStamp",
+                parseDate("$dd/$mm/$yyyy", "dd/MM/yyyy"))
+            .whereLessThanOrEqualTo("orderPlacingTimeStamp",
+                parseDate("$dd/$mm/$yyyy", "dd/MM/yyyy")+24*60*60*1000)
+            .orderBy("orderPlacingTimeStamp")
+            .addSnapshotListener(contextMain as Activity) { value, error ->
+                if(value!=null){
+                    val tempOrdersThisMonthArrayList = ArrayList<OrderItemMain>()
+                    for(document in value.documents){
+                        val o = document.toObject(OrderItemMain::class.java)!!
+                        o.docID = document.id
+                        tempOrdersThisMonthArrayList.add(o)
+                    }
+                    if(tempOrdersThisMonthArrayList.isNotEmpty()){
+                        placeOrderMainData(tempOrdersThisMonthArrayList, view)
+                    }else{
+                        Log.e(TAG, "OrderThisMonthArraySnapShotList size is 0")
+                    }
+                }else{
+                    Log.e(TAG, "OrderThisMonthArraySnapShotList is NULL")
+                }
             }
-        })
-    }
-
-    private fun loadThisMonthdata(view: View) {
-        if(homeViewModelMainData.getThisMonthOrdersArrayList().value.isNullOrEmpty()){
-            homeMainNewInterface.loadThisMonthOrdersMainData()
-        }
-        homeViewModelMainData.getThisMonthOrdersArrayList().observe(requireActivity(), Observer {
-            if(it.isNotEmpty()){
-                placeOrderMainData(it, view)
-                homeViewModelMainData.getThisMonthOrdersArrayList().removeObservers(requireActivity())
-            }
-        })
     }
 
     private fun placeOrderMainData(ordersMainArrayList : ArrayList<OrderItemMain>, view: View) {
@@ -180,7 +164,6 @@ class OrdersFilterDate : Fragment(), OrderOldSubItemRecyclerAdapterInterface {
             da_category = ""
         )
         view.recyclerView.adapter = orderAdapterMain
-
         view.noProductsText.visibility = View.GONE
         view.progressBar.visibility = View.GONE
         view.recyclerView.visibility = View.VISIBLE
@@ -191,30 +174,6 @@ class OrdersFilterDate : Fragment(), OrderOldSubItemRecyclerAdapterInterface {
         view.title_text_view.setOnClickListener {
             homeMainNewInterface.callOnBackPressed()
         }
-        view.title_text_view.setOnLongClickListener {
-            homeMainNewInterface.navigateToFragment(R.id.ordersFilterByDay)
-            true
-        }
-    }
-
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment OrdersFilterDate.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            OrdersFilterDate().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
-            }
     }
 
     override fun openSelectedOrderItemAsDialog(
@@ -228,5 +187,25 @@ class OrdersFilterDate : Fragment(), OrderOldSubItemRecyclerAdapterInterface {
         bundle.putString("orderID",docId)
         bundle.putString("customerId",userId)
         homeMainNewInterface.navigateToFragment(R.id.orderHistoryFragmentNew22, bundle)
+    }
+
+    companion object {
+        /**
+         * Use this factory method to create a new instance of
+         * this fragment using the provided parameters.
+         *
+         * @param param1 Parameter 1.
+         * @param param2 Parameter 2.
+         * @return A new instance of fragment OrdersFilterByDay.
+         */
+        // TODO: Rename and change types and number of parameters
+        @JvmStatic
+        fun newInstance(param1: String, param2: String) =
+            OrdersFilterByDay().apply {
+                arguments = Bundle().apply {
+                    putString(ARG_PARAM1, param1)
+                    putString(ARG_PARAM2, param2)
+                }
+            }
     }
 }

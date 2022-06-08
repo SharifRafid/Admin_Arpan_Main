@@ -60,4 +60,14 @@
         android:name="admin.arpan.delivery.ui.fragments.UsersFragment"
         android:label="fragment_users"
         tools:layout="@layout/fragment_users" />
+    <fragment
+        android:id="@+id/ordersFilterByDay"
+        android:name="admin.arpan.delivery.ui.order.OrdersFilterByDay"
+        android:label="fragment_orders_filter_by_day"
+        tools:layout="@layout/fragment_orders_filter_by_day" />
+    <fragment
+        android:id="@+id/shopStatistics"
+        android:name="admin.arpan.delivery.ui.fragments.ShopStatistics"
+        android:label="fragment_shop_statistics"
+        tools:layout="@layout/fragment_shop_statistics" />
 </navigation>

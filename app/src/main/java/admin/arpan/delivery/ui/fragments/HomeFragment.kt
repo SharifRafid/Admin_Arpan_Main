@@ -180,6 +180,9 @@ class HomeFragment : Fragment(), OrderOldSubItemRecyclerAdapterInterface {
         view.ordersTextView.setOnClickListener {
             homeMainNewInterface.navigateToFragment(R.id.ordersFilterDate)
         }
+        view.statisticsCardView.setOnClickListener {
+            homeMainNewInterface.navigateToFragment(R.id.shopStatistics)
+        }
     }
 
     companion object {

@@ -89,7 +89,12 @@ fun getDate(milliSeconds: Long, dateFormat: String?): String? {
     val formatter = SimpleDateFormat(dateFormat, Locale.ENGLISH)
     // Create a calendar object that will convert the date and time value in milliseconds to date.
     val calendar: Calendar = Calendar.getInstance()
-    calendar.setTimeInMillis(milliSeconds)
-    return formatter.format(calendar.getTime())
+    calendar.timeInMillis = milliSeconds
+    return formatter.format(calendar.time)
+}
+fun parseDate(date: String, dateFormat: String?): Long {
+    // Create a DateFormatter object for displaying date in specified format.
+    val formatter = SimpleDateFormat(dateFormat, Locale.ENGLISH)
+    return formatter.parse(date)!!.time
 }
 

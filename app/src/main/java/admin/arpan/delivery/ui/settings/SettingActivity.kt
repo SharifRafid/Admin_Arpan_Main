@@ -25,6 +25,7 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.firestore.FirebaseFirestore
+import com.wdullaer.materialdatetimepicker.time.TimePickerDialog
 import kotlinx.android.synthetic.main.activity_setting.*
 import kotlinx.android.synthetic.main.dialog_add_location.view.*
 import kotlinx.android.synthetic.main.dialog_add_location.view.addLocationConfirmButton
@@ -206,6 +207,73 @@ class SettingActivity : AppCompatActivity() {
     }
 
     private fun initNormalBannerNotificationsPopUpLogic() {
+        addNormalNotifications.setOnClickListener {
+            val alertDialog = AlertDialog.Builder(this).create()
+            val locationAlertDialogViewMain = LayoutInflater.from(this)
+                .inflate(R.layout.dialog_add_normal_banner, null)
+            var textColor = "#ffffff"
+            var bgColor = "#43A047"
+            locationAlertDialogViewMain.buttonTextColor.setOnClickListener {
+                MaterialColorPickerDialog
+                    .Builder(this)  				// Pass Activity Instance
+                    .setTitle("Pick Text Color")
+                    .setColors(arrayListOf("#FFFFFF", "#000000", "#3D3D3D", "#29ABE2", "#F7931E", "#FFFF00", "#ED1C24", "#009245", "#662D91", "#D4145A"))
+                    .setColorListener { color, colorHex ->
+                        textColor = colorHex
+                        locationAlertDialogViewMain.specialOfferTextView.setTextColor(color)
+                    }
+                    .show()
+            }
+            locationAlertDialogViewMain.buttonBgColor.setOnClickListener {
+                MaterialColorPickerDialog
+                    .Builder(this)  				// Pass Activity Instance
+                    .setTitle("Pick Text Color")
+                    .setColors(arrayListOf("#FFFFFF", "#000000", "#3D3D3D", "#29ABE2", "#F7931E", "#FFFF00", "#ED1C24", "#009245", "#662D91", "#D4145A"))
+                    .setColorListener { color, colorHex ->
+                        bgColor = colorHex
+                        locationAlertDialogViewMain.specialOfferTextView.setBackgroundColor(color)
+                    }
+                    .show()
+            }
+            locationAlertDialogViewMain.edt_name.doOnTextChanged { text, start, before, count ->
+                locationAlertDialogViewMain.specialOfferTextView.text = text
+            }
+            locationAlertDialogViewMain.addLocationConfirmButton.setOnClickListener {
+                if(locationAlertDialogViewMain.edt_name.text.isNotEmpty()){
+                    locationAlertDialogViewMain.buttonTextColor.isEnabled = false
+                    locationAlertDialogViewMain.buttonBgColor.isEnabled = false
+                    locationAlertDialogViewMain.edt_name.isEnabled = false
+                    locationAlertDialogViewMain.order.isEnabled = false
+                    locationAlertDialogViewMain.addLocationConfirmButton.isEnabled = false
+                    val d = SlidingTextItem()
+                    d.key = "STI"+System.currentTimeMillis()
+                    d.enabled = true
+                    d.textTitle = locationAlertDialogViewMain.edt_name.text.toString()
+                    d.textDescription = ""
+                    d.timeBased = false
+                    d.backgroundColorHex = bgColor
+                    d.textColorHex = textColor
+                    d.order = if(locationAlertDialogViewMain.order.text.isEmpty()){
+                        0
+                    }else{
+                        locationAlertDialogViewMain.order.text.toString().toLong()
+                    }
+                    val hashMap = HashMap<String,Any>()
+                    hashMap[d.key] = d
+                    FirebaseFirestore.getInstance()
+                        .collection(Constants.FC_OFFERS_OI)
+                        .document("normal_notifications_document")
+                        .update(hashMap)
+                        .addOnCompleteListener {
+                            normalBannerPopUpArrayList.add(d)
+                            normalBannersPopUpAdapter.notifyItemInserted(normalBannerPopUpArrayList.size-1)
+                            alertDialog.dismiss()
+                        }
+                }
+            }
+            alertDialog.setView(locationAlertDialogViewMain)
+            alertDialog.show()
+        }
         firebaseFirestore.collection(Constants.FC_OFFERS_OI)
             .document("normal_notifications_document")
             .get().addOnCompleteListener { task ->
@@ -230,74 +298,6 @@ class SettingActivity : AppCompatActivity() {
                         normalBannersPopUpAdapter = NormalBannersPopUpAdapter(this, normalBannerPopUpArrayList)
                         normalNotificationsPopUp.layoutManager = LinearLayoutManager(this)
                         normalNotificationsPopUp.adapter = normalBannersPopUpAdapter
-
-                        addNormalNotifications.setOnClickListener {
-                            val alertDialog = AlertDialog.Builder(this).create()
-                            val locationAlertDialogViewMain = LayoutInflater.from(this)
-                                .inflate(R.layout.dialog_add_normal_banner, null)
-                            var textColor = "#ffffff"
-                            var bgColor = "#43A047"
-                            locationAlertDialogViewMain.buttonTextColor.setOnClickListener {
-                                MaterialColorPickerDialog
-                                    .Builder(this)  				// Pass Activity Instance
-                                    .setTitle("Pick Text Color")
-                                    .setColors(arrayListOf("#FFFFFF", "#000000", "#3D3D3D", "#29ABE2", "#F7931E", "#FFFF00", "#ED1C24", "#009245", "#662D91", "#D4145A"))
-                                    .setColorListener { color, colorHex ->
-                                        textColor = colorHex
-                                        locationAlertDialogViewMain.specialOfferTextView.setTextColor(color)
-                                    }
-                                    .show()
-                            }
-                            locationAlertDialogViewMain.buttonBgColor.setOnClickListener {
-                                MaterialColorPickerDialog
-                                    .Builder(this)  				// Pass Activity Instance
-                                    .setTitle("Pick Text Color")
-                                    .setColors(arrayListOf("#FFFFFF", "#000000", "#3D3D3D", "#29ABE2", "#F7931E", "#FFFF00", "#ED1C24", "#009245", "#662D91", "#D4145A"))
-                                    .setColorListener { color, colorHex ->
-                                        bgColor = colorHex
-                                        locationAlertDialogViewMain.specialOfferTextView.setBackgroundColor(color)
-                                    }
-                                    .show()
-                            }
-                            locationAlertDialogViewMain.edt_name.doOnTextChanged { text, start, before, count ->
-                                locationAlertDialogViewMain.specialOfferTextView.text = text
-                            }
-                            locationAlertDialogViewMain.addLocationConfirmButton.setOnClickListener {
-                                if(locationAlertDialogViewMain.edt_name.text.isNotEmpty()){
-                                    locationAlertDialogViewMain.buttonTextColor.isEnabled = false
-                                    locationAlertDialogViewMain.buttonBgColor.isEnabled = false
-                                    locationAlertDialogViewMain.edt_name.isEnabled = false
-                                    locationAlertDialogViewMain.order.isEnabled = false
-                                    locationAlertDialogViewMain.addLocationConfirmButton.isEnabled = false
-                                    val d = SlidingTextItem()
-                                    d.key = "STI"+System.currentTimeMillis()
-                                    d.enabled = true
-                                    d.textTitle = locationAlertDialogViewMain.edt_name.text.toString()
-                                    d.textDescription = ""
-                                    d.timeBased = false
-                                    d.backgroundColorHex = bgColor
-                                    d.textColorHex = textColor
-                                    d.order = if(locationAlertDialogViewMain.order.text.isEmpty()){
-                                        0
-                                    }else{
-                                        locationAlertDialogViewMain.order.text.toString().toLong()
-                                    }
-                                    val hashMap = HashMap<String,Any>()
-                                    hashMap[d.key] = d
-                                    FirebaseFirestore.getInstance()
-                                        .collection(Constants.FC_OFFERS_OI)
-                                        .document("normal_notifications_document")
-                                        .update(hashMap)
-                                        .addOnCompleteListener {
-                                            normalBannerPopUpArrayList.add(d)
-                                            normalBannersPopUpAdapter.notifyItemInserted(normalBannerPopUpArrayList.size-1)
-                                            alertDialog.dismiss()
-                                        }
-                                }
-                            }
-                            alertDialog.setView(locationAlertDialogViewMain)
-                            alertDialog.show()
-                        }
                     }
                 }else{
                     task.exception!!.printStackTrace()
@@ -499,6 +499,20 @@ class SettingActivity : AppCompatActivity() {
         allowOverTimeCheckBox.isEnabled = true
     }
     private fun initListenersForOrderLimitEdittextsAndCheckBoxes() {
+        startTimeOrder.setOnClickListener{
+            var timePicker = TimePickerDialog.newInstance(
+                { view, hourOfDay, minute, second ->
+                    startTimeOrder.setText("$hourOfDay:$minute")
+                }, false)
+            timePicker.show(supportFragmentManager, "Start_Time")
+        }
+        endTimeOrder.setOnClickListener{
+            var timePicker = TimePickerDialog.newInstance(
+                { view, hourOfDay, minute, second ->
+                    endTimeOrder.setText("$hourOfDay:$minute")
+                }, false)
+            timePicker.show(supportFragmentManager, "End_Time")
+        }
         startTimeOrder.doOnTextChanged { text, start, before, count ->
             checkButtonShouldBeEnabledOrNotStatus()
         }
