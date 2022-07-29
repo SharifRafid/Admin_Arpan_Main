@@ -3,6 +3,7 @@ package admin.arpan.delivery.db.adapter
 import admin.arpan.delivery.CalculationLogics
 import admin.arpan.delivery.R
 import admin.arpan.delivery.db.model.OrderOldItems
+import admin.arpan.delivery.viewModels.HomeViewModel
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
@@ -17,18 +18,18 @@ import kotlinx.android.synthetic.main.cart_product_item_view.view.*
 import kotlinx.android.synthetic.main.cart_product_item_view.view.completedOrdersTextView
 import kotlinx.android.synthetic.main.cart_product_item_view.view.ordersTotalTextView
 import kotlinx.android.synthetic.main.cart_product_item_view.view.totalIncomeTextView
-import kotlinx.android.synthetic.main.fragment_da_stats.view.*
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 
 class OrderOldMainItemRecyclerAdapter(
-        private val context : Context,
-        private val productItems : ArrayList<OrderOldItems>,
-        private val orderOldSubItemRecyclerAdapterInterfaceListener : OrderOldSubItemRecyclerAdapterInterface,
-        private val showStats : Boolean,
-        private val showDaStatsMode : Boolean,
-        private val da_category : String
+    private val context: Context,
+    private val productItems: ArrayList<OrderOldItems>,
+    private val orderOldSubItemRecyclerAdapterInterfaceListener: OrderOldSubItemRecyclerAdapterInterface,
+    private val showStats: Boolean,
+    private val showDaStatsMode: Boolean,
+    private val da_category: String,
+    private val viewModel: HomeViewModel?
 ) : RecyclerView.Adapter
     <OrderOldMainItemRecyclerAdapter.RecyclerViewHolder>() {
 
@@ -60,7 +61,7 @@ class OrderOldMainItemRecyclerAdapter(
     }
 
     override fun onBindViewHolder(holder: RecyclerViewHolder, position: Int) {
-        cartItemRecyclerAdapter = OrderOldSubItemRecyclerAdapter(context, productItems[position].orders, position, orderOldSubItemRecyclerAdapterInterfaceListener)
+        cartItemRecyclerAdapter = OrderOldSubItemRecyclerAdapter(context, productItems[position].orders, position, orderOldSubItemRecyclerAdapterInterfaceListener, viewModel)
         when (productItems[position].date) {
             getDate(System.currentTimeMillis(), "dd-MM-yyyy") -> {
                 holder.productsTextView.text = "Today"

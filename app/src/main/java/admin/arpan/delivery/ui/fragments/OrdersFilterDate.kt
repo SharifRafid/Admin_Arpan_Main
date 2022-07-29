@@ -13,15 +13,29 @@ import admin.arpan.delivery.db.model.OrderItemMain
 import admin.arpan.delivery.db.model.OrderOldItems
 import admin.arpan.delivery.ui.home.HomeViewModelMainData
 import admin.arpan.delivery.ui.interfaces.HomeMainNewInterface
+import admin.arpan.delivery.utils.LiveDataUtil
 import admin.arpan.delivery.utils.getDate
+import admin.arpan.delivery.utils.networking.requests.GetOrdersRequest
+import admin.arpan.delivery.viewModels.HomeViewModel
 import android.app.DatePickerDialog
 import android.content.Context
 import android.util.Log
 import android.widget.DatePicker
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.android.synthetic.main.fragment_home.view.*
 import kotlinx.android.synthetic.main.fragment_orders_filter_date.view.*
+import kotlinx.android.synthetic.main.fragment_orders_filter_date.view.cancelledOrdersTextView
+import kotlinx.android.synthetic.main.fragment_orders_filter_date.view.completedOrdersTextView
+import kotlinx.android.synthetic.main.fragment_orders_filter_date.view.noProductsText
+import kotlinx.android.synthetic.main.fragment_orders_filter_date.view.noProductsTextView
+import kotlinx.android.synthetic.main.fragment_orders_filter_date.view.ordersTotalTextView
+import kotlinx.android.synthetic.main.fragment_orders_filter_date.view.progressBar
+import kotlinx.android.synthetic.main.fragment_orders_filter_date.view.recyclerView
+import kotlinx.android.synthetic.main.fragment_orders_filter_date.view.totalIncomeTextView
 import java.lang.ClassCastException
 import java.util.*
 import kotlin.collections.ArrayList
@@ -36,6 +50,8 @@ private const val ARG_PARAM2 = "param2"
  * Use the [OrdersFilterDate.newInstance] factory method to
  * create an instance of this fragment.
  */
+
+@AndroidEntryPoint
 class OrdersFilterDate : Fragment(), OrderOldSubItemRecyclerAdapterInterface {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
@@ -46,6 +62,7 @@ class OrdersFilterDate : Fragment(), OrderOldSubItemRecyclerAdapterInterface {
     private lateinit var homeViewModelMainData: HomeViewModelMainData
     private lateinit var homeMainNewInterface: HomeMainNewInterface
     private val TAG = "OrdersFilterDate"
+    private val viewModel: HomeViewModel by viewModels()
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -116,27 +133,70 @@ class OrdersFilterDate : Fragment(), OrderOldSubItemRecyclerAdapterInterface {
     }
 
     private fun loadLastMonthData(view : View) {
-        if(homeViewModelMainData.getLastMonthOrdersMainData().value.isNullOrEmpty()){
-            homeMainNewInterface.loadLastMonthOrdersMainData()
-        }
-        homeViewModelMainData.getLastMonthOrdersMainData().observe(requireActivity(), Observer {
-            if(it.isNotEmpty()){
-                placeOrderMainData(it, view)
-                homeViewModelMainData.getLastMonthOrdersMainData().removeObservers(requireActivity())
+        val c = Calendar.getInstance() // this takes current date
+        c.add(Calendar.MONTH, -1)
+        c[Calendar.DAY_OF_MONTH] = 1
+        c[Calendar.HOUR_OF_DAY] = 0
+
+        val d = Calendar.getInstance() // this takes current date
+        d.add(Calendar.MONTH, -1)
+        d[Calendar.DAY_OF_MONTH] = c.getActualMaximum(Calendar.DAY_OF_MONTH)
+        d[Calendar.HOUR_OF_DAY] = 24
+
+        val startTimeMillis = c.timeInMillis
+        val endTimeMillis = d.timeInMillis
+
+        LiveDataUtil.observeOnce(viewModel.getOrders(
+            GetOrdersRequest(
+                startTimeMillis,
+                endTimeMillis,
+                100,
+                1
+            )
+        )){
+            if(it.error == true){
+                placeOrderMainData(ArrayList(), view)
+            }else{
+                if(it.results.isNullOrEmpty()){
+                    placeOrderMainData(ArrayList(), view)
+                }else{
+                    placeOrderMainData(it.results, view)
+                }
             }
-        })
+        }
     }
 
     private fun loadThisMonthdata(view: View) {
-        if(homeViewModelMainData.getThisMonthOrdersArrayList().value.isNullOrEmpty()){
-            homeMainNewInterface.loadThisMonthOrdersMainData()
-        }
-        homeViewModelMainData.getThisMonthOrdersArrayList().observe(requireActivity(), Observer {
-            if(it.isNotEmpty()){
-                placeOrderMainData(it, view)
-                homeViewModelMainData.getThisMonthOrdersArrayList().removeObservers(requireActivity())
+
+        val c = Calendar.getInstance() // this takes current date
+        c[Calendar.DAY_OF_MONTH] = 1
+        c[Calendar.HOUR_OF_DAY] = 0
+
+        val d = Calendar.getInstance() // this takes current date
+        d[Calendar.DAY_OF_MONTH] = c.getActualMaximum(Calendar.DAY_OF_MONTH)
+        d[Calendar.HOUR_OF_DAY] = 24
+
+        val startTimeMillis = c.timeInMillis
+        val endTimeMillis = d.timeInMillis
+
+        LiveDataUtil.observeOnce(viewModel.getOrders(
+            GetOrdersRequest(
+                startTimeMillis,
+                endTimeMillis,
+                100,
+                1
+            )
+        )){
+            if(it.error == true){
+                placeOrderMainData(ArrayList(), view)
+            }else{
+                if(it.results.isNullOrEmpty()){
+                    placeOrderMainData(ArrayList(), view)
+                }else{
+                    placeOrderMainData(it.results, view)
+                }
             }
-        })
+        }
     }
 
     private fun placeOrderMainData(ordersMainArrayList : ArrayList<OrderItemMain>, view: View) {
@@ -174,10 +234,12 @@ class OrdersFilterDate : Fragment(), OrderOldSubItemRecyclerAdapterInterface {
         })
         ordersMainOldItemsArrayList.reverse()
         view.recyclerView.layoutManager = LinearLayoutManager(contextMain)
-        val orderAdapterMain = OrderOldMainItemRecyclerAdapter(contextMain, ordersMainOldItemsArrayList, this,
-            showStats = true,
-            showDaStatsMode = false,
-            da_category = ""
+        val orderAdapterMain = OrderOldMainItemRecyclerAdapter(
+          contextMain, ordersMainOldItemsArrayList, this,
+          showStats = true,
+          showDaStatsMode = false,
+          da_category = "",
+            viewModel
         )
         view.recyclerView.adapter = orderAdapterMain
 

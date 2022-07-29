@@ -13,7 +13,6 @@ import android.view.View
 import admin.arpan.delivery.db.model.OrderOldItems
 import admin.arpan.delivery.ui.home.HomeViewModel
 import admin.arpan.delivery.utils.getDate
-import android.util.Log
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.auth.FirebaseAuth
@@ -26,7 +25,6 @@ import com.google.firebase.storage.FirebaseStorage
 import kotlinx.android.synthetic.main.activity_add_offers.*
 import kotlinx.android.synthetic.main.activity_ordres.*
 import kotlinx.android.synthetic.main.activity_ordres.title_text_view
-import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
@@ -91,7 +89,15 @@ class OrdresActivity : AppCompatActivity() , OrderOldSubItemRecyclerAdapterInter
     private fun initVars() {
         firebaseFirestore = FirebaseFirestore.getInstance()
         firebaseStorage = FirebaseStorage.getInstance()
-        orderAdapterMain = OrderOldMainItemRecyclerAdapter(this, ordersMainOldItemsArrayList, this, false, false, "")
+        orderAdapterMain = OrderOldMainItemRecyclerAdapter(
+          this,
+          ordersMainOldItemsArrayList,
+          this,
+          false,
+          false,
+          "",
+          null
+        )
         val c = Calendar.getInstance() // this takes current date
         c[Calendar.DAY_OF_MONTH] = 1
         c[Calendar.HOUR_OF_DAY] = 0

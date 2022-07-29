@@ -11,6 +11,8 @@ import android.view.LayoutInflater
 import android.widget.EditText
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import com.shashank.sony.fancytoastlib.FancyToast
 import java.text.SimpleDateFormat
 import java.util.*
@@ -96,5 +98,13 @@ fun parseDate(date: String, dateFormat: String?): Long {
     // Create a DateFormatter object for displaying date in specified format.
     val formatter = SimpleDateFormat(dateFormat, Locale.ENGLISH)
     return formatter.parse(date)!!.time
+}
+private var gson: Gson? = null
+fun getGsonParser(): Gson? {
+    if (null == gson) {
+        val builder = GsonBuilder()
+        gson = builder.create()
+    }
+    return gson
 }
 

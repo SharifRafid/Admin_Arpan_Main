@@ -22,7 +22,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.android.synthetic.main.fragment_da_stats.view.*
 import kotlinx.android.synthetic.main.fragment_da_stats.view.ordersDateMonthRadioGroup
-import kotlinx.android.synthetic.main.fragment_orders_filter_date.view.*
 import java.lang.ClassCastException
 import java.util.*
 import kotlin.collections.ArrayList
@@ -144,7 +143,15 @@ class DaStatsFragment : Fragment(), OrderOldSubItemRecyclerAdapterInterface {
         })
         ordersMainOldItemsArrayListCompleted.reverse()
         mainView.thisMonthDaRecycler.layoutManager = LinearLayoutManager(contextMain)
-        mainView.thisMonthDaRecycler.adapter = OrderOldMainItemRecyclerAdapter(contextMain, ordersMainOldItemsArrayListCompleted, this, true, true, selectedDaAgent.da_category)
+        mainView.thisMonthDaRecycler.adapter = OrderOldMainItemRecyclerAdapter(
+          contextMain,
+          ordersMainOldItemsArrayListCompleted,
+          this,
+          true,
+          true,
+          selectedDaAgent.da_category,
+          null
+        )
     }
 
     private fun setLastMonthView() {

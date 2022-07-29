@@ -19,7 +19,6 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.Observer
 import android.widget.DatePicker
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -158,10 +157,12 @@ class OrdersFilterByDay : Fragment(), OrderOldSubItemRecyclerAdapterInterface {
         })
         ordersMainOldItemsArrayList.reverse()
         view.recyclerView.layoutManager = LinearLayoutManager(contextMain)
-        val orderAdapterMain = OrderOldMainItemRecyclerAdapter(contextMain, ordersMainOldItemsArrayList, this,
-            showStats = true,
-            showDaStatsMode = false,
-            da_category = ""
+        val orderAdapterMain = OrderOldMainItemRecyclerAdapter(
+          contextMain, ordersMainOldItemsArrayList, this,
+          showStats = true,
+          showDaStatsMode = false,
+          da_category = "",
+          null
         )
         view.recyclerView.adapter = orderAdapterMain
         view.noProductsText.visibility = View.GONE

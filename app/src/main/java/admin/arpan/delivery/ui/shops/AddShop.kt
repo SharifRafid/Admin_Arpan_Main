@@ -292,6 +292,7 @@ class AddShop : AppCompatActivity() {
             }
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         when (resultCode) {
             Activity.RESULT_OK -> {

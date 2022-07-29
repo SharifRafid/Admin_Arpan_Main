@@ -1,7 +1,6 @@
 package admin.arpan.delivery.db.model
 
 data class CartProductEntity (
-
     var id : Int = 0,
 
     var product_item : Boolean = false,

@@ -6,10 +6,7 @@ import admin.arpan.delivery.db.adapter.OrderOldSubItemRecyclerAdapterInterface
 import admin.arpan.delivery.db.adapter.TopMenuRecyclerAdapter
 import admin.arpan.delivery.db.model.*
 import admin.arpan.delivery.ui.auth.MainActivity
-import admin.arpan.delivery.ui.order.OrderHistoryFragment
-import admin.arpan.delivery.ui.order.OrderHistoryFragmentNew
 import admin.arpan.delivery.ui.order.OrderHistoryFragmentNew2
-import admin.arpan.delivery.ui.order.OrdresActivity
 import android.content.DialogInterface
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
@@ -113,7 +110,15 @@ class HomeActivity : AppCompatActivity(), OrderOldSubItemRecyclerAdapterInterfac
             )
         firebaseFirestore = FirebaseFirestore.getInstance()
         firebaseStorage = FirebaseStorage.getInstance()
-        orderAdapterMain = OrderOldMainItemRecyclerAdapter(this, ordersMainOldItemsArrayList, this, false, false, "")
+        orderAdapterMain = OrderOldMainItemRecyclerAdapter(
+          this,
+          ordersMainOldItemsArrayList,
+          this,
+          false,
+          false,
+          "",
+          null
+        )
 
         val c = Calendar.getInstance() // this takes current date
         c[Calendar.HOUR_OF_DAY] = 0

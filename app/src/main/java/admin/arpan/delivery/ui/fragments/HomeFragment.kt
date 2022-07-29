@@ -9,28 +9,24 @@ import android.view.ViewGroup
 import admin.arpan.delivery.R
 import admin.arpan.delivery.db.adapter.OrderOldMainItemRecyclerAdapter
 import admin.arpan.delivery.db.adapter.OrderOldSubItemRecyclerAdapterInterface
-import admin.arpan.delivery.db.adapter.TopMenuRecyclerAdapter
 import admin.arpan.delivery.db.model.OrderItemMain
 import admin.arpan.delivery.db.model.OrderOldItems
 import admin.arpan.delivery.ui.home.AddOffers
 import admin.arpan.delivery.ui.home.HomeViewModelMainData
 import admin.arpan.delivery.ui.interfaces.HomeMainNewInterface
-import admin.arpan.delivery.ui.order.OrdresActivity
 import admin.arpan.delivery.ui.settings.SettingActivity
+import admin.arpan.delivery.utils.LiveDataUtil
 import admin.arpan.delivery.utils.getDate
-import androidx.recyclerview.widget.GridLayoutManager
-import android.app.Activity
+import admin.arpan.delivery.utils.networking.requests.GetOrdersRequest
+import admin.arpan.delivery.viewModels.HomeViewModel
 import android.content.Context
 import android.content.Intent
 import android.util.Log
-import androidx.lifecycle.Observer
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import kotlinx.android.synthetic.main.activity_home.*
-import kotlinx.android.synthetic.main.dialog_add_normal_banner.*
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.fragment_home.view.*
-import kotlinx.android.synthetic.main.fragment_user_feed_back.*
 import java.lang.ClassCastException
 import java.util.*
 import kotlin.collections.ArrayList
@@ -46,6 +42,8 @@ private const val ARG_PARAM2 = "param2"
  * Use the [HomeFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
+
+@AndroidEntryPoint
 class HomeFragment : Fragment(), OrderOldSubItemRecyclerAdapterInterface {
 
     private var param1: String? = null
@@ -57,6 +55,7 @@ class HomeFragment : Fragment(), OrderOldSubItemRecyclerAdapterInterface {
     private var ordersMainHashMap = HashMap<String, ArrayList<OrderItemMain>>()
     private var ordersMainOldItemsArrayList = ArrayList<OrderOldItems>()
     private var ordersMainArrayList =  ArrayList<OrderItemMain>()
+    private val viewModel: HomeViewModel by viewModels()
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -104,30 +103,54 @@ class HomeFragment : Fragment(), OrderOldSubItemRecyclerAdapterInterface {
         view.noProductsText.visibility = View.GONE
         view.progressBar.visibility = View.VISIBLE
         view.recyclerView.visibility = View.GONE
-        if(homeViewModelMainData.getOrdersOneDayDataMainList().value.isNullOrEmpty()){
-            homeMainNewInterface.loadOrdersOneDayList()
-        }
-        homeViewModelMainData.getOrdersOneDayDataMainList().observe(requireActivity(), Observer {
-            if(it.isEmpty()){
+
+        val c = Calendar.getInstance() // this takes current date
+        c[Calendar.HOUR_OF_DAY] = 0
+        c[Calendar.MINUTE] = 0
+        c[Calendar.SECOND] = 0
+
+        val d = Calendar.getInstance() // this takes current date
+        d[Calendar.HOUR_OF_DAY] = 24
+        d[Calendar.MINUTE] = 60
+        d[Calendar.SECOND] = 60
+
+        val startTimeMillis = c.timeInMillis
+        val endTimeMillis = d.timeInMillis
+
+        LiveDataUtil.observeOnce(viewModel.getOrders(
+            GetOrdersRequest(
+                startTimeMillis,
+                endTimeMillis,
+                100,
+                1
+            )
+        )){
+            if(it.error == true){
                 view.noProductsText.visibility = View.VISIBLE
                 view.noProductsTextView.text = getString(R.string.you_have_no_orders)
                 view.progressBar.visibility = View.GONE
                 view.recyclerView.visibility = View.GONE
             }else{
-                view.noProductsText.visibility = View.GONE
-                view.progressBar.visibility = View.GONE
-                view.recyclerView.visibility = View.VISIBLE
-                ordersMainArrayList = it
-                Log.e(TAG, it.size.toString())
-                //Only for HomeFragment calculations when the passed data is for one day
-                val calculationResult = CalculationLogics().calculateArpansStatsForArpan(ordersMainArrayList)
-                view.ordersTotalTextView.text = calculationResult.totalOrders.toString()
-                view.totalIncomeTextView.text = calculationResult.arpansIncome.toString()
-                view.completedOrdersTextView.text = calculationResult.completed.toString()
-                view.cancelledOrdersTextView.text = calculationResult.cancelled.toString()
-                placeOrderMainData(view)
+                if(it.results.isNullOrEmpty()){
+                    view.noProductsText.visibility = View.VISIBLE
+                    view.noProductsTextView.text = getString(R.string.you_have_no_orders)
+                    view.progressBar.visibility = View.GONE
+                    view.recyclerView.visibility = View.GONE
+                }else{
+                    view.noProductsText.visibility = View.GONE
+                    view.progressBar.visibility = View.GONE
+                    view.recyclerView.visibility = View.VISIBLE
+                    ordersMainArrayList = it.results
+                    //Only for HomeFragment calculations when the passed data is for one day
+                    val calculationResult = CalculationLogics().calculateArpansStatsForArpan(ordersMainArrayList)
+                    view.ordersTotalTextView.text = calculationResult.totalOrders.toString()
+                    view.totalIncomeTextView.text = calculationResult.arpansIncome.toString()
+                    view.completedOrdersTextView.text = calculationResult.completed.toString()
+                    view.cancelledOrdersTextView.text = calculationResult.cancelled.toString()
+                    placeOrderMainData(view)
+                }
             }
-        })
+        }
     }
 
     private fun placeOrderMainData(view : View) {
@@ -156,7 +179,7 @@ class HomeFragment : Fragment(), OrderOldSubItemRecyclerAdapterInterface {
         })
         ordersMainOldItemsArrayList.reverse()
         val orderAdapterMain = OrderOldMainItemRecyclerAdapter(contextMain, ordersMainOldItemsArrayList, this, false,
-            showDaStatsMode = false, "")
+            showDaStatsMode = false, "", viewModel)
         view.recyclerView.layoutManager = LinearLayoutManager(contextMain)
         view.recyclerView.adapter = orderAdapterMain
         view.noProductsText.visibility = View.GONE

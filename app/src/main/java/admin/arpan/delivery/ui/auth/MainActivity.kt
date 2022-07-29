@@ -1,53 +1,58 @@
 package admin.arpan.delivery.ui.auth
 
 import admin.arpan.delivery.R
-import admin.arpan.delivery.ui.home.HomeActivity
-import admin.arpan.delivery.ui.home.HomeActivityMain
-import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
+import admin.arpan.delivery.utils.LiveDataUtil
+import admin.arpan.delivery.utils.createProgressDialog
+import admin.arpan.delivery.viewModels.AuthViewModel
+import android.app.Dialog
 import android.os.Bundle
-import android.widget.Toast
-import com.google.firebase.auth.FirebaseAuth
+import android.util.Log
+import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.activity_main.*
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
-    override fun onCreate(savedInstanceState: Bundle?) {
+  private val viewModel: AuthViewModel by viewModels()
+  private lateinit var progressDialog: Dialog
 
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    setContentView(R.layout.activity_main)
 
-        val firebaseAuth = FirebaseAuth.getInstance()
+    progressDialog = createProgressDialog()
 
-        if(firebaseAuth.currentUser!=null){
-            startActivity(Intent(this, HomeActivityMain::class.java))
-            finish()
-        }else{
-            buttonDone.setOnClickListener {
-                if(editTextTextPassword.text.isNotEmpty() && editTextTextPersonName.text.isNotEmpty()){
-                    buttonDone.isEnabled = false
-                    firebaseAuth.signInWithEmailAndPassword(
-                        editTextTextPersonName.text.toString(),
-                        editTextTextPassword.text.toString()
-                    ).addOnCompleteListener {
-                        if(it.isSuccessful){
-                            if(firebaseAuth.currentUser!=null){
-                                startActivity(Intent(this, HomeActivityMain::class.java))
-                                finish()
-                            }else{
-                                Toast.makeText(this, "Try again...", Toast.LENGTH_SHORT).show()
-                                buttonDone.isEnabled = true
-                            }
-                        }else{
-                            Toast.makeText(this, "Try again...", Toast.LENGTH_SHORT).show()
-                            buttonDone.isEnabled = true
-                        }
-                    }
-                }else{
-                    Toast.makeText(this, "Please enter email and password", Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
+    progressDialog.show()
+    LiveDataUtil.observeOnce(viewModel.getRefreshResponse()) {
+      runOnUiThread {
+        progressDialog.dismiss()
+      }
+      viewModel.switchActivity(it)
     }
+
+    buttonDone.setOnClickListener {
+      if (editTextTextPassword.text.isNotEmpty() && editTextTextPersonName.text.isNotEmpty()) {
+        progressDialog.show()
+        LiveDataUtil.observeOnce(
+          viewModel.getLoginResponse(
+            editTextTextPersonName.text.toString(),
+            editTextTextPassword.text.toString()
+          )
+        ) {
+          runOnUiThread {
+            progressDialog.dismiss()
+          }
+          viewModel.switchActivity(it)
+        }
+      }
+    }
+  }
+
 }
 

@@ -30,11 +30,13 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.messaging.FirebaseMessaging
 import com.shashank.sony.fancytoastlib.FancyToast
+import dagger.hilt.android.AndroidEntryPoint
 import java.lang.Exception
 import java.util.*
 import kotlin.Comparator
 import kotlin.collections.ArrayList
 
+@AndroidEntryPoint
 class HomeActivityMain : AppCompatActivity(), HomeMainNewInterface{
 
     private final val TAG = "HomeActivityMain"
