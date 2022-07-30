@@ -2,7 +2,6 @@ package admin.arpan.delivery.ui.shops
 
 import admin.arpan.delivery.R
 import admin.arpan.delivery.db.adapter.ShopItemRecyclerAdapter
-import admin.arpan.delivery.db.model.ProductItem
 import admin.arpan.delivery.db.model.ShopItem
 import admin.arpan.delivery.utils.Constants
 import android.content.Intent
@@ -12,7 +11,6 @@ import android.view.View
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.firestore.FirebaseFirestore
-import com.shashank.sony.fancytoastlib.FancyToast
 import kotlinx.android.synthetic.main.activity_shops.*
 
 class ShopsActivity : AppCompatActivity() {
@@ -82,9 +80,9 @@ class ShopsActivity : AppCompatActivity() {
                         }
                         array_size = arrayList.size
                         mainRecyclerView.layoutManager = LinearLayoutManager(this)
-                        val adapterShops = ShopItemRecyclerAdapter(this, arrayList, "")
-                        adapterShops.setHasStableIds(true)
-                        mainRecyclerView.adapter = adapterShops
+//                        val adapterShops = ShopItemRecyclerAdapter(this, arrayList, "")
+//                        adapterShops.setHasStableIds(true)
+//                        mainRecyclerView.adapter = adapterShops
                     }else{
                         Toast.makeText(this, "No data", Toast.LENGTH_SHORT).show()
 

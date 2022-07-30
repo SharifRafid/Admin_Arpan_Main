@@ -22,6 +22,7 @@
         <entry key="app/src/main/res/layout/fragment_home.xml" value="0.20104166666666667" />
         <entry key="app/src/main/res/layout/fragment_orders_filter_by_day.xml" value="0.353125" />
         <entry key="app/src/main/res/layout/fragment_orders_filter_date.xml" value="0.353125" />
+        <entry key="app/src/main/res/layout/fragment_shops.xml" value="0.353125" />
         <entry key="app/src/main/res/layout/list_view_layout.xml" value="0.353125" />
         <entry key="app/src/main/res/layout/pop_up_edit_text.xml" value="0.353125" />
       </map>

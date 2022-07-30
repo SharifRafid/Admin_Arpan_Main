@@ -25,6 +25,8 @@ interface ApiService {
     suspend fun getOrders(@Header("Authorization") accessToken: String,@Body getOrdersRequest: GetOrdersRequest): GetOrdersResponse
 
     @GET("shops")
-    suspend fun getAllShops(@Header("Authorization") accessToken: String): GetAllShopsResponse
+    suspend fun getAllShops(@Header("Authorization") accessToken: String,
+                            @Query("limit") limit: Int,
+                            @Query("page") page: Int): GetAllShopsResponse
 
 }

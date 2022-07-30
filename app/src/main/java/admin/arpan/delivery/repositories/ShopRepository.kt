@@ -32,7 +32,7 @@ class ShopRepository
     return if (accessToken == null) {
       GetAllShopsResponse(true, "Not logged in", ArrayList(), null, null, null, null)
     } else {
-      retrofitBuilder.apiService.getAllShops("Bearer $accessToken")
+      retrofitBuilder.apiService.getAllShops("Bearer $accessToken", 100, 1)
     }
   }
 
