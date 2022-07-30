@@ -4,10 +4,7 @@ import admin.arpan.delivery.db.model.OrderItemMain
 import admin.arpan.delivery.utils.networking.requests.GetOrdersRequest
 import admin.arpan.delivery.utils.networking.requests.LoginRequest
 import admin.arpan.delivery.utils.networking.requests.RefreshRequest
-import admin.arpan.delivery.utils.networking.responses.DefaultResponse
-import admin.arpan.delivery.utils.networking.responses.GetOrdersResponse
-import admin.arpan.delivery.utils.networking.responses.RefreshResponse
-import admin.arpan.delivery.utils.networking.responses.LoginResponse
+import admin.arpan.delivery.utils.networking.responses.*
 import retrofit2.Call
 import retrofit2.http.*
 
@@ -26,4 +23,8 @@ interface ApiService {
 
     @POST("orders/filter")
     suspend fun getOrders(@Header("Authorization") accessToken: String,@Body getOrdersRequest: GetOrdersRequest): GetOrdersResponse
+
+    @GET("shops")
+    suspend fun getAllShops(@Header("Authorization") accessToken: String): GetAllShopsResponse
+
 }
