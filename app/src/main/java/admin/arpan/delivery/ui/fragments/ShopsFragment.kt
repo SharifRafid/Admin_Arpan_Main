@@ -6,13 +6,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import admin.arpan.delivery.R
+import admin.arpan.delivery.db.adapter.ShopRecyclerAdapterInterface
 import admin.arpan.delivery.db.adapter.ShopItemRecyclerAdapter
+import admin.arpan.delivery.models.Shop
 import admin.arpan.delivery.ui.interfaces.HomeMainNewInterface
 import admin.arpan.delivery.ui.shops.AddShop
 import admin.arpan.delivery.ui.shops.ShopCategoryActivity
 import admin.arpan.delivery.utils.LiveDataUtil
+import admin.arpan.delivery.utils.createProgressDialog
 import admin.arpan.delivery.utils.showToast
-import admin.arpan.delivery.viewModels.HomeViewModel
+import admin.arpan.delivery.viewModels.ShopViewModel
+import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.util.Log
@@ -23,38 +27,22 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.fragment_shops.view.*
 import java.lang.ClassCastException
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [ShopsFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
-
 @AndroidEntryPoint
-class ShopsFragment : Fragment() {
-  // TODO: Rename and change types of parameters
-  private var param1: String? = null
-  private var param2: String? = null
+class ShopsFragment : Fragment(), ShopRecyclerAdapterInterface {
+
   private lateinit var homeMainNewInterface: HomeMainNewInterface
   private val TAG = "ShopsFragment"
   private lateinit var contextMain: Context
-  private val viewModel: HomeViewModel by viewModels()
-
-  override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
-    arguments?.let {
-      param1 = it.getString(ARG_PARAM1)
-      param2 = it.getString(ARG_PARAM2)
-    }
-  }
+  private val viewModel: ShopViewModel by viewModels()
+  private lateinit var adapterShops: ShopItemRecyclerAdapter
+  private val arrayList = ArrayList<Shop>()
+  private lateinit var viewMain: View
+  private lateinit var progressDialog: Dialog
 
   override fun onAttach(context: Context) {
     super.onAttach(context)
     contextMain = context
+    progressDialog = context.createProgressDialog()
     try {
       homeMainNewInterface = context as HomeMainNewInterface
     } catch (classCastException: ClassCastException) {
@@ -70,7 +58,15 @@ class ShopsFragment : Fragment() {
     return inflater.inflate(R.layout.fragment_shops, container, false)
   }
 
+  override fun onResume() {
+    super.onResume()
+    if (this::viewMain.isInitialized) {
+      loadDataFirestore(viewMain)
+    }
+  }
+
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    viewMain = view
     view.addShopsButton.setOnClickListener {
       val intent = Intent(contextMain, AddShop::class.java)
       intent.putExtra("array_size", "0")
@@ -81,6 +77,9 @@ class ShopsFragment : Fragment() {
       startActivity(intent)
     }
     loadDataFirestore(view)
+    view.swipeRefreshLayout.setOnRefreshListener {
+      loadDataFirestore(view)
+    }
   }
 
   private fun loadDataFirestore(view: View) {
@@ -88,12 +87,14 @@ class ShopsFragment : Fragment() {
       if (it.error == true) {
         contextMain.showToast(it.message.toString(), FancyToast.ERROR)
       } else {
-        val arrayList = it.results
+        arrayList.clear()
+        arrayList.addAll(it.results)
         val array_size = arrayList.size
         view.mainRecyclerView.layoutManager = LinearLayoutManager(contextMain)
-        val adapterShops = ShopItemRecyclerAdapter(contextMain, arrayList, "")
+        adapterShops = ShopItemRecyclerAdapter(contextMain, arrayList, "", this)
         adapterShops.setHasStableIds(true)
         view.mainRecyclerView.adapter = adapterShops
+        view.swipeRefreshLayout.isRefreshing = false
         view.addShopsButton.setOnClickListener {
           val intent = Intent(contextMain, AddShop::class.java)
           intent.putExtra("array_size", array_size.toString())
@@ -103,23 +104,70 @@ class ShopsFragment : Fragment() {
     }
   }
 
-  companion object {
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment ShopsFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    @JvmStatic
-    fun newInstance(param1: String, param2: String) =
-      ShopsFragment().apply {
-        arguments = Bundle().apply {
-          putString(ARG_PARAM1, param1)
-          putString(ARG_PARAM2, param2)
+  override fun onSwitchShopStatusCheckedChanged(
+    position: Int,
+    shop: Shop,
+    buttonView: View,
+    isChecked: Boolean
+  ) {
+    if (isChecked) {
+      if (shop.open != true) {
+        buttonView.isEnabled = false
+        val hashMap = HashMap<String, Any>()
+        hashMap["open"] = true
+        LiveDataUtil.observeOnce(viewModel.updateShopItem(shop.id!!, hashMap)) {
+          buttonView.isEnabled = true
+          if (it.id != null) {
+            arrayList[position] = it
+            adapterShops.notifyItemChanged(position)
+          } else {
+            contextMain.showToast("Failed to update", FancyToast.ERROR)
+          }
         }
       }
+    } else {
+      if (shop.open == true) {
+        buttonView.isEnabled = false
+        val hashMap = HashMap<String, Any>()
+        hashMap["open"] = false
+        LiveDataUtil.observeOnce(viewModel.updateShopItem(shop.id!!, hashMap)) {
+          buttonView.isEnabled = true
+          if (it.id != null) {
+            arrayList[position] = it
+            adapterShops.notifyItemChanged(position)
+          } else {
+            contextMain.showToast("Failed to update", FancyToast.ERROR)
+          }
+        }
+      }
+    }
+  }
+
+  override fun deleteShop(position: Int, shop: Shop) {
+    progressDialog.show()
+    LiveDataUtil.observeOnce(viewModel.deleteShopItem(shop.id!!)) {
+      progressDialog.dismiss()
+      if (it.error == true) {
+        contextMain.showToast("Error : ${it.message.toString()}", FancyToast.ERROR)
+      } else {
+        arrayList.removeAt(position)
+        adapterShops.notifyItemRemoved(position)
+        adapterShops.notifyItemRangeChanged(position, arrayList.size)
+      }
+    }
+  }
+
+  override fun createShareLink(position: Int, id: String, link: String, shareButton: View) {
+    val hashMap = HashMap<String, Any>()
+    hashMap["dynamicLink"] = link
+    LiveDataUtil.observeOnce(viewModel.updateShopItem(id, hashMap)) {
+      shareButton.isEnabled = true
+      if (it.id != null) {
+        arrayList[position] = it
+        adapterShops.notifyItemChanged(position)
+      } else {
+        contextMain.showToast("Failed to update", FancyToast.ERROR)
+      }
+    }
   }
 }

@@ -1,10 +1,8 @@
 package admin.arpan.delivery.models
 
-import admin.arpan.delivery.utils.networking.responses.Notices
 import com.google.gson.annotations.SerializedName
 
 data class Shop(
-
   @SerializedName("isClient") var isClient: Boolean? = null,
   @SerializedName("open") var open: Boolean? = null,
   @SerializedName("categories") var categories: ArrayList<String> = arrayListOf(),
@@ -18,7 +16,7 @@ data class Shop(
   @SerializedName("location") var location: String? = null,
   @SerializedName("deliveryCharge") var deliveryCharge: Int? = null,
   @SerializedName("daCharge") var daCharge: Int? = null,
-  @SerializedName("notices") var notices: ArrayList<Notices> = arrayListOf(),
+  @SerializedName("notices") var notices: ArrayList<Notice> = arrayListOf(),
   @SerializedName("id") var id: String? = null
 
 )

@@ -3,8 +3,8 @@ package admin.arpan.delivery.utils
 class Constants {
     companion object{
 
-        const val SERVER_BASE_URL = "http://192.168.3.109:3000/v1/"
-        const val SERVER_FILES_BASE_URL = "http://192.168.3.109:3000/"
+        const val SERVER_BASE_URL = "http://10.0.2.2:3000/v1/"
+        const val SERVER_FILES_BASE_URL = "http://10.0.2.2:3000/public/"
 
         //COUNTS RTDB LOCATION
         const val COUNT_PRODUCT_CATEGORY_MAIN = "product_counts_category_main"

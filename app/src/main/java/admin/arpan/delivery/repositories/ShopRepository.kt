@@ -1,12 +1,8 @@
 package admin.arpan.delivery.repositories
 
-import admin.arpan.delivery.db.model.OrderItemMain
-import admin.arpan.delivery.models.Tokens
+import admin.arpan.delivery.models.Shop
 import admin.arpan.delivery.utils.Preference
 import admin.arpan.delivery.utils.networking.RetrofitBuilder
-import admin.arpan.delivery.utils.networking.requests.GetOrdersRequest
-import admin.arpan.delivery.utils.networking.requests.LoginRequest
-import admin.arpan.delivery.utils.networking.requests.RefreshRequest
 import admin.arpan.delivery.utils.networking.responses.*
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -27,6 +23,14 @@ class ShopRepository
 //    }
 //  }
 
+  private fun getAccessToken(): String? {
+    return if (preference.getTokens() != null) {
+      preference.getTokens()!!.access.token
+    } else {
+      null
+    }
+  }
+
   suspend fun getShops(): GetAllShopsResponse {
     val accessToken = getAccessToken()
     return if (accessToken == null) {
@@ -36,11 +40,30 @@ class ShopRepository
     }
   }
 
-  private fun getAccessToken(): String? {
-    return if (preference.getTokens() != null) {
-      preference.getTokens()!!.access.token
+  suspend fun updateShop(id: String, shop: HashMap<String, Any>): Shop {
+    val accessToken = getAccessToken()
+    return if (accessToken == null) {
+      Shop()
     } else {
-      null
+      retrofitBuilder.apiService.updateShop("Bearer $accessToken", id, shop)
+    }
+  }
+
+  suspend fun createShop(shop: Shop): Shop {
+    val accessToken = getAccessToken()
+    return if (accessToken == null) {
+      Shop()
+    } else {
+      retrofitBuilder.apiService.createShop("Bearer $accessToken", shop)
+    }
+  }
+
+  suspend fun deleteShop(id: String): DefaultResponse {
+    val accessToken = getAccessToken()
+    return if (accessToken == null) {
+      DefaultResponse(true, "Not logged in")
+    } else {
+      retrofitBuilder.apiService.deleteShop("Bearer $accessToken", id)
     }
   }
 }
