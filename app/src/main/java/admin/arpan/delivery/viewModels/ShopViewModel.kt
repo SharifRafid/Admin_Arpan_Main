@@ -63,4 +63,15 @@ class ShopViewModel @Inject constructor(
     emit(defaultResponse)
   }
 
+  fun removeCategoryFromShop(shopId: String, categoryId: String) = liveData(Dispatchers.IO) {
+    var shopResponse: DefaultResponse
+    try {
+      shopResponse = shopRepository.removeCategoryFromShop(shopId, categoryId)
+    } catch (e: Exception) {
+      shopResponse = DefaultResponse(true, e.message.toString())
+      e.printStackTrace()
+    }
+    emit(shopResponse)
+  }
+
 }

@@ -30,109 +30,97 @@ class ProductItemRecyclerAdapter(
   private val shopKey: String,
   private val productRecyclerAdapterInterface: ProductRecyclerAdapterInterface
 ) : RecyclerView.Adapter
-    <ProductItemRecyclerAdapter.RecyclerViewHolder>() {
+<ProductItemRecyclerAdapter.RecyclerViewHolder>() {
 
-    class RecyclerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val imageView = itemView.shopImageItem as ImageView
-        val textView = itemView.titleTextView as TextView
-        val price = itemView.priceTextView as TextView
-        val statusSwitch = itemView.status_switch as SwitchMaterial
-        val offerStatusSwitch = itemView.offer_status_switch as SwitchMaterial
-        val cardView = itemView.mainCardView as CardView
+  class RecyclerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    val imageView = itemView.shopImageItem as ImageView
+    val textView = itemView.titleTextView as TextView
+    val price = itemView.priceTextView as TextView
+    val statusSwitch = itemView.status_switch as SwitchMaterial
+    val offerStatusSwitch = itemView.offer_status_switch as SwitchMaterial
+    val cardView = itemView.mainCardView as CardView
+  }
+
+  override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerViewHolder {
+    val view = LayoutInflater.from(context).inflate(
+      R.layout.product_item_view, parent,
+      false
+    )
+    return RecyclerViewHolder(view)
+  }
+
+  override fun getItemCount(): Int {
+    return productItems.size
+  }
+
+  override fun onBindViewHolder(holder: RecyclerViewHolder, position: Int) {
+    holder.textView.text = productItems[position].name
+    holder.price.text = "মুল্যঃ ${productItems[position].price} ৳"
+    holder.statusSwitch.isChecked = productItems[position].inStock!!
+    holder.offerStatusSwitch.isChecked = productItems[position].offerActive!!
+    holder.statusSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
+      productRecyclerAdapterInterface.onSwitchProductStatusCheckedChanged(
+        position,
+        productItems[position], buttonView, isChecked
+      )
+    }
+    holder.offerStatusSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
+      productRecyclerAdapterInterface.onSwitchProductStatusCheckedChanged(
+        position,
+        productItems[position], buttonView, isChecked
+      )
+    }
+    if (productItems[position].icon != null) {
+      Glide.with(context)
+        .load(Constants.SERVER_FILES_BASE_URL + productItems[position].icon!!.path)
+        .diskCacheStrategy(DiskCacheStrategy.ALL)
+        .centerCrop()
+        .override(300, 300)
+        .placeholder(R.drawable.test_shop_image).into(holder.imageView)
+    }
+    holder.cardView.setOnClickListener {
+      (context as ProductsActivity).currentSelectedProductMainIndex = position
+      val updateProductFragment = UpdateProductFragment(productItems[position])
+      updateProductFragment.show(context.supportFragmentManager, "")
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerViewHolder {
-        val view = LayoutInflater.from(context).inflate(
-                R.layout.product_item_view, parent,
-            false)
-        return RecyclerViewHolder(view)
-    }
-
-    override fun getItemCount(): Int {
-        return productItems.size
-    }
-
-    override fun onBindViewHolder(holder: RecyclerViewHolder, position: Int) {
-        holder.textView.text = productItems[position].name
-        holder.price.text = "মুল্যঃ ${productItems[position].price} ৳"
-        holder.statusSwitch.isChecked = productItems[position].inStock!!
-        holder.offerStatusSwitch.isChecked = productItems[position].offerActive!!
-        holder.statusSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
-            productRecyclerAdapterInterface.onSwitchProductStatusCheckedChanged(
-                position,
-                productItems[position], buttonView, isChecked
-            )
+    holder.cardView.setOnLongClickListener {
+      val progressDialog = context.createProgressDialog()
+      val mDialog = AlertDialog.Builder(context)
+        .setTitle("Are you sure to delete this product?")
+        .setMessage("This will delete this product of the shop and all other stuff.....")
+        .setPositiveButton(
+          context.getString(R.string.yes_ok)
+        ) { diaInt, _ ->
+          diaInt.dismiss()
+          productRecyclerAdapterInterface.deleteProduct(position, productItems[position])
         }
-//        holder.offerStatusSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
-//            if(isChecked){
-//                if(productItems[position].offerStatus!="active"){
-//                    FirebaseFirestore.getInstance().collection(Constants.FC_SHOPS_MAIN)
-//                        .document(shopKey).collection(Constants.FD_PRODUCTS_MAIN_SUB_COLLECTION)
-//                        .document(productItems[position].key)
-//                        .update("offerStatus", "active")
-//                    productItems[position].offerStatus="active"
-//                }
-//            }else{
-//                if(productItems[position].offerStatus=="active"){
-//                    FirebaseFirestore.getInstance().collection(Constants.FC_SHOPS_MAIN)
-//                        .document(shopKey).collection(Constants.FD_PRODUCTS_MAIN_SUB_COLLECTION)
-//                        .document(productItems[position].key)
-//                        .update("offerStatus", "inactive")
-//                    productItems[position].offerStatus="inactive"
-//                }
-//            }
-//        }
-        if(productItems[position].icon != null){
-            Glide.with(context)
-                .load(Constants.SERVER_FILES_BASE_URL+productItems[position].icon!!.path)
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .centerCrop()
-                .override(300,300)
-                .placeholder(R.drawable.test_shop_image).into(holder.imageView)
-        }
-        holder.cardView.setOnClickListener {
-            (context as ProductsActivity).currentSelectedProductMainIndex = position
-            val updateProductFragment = UpdateProductFragment(productItems[position])
-            updateProductFragment.show(context.supportFragmentManager, "")
-        }
-
-        holder.cardView.setOnLongClickListener {
-            val progressDialog = context.createProgressDialog()
-            val mDialog = AlertDialog.Builder(context)
-                .setTitle("Are you sure to delete this product?")
-                .setMessage("This will delete this product of the shop and all other stuff.....")
-                .setPositiveButton(
-                    context.getString(R.string.yes_ok)
-                ) { diaInt, _ ->
-                    diaInt.dismiss()
-                    productRecyclerAdapterInterface.deleteProduct(position, productItems[position])
-                }
-                .setNegativeButton(
-                    context.getString(R.string.no_its_ok)
-                ) { dialogInterface, _ -> dialogInterface.dismiss() }
-                .create()
-            mDialog.show()
-            true
-        }
+        .setNegativeButton(
+          context.getString(R.string.no_its_ok)
+        ) { dialogInterface, _ -> dialogInterface.dismiss() }
+        .create()
+      mDialog.show()
+      true
     }
+  }
 
-    override fun getItemId(position: Int): Long {
-        return position.toLong()
-    }
+  override fun getItemId(position: Int): Long {
+    return position.toLong()
+  }
 
-    override fun getItemViewType(position: Int): Int {
-        return position
-    }
+  override fun getItemViewType(position: Int): Int {
+    return position
+  }
 }
 
 interface ProductRecyclerAdapterInterface {
-    
-    fun onSwitchProductStatusCheckedChanged(
-        position: Int,
-        product: Product,
-        buttonView: View,
-        isChecked: Boolean
-    )
 
-    fun deleteProduct(position: Int, product: Product)
+  fun onSwitchProductStatusCheckedChanged(
+    position: Int,
+    product: Product,
+    buttonView: View,
+    isChecked: Boolean
+  )
+
+  fun deleteProduct(position: Int, product: Product)
 }

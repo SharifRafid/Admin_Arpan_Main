@@ -83,7 +83,11 @@ class MyFirebaseIdService : FirebaseMessagingService() {
         for(entry in remoteMessage.data.entries){
             intent.putExtra(entry.key, entry.value.toString())
         }
-        val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_ONE_SHOT)
+        val pendingIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+        } else {
+            PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_ONE_SHOT)
+        }
         val channelId = "Default"
         val builder: NotificationCompat.Builder = NotificationCompat.Builder(this, channelId)
             .setSmallIcon(R.drawable.ic_arpan_icon_notification)

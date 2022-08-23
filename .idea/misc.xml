@@ -23,6 +23,7 @@
         <entry key="app/src/main/res/layout/edit_order_item.xml" value="0.353125" />
         <entry key="app/src/main/res/layout/edit_product_item_view.xml" value="0.353125" />
         <entry key="app/src/main/res/layout/fragment_add_custom_order.xml" value="0.353125" />
+        <entry key="app/src/main/res/layout/fragment_da_management.xml" value="0.353125" />
         <entry key="app/src/main/res/layout/fragment_edit_order.xml" value="0.353125" />
         <entry key="app/src/main/res/layout/fragment_home.xml" value="0.20104166666666667" />
         <entry key="app/src/main/res/layout/fragment_orders_filter_by_day.xml" value="0.353125" />
@@ -31,6 +32,7 @@
         <entry key="app/src/main/res/layout/fragment_shops.xml" value="0.22" />
         <entry key="app/src/main/res/layout/list_view_layout.xml" value="0.353125" />
         <entry key="app/src/main/res/layout/pop_up_edit_text.xml" value="0.353125" />
+        <entry key="app/src/main/res/layout/product_item_view.xml" value="0.30185185185185187" />
       </map>
     </option>
   </component>

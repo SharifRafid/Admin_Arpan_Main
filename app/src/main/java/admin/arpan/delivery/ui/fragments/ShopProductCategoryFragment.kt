@@ -96,12 +96,9 @@ class ShopProductCategoryFragment(private val dialogFragmentInterface: DialogFra
         if (it.id == null) {
           contextMain.showToast("Failed to add", FancyToast.ERROR)
         } else {
-          oldCategories.add(allCategories[i])
-          dialogFragmentInterface.setCategories(oldCategories)
-          dialogFragmentInterface.notifyDataSetChanged()
-          allCategories.removeAt(i)
-          mCategoriesAdapter.notifyDataSetChanged()
+          // TODO fix this function to not have to exit the activity
           contextMain.showToast("Added", FancyToast.SUCCESS)
+          activity?.finish()
         }
       }
     }

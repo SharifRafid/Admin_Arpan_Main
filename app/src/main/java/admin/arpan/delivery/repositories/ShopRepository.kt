@@ -66,4 +66,13 @@ class ShopRepository
       retrofitBuilder.apiService.deleteShop("Bearer $accessToken", id)
     }
   }
+
+  suspend fun removeCategoryFromShop(shopId: String, categoryId: String): DefaultResponse {
+    val accessToken = getAccessToken()
+    return if (accessToken == null) {
+      DefaultResponse(true, "Not logged in")
+    } else {
+      retrofitBuilder.apiService.removeCategoryFromShop("Bearer $accessToken", shopId, categoryId)
+    }
+  }
 }

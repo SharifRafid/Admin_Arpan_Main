@@ -12,10 +12,9 @@ import admin.arpan.delivery.ui.shops.UpdateShop
 import admin.arpan.delivery.utils.*
 import admin.arpan.delivery.viewModels.CategoryViewModel
 import admin.arpan.delivery.viewModels.ProductViewModel
-import admin.arpan.delivery.viewModels.UploadViewModel
+import admin.arpan.delivery.viewModels.ShopViewModel
 import android.app.AlertDialog
 import android.app.Dialog
-import android.content.DialogInterface
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -26,17 +25,13 @@ import android.widget.ArrayAdapter
 import android.widget.ListView
 import androidx.activity.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.gson.Gson
 import com.shashank.sony.fancytoastlib.FancyToast
-import com.squareup.okhttp.*
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.activity_products.*
 import kotlinx.android.synthetic.main.category_item_file.view.*
 import kotlinx.android.synthetic.main.dialog_add_category.view.addProductCategoriesButton
 import kotlinx.android.synthetic.main.dialog_add_category.view.edt_shop_name
 import kotlinx.android.synthetic.main.dialog_add_shop_category.view.*
-import java.io.IOException
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
@@ -58,7 +53,7 @@ class ProductsActivity : AppCompatActivity(), ProductRecyclerAdapterInterface {
   val productsMainArrayList = ArrayList<Product>()
   private val productViewModel: ProductViewModel by viewModels()
   private val categoryViewModel: CategoryViewModel by viewModels()
-  private val uploadViewModel: UploadViewModel by viewModels()
+  private val shopViewModel: ShopViewModel by viewModels()
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -180,8 +175,8 @@ class ProductsActivity : AppCompatActivity(), ProductRecyclerAdapterInterface {
                 diaInt.dismiss()
                 progressDialog.show()
                 LiveDataUtil.observeOnce(
-                  categoryViewModel
-                    .deleteCategory(categoryItemsArray[position].id!!)
+                  shopViewModel
+                    .removeCategoryFromShop(shop_key, categoryItemsArray[position].id!!)
                 ) { defaultR ->
                   progressDialog.dismiss()
                   if (defaultR.error == true) {
@@ -223,6 +218,7 @@ class ProductsActivity : AppCompatActivity(), ProductRecyclerAdapterInterface {
       override fun setCategories(categories: ArrayList<Category>) {
         categoryItemsArray.clear()
         categoryItemsArray.addAll(categories)
+        Log.e("CL", categories.size.toString())
       }
 
       override fun getShopId(): String {
@@ -231,6 +227,7 @@ class ProductsActivity : AppCompatActivity(), ProductRecyclerAdapterInterface {
 
       override fun notifyDataSetChanged() {
         categories_item_array_adapter.notifyDataSetChanged()
+
       }
     })
     shopProductCategoryFragment.show(supportFragmentManager, "ProductCategoryFragment")
@@ -242,14 +239,14 @@ class ProductsActivity : AppCompatActivity(), ProductRecyclerAdapterInterface {
     bundle.putString("product_category_key", shop_category_key)
     bundle.putString("product_category", shop_category_tag_name)
     bundle.putString("product_order", (productsMainArrayList.size + 1).toString())
-    val addProductFragmennt = AddProductFragmennt()
-    addProductFragmennt.arguments = bundle
-    addProductFragmennt.show(supportFragmentManager, "")
+    val addProductFragment = AddProductFragmennt()
+    addProductFragment.arguments = bundle
+    addProductFragment.show(supportFragmentManager, "")
   }
 
   private fun loadProductsFromCategory() {
     progressDialog.show()
-    LiveDataUtil.observeOnce(productViewModel.getProductsByCategoryId(shop_category_tag_name)) {
+    LiveDataUtil.observeOnce(productViewModel.getProductsByCategoryId(shop_category_tag_name, shop_key)) {
       progressDialog.dismiss()
       if (it.error == true) {
         showToast("Error : ${it.message}", FancyToast.ERROR)

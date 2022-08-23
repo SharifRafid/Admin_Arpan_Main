@@ -6,6 +6,9 @@ class Constants {
         const val SERVER_BASE_URL = "http://10.0.2.2:3000/v1/"
         const val SERVER_FILES_BASE_URL = "http://10.0.2.2:3000/public/"
 
+        const val DA_PERM = "Permanent"
+        const val DA_REG = "Regular"
+
         //COUNTS RTDB LOCATION
         const val COUNT_PRODUCT_CATEGORY_MAIN = "product_counts_category_main"
         const val COUNT_SHOP_CATEGORY_MAIN = "shop_counts_category_main"

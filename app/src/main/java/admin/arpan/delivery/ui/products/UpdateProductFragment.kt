@@ -61,7 +61,7 @@ class UpdateProductFragment(private var itemToUpdate: Product) : DialogFragment(
   }
 
   private fun initVars() {
-    shop_key = requireArguments().getString("shopKey").toString()
+    shop_key = itemToUpdate.shop.toString()
     product_order = itemToUpdate.order.toString()
 
     upload.text = "Update"
@@ -123,9 +123,9 @@ class UpdateProductFragment(private var itemToUpdate: Product) : DialogFragment(
             hashMap["offerPrice"] = price.text.toString()
           }
           if (arpanProfitPrice.text.isEmpty()) {
-            hashMap["arpanCharge"] = 0
+            hashMap["arpanCharge"] = "0"
           } else {
-            hashMap["arpanCharge"] = arpanProfitPrice.text.toString().toInt()
+            hashMap["arpanCharge"] = arpanProfitPrice.text.toString()
           }
           hashMap["shortDescription"] = productDesc.text.toString()
           //hashMap["inStock"] = "active"
@@ -180,9 +180,9 @@ class UpdateProductFragment(private var itemToUpdate: Product) : DialogFragment(
           hashMap["offerPrice"] = price.text.toString()
         }
         if (arpanProfitPrice.text.isEmpty()) {
-          hashMap["arpanCharge"] = 0
+          hashMap["arpanCharge"] = "0"
         } else {
-          hashMap["arpanCharge"] = arpanProfitPrice.text.toString().toInt()
+          hashMap["arpanCharge"] = arpanProfitPrice.text.toString()
         }
         hashMap["shortDescription"] = productDesc.text.toString()
         //hashMap["inStock"] = "active"

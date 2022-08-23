@@ -43,12 +43,12 @@ class ProductRepository
   }
 
 
-  suspend fun getProductsByCategoryId(id: String): GetAllProductsResponse {
+  suspend fun getProductsByCategoryId(id: String, shop_key: String): GetAllProductsResponse {
     val accessToken = getAccessToken()
     return if (accessToken == null) {
       GetAllProductsResponse(true, "Not logged in")
     } else {
-      retrofitBuilder.apiService.getProductsByCategoryId("Bearer $accessToken", id, 100, 1)
+      retrofitBuilder.apiService.getProductsByCategoryId("Bearer $accessToken", id,shop_key, 100, 1)
     }
   }
 

@@ -207,9 +207,9 @@ class UpdateShop : AppCompatActivity() {
           category_names.add(category_field.name.toString())
           category_keys.add(category_field.id.toString())
         }
-        Collections.sort(categoryItemsArray, kotlin.Comparator { o1, o2 ->
+        categoryItemsArray.sortWith { o1, o2 ->
           (o1.order!!).compareTo(o2.order!!)
-        })
+        }
         val adapter = ArrayAdapter(
           this@UpdateShop,
           R.layout.custom_spinner_view,
@@ -217,8 +217,12 @@ class UpdateShop : AppCompatActivity() {
         )
         adapter.setDropDownViewResource(R.layout.custom_spinner_item_view)
         categoriesSpinner.adapter = adapter
-        if (category_keys.contains(shopItem.categories[0])) {
-          categoriesSpinner.setSelection(category_keys.indexOf(shopItem.categories[0]))
+        if (shopItem.categories.isNotEmpty()) {
+          if (category_keys.contains(shopItem.categories[0])) {
+            categoriesSpinner.setSelection(category_keys.indexOf(shopItem.categories[0]))
+          }
+        }else{
+          Log.e("SHOPID", shopItem.id.toString())
         }
       }
     }
