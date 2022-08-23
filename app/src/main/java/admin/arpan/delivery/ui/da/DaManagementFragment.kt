@@ -69,6 +69,17 @@ class DaManagementFragment : Fragment(), DaItemRecyclerAdapterInterface {
     view.titleTextView.setOnClickListener {
       homeMainNewInterface.callOnBackPressed()
     }
+    fetchData()
+    view.addShopsButton.setOnClickListener {
+      homeMainNewInterface.navigateToFragment(R.id.addDaFragment)
+    }
+    view.swipeRefreshLayout.setOnRefreshListener {
+      view.swipeRefreshLayout.isRefreshing = false
+      fetchData()
+    }
+  }
+
+  private fun fetchData() {
     progressDialog.show()
     LiveDataUtil.observeOnce(daViewModel.getAllItems()) {
       progressDialog.dismiss()
@@ -80,9 +91,6 @@ class DaManagementFragment : Fragment(), DaItemRecyclerAdapterInterface {
         daItemRecyclerAdapter.notifyDataSetChanged()
         progressDialog.dismiss()
       }
-    }
-    view.addShopsButton.setOnClickListener {
-      homeMainNewInterface.navigateToFragment(R.id.addDaFragment)
     }
   }
 

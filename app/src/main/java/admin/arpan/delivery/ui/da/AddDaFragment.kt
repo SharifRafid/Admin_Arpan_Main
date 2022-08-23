@@ -90,33 +90,29 @@ class AddDaFragment : Fragment() {
     view.upload.setOnClickListener {
       val userName = view.productTitle.text.toString()
       val bloodGroup = view.bloodGroupTitle.text.toString()
-      val password = ""
       val mobile = view.price.text.toString()
       val bkashNumber = view.offerPrice.text.toString()
       val daIDString = view.daId.text.toString()
       if (userName.isNotEmpty() && mobile.isNotEmpty() && daIDString.isNotEmpty()) {
         if (imagePath.toString().isEmpty()) {
-          progress.show()
           val hashMap = User()
           hashMap.name = userName
           hashMap.daUID = daIDString
-          hashMap.phone = mobile.toInt()
-          hashMap.bkash = bkashNumber.toInt()
-          hashMap.password = password
+          hashMap.phone = mobile
+          hashMap.bkash = bkashNumber
+          hashMap.roles = arrayListOf("da")
           hashMap.bloodGroup = bloodGroup
           hashMap.daCategory = if (view.radioGroup1.checkedRadioButtonId == R.id.regularRadio) {
-            "Regular"
+            Constants.DA_REG
           } else {
-            "Permanent"
+            Constants.DA_PERM
           }
-          hashMap.address = ""
           hashMap.daStatus = false
+          progress.show()
           LiveDataUtil.observeOnce(daViewModel.createItem(hashMap)) {
+            progress.dismiss()
             if (it.id != null) {
               hashMap.id = it.id
-              (activity as DaActivity).daList.add(DaItemResponse(hashMap))
-              (activity as DaActivity).daItemRecyclerAdapter.notifyItemInserted((activity as DaActivity).daList.size - 1)
-              progress.dismiss()
               homeMainNewInterface.callOnBackPressed()
               context?.showToast("Sucessfully Added", FancyToast.SUCCESS)
             } else {
@@ -140,24 +136,21 @@ class AddDaFragment : Fragment() {
               val hashMap = User()
               hashMap.name = userName
               hashMap.daUID = daIDString
-              hashMap.phone = mobile.toInt()
-              hashMap.bkash = bkashNumber.toInt()
-              hashMap.password = password
+              hashMap.phone = mobile
+              hashMap.bkash = bkashNumber
+              hashMap.roles = arrayListOf("da")
               hashMap.bloodGroup = bloodGroup
               hashMap.daCategory = if (view.radioGroup1.checkedRadioButtonId == R.id.regularRadio) {
-                "Regular"
+                Constants.DA_REG
               } else {
-                "Permanent"
+                Constants.DA_PERM
               }
               hashMap.image = image
-              hashMap.address = ""
               hashMap.daStatus = false
               LiveDataUtil.observeOnce(daViewModel.createItem(hashMap)) {
                 progress.dismiss()
                 if (it.id != null) {
                   hashMap.id = it.id
-                  (activity as DaActivity).daList.add(DaItemResponse(hashMap))
-                  (activity as DaActivity).daItemRecyclerAdapter.notifyItemInserted((activity as DaActivity).daList.size - 1)
                   homeMainNewInterface.callOnBackPressed()
                   context?.showToast("Sucessfully Added", FancyToast.SUCCESS)
                 } else {

@@ -21,7 +21,7 @@
         tools:layout="@layout/fragment_offers" />
     <fragment
         android:id="@+id/daManagementFragment"
-        android:name="admin.arpan.delivery.DaManagementFragment"
+        android:name="admin.arpan.delivery.ui.da.DaManagementFragment"
         android:label="fragment_da_management"
         tools:layout="@layout/fragment_da_management" />
     <fragment

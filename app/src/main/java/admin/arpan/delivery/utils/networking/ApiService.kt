@@ -132,19 +132,42 @@ interface ApiService {
     @Query("limit") limit: Int,
     @Query("page") page: Int
   ): GetAllDAResponse
-  @POST("das")
+  @POST("users")
   suspend fun createDA(
     @Header("Authorization") accessToken: String,
     @Body shop: User
   ): User
-  @PATCH("das/{id}")
+  @PATCH("users/{id}")
   suspend fun updateDA(
     @Header("Authorization") accessToken: String,
     @Path("id") id: String,
     @Body shop: HashMap<String, Any>
   ): User
-  @DELETE("das/{id}")
+  @DELETE("users/{id}")
   suspend fun deleteDA(
+    @Header("Authorization") accessToken: String,
+    @Path("id") id: String
+  ): DefaultResponse
+
+  @GET("banners")
+  suspend fun getAllBanners(
+    @Header("Authorization") accessToken: String,
+    @Query("limit") limit: Int,
+    @Query("page") page: Int
+  ): GetAllBannerResponse
+  @POST("banners")
+  suspend fun createBanner(
+    @Header("Authorization") accessToken: String,
+    @Body banner: Banner
+  ): Banner
+  @PATCH("banners/{id}")
+  suspend fun updateBanner(
+    @Header("Authorization") accessToken: String,
+    @Path("id") id: String,
+    @Body banner: HashMap<String, Any>
+  ): Banner
+  @DELETE("banners/{id}")
+  suspend fun deleteBanner(
     @Header("Authorization") accessToken: String,
     @Path("id") id: String
   ): DefaultResponse

@@ -66,7 +66,7 @@ class UpdateDaFragment : Fragment() {
     mainView = view
     selectedDaAgent =
       getGsonParser()!!.fromJson(
-        arguments!!.getString("data", "").toString(),
+        requireArguments().getString("data", "").toString(),
         User::class.java
       )
 
@@ -75,7 +75,7 @@ class UpdateDaFragment : Fragment() {
     view.price.setText(selectedDaAgent.phone.toString())
     view.offerPrice.setText(selectedDaAgent.bkash.toString())
     view.daId.setText(selectedDaAgent.daUID)
-    if (selectedDaAgent.daCategory == "রেগুলার") {
+    if (selectedDaAgent.daCategory == Constants.DA_REG) {
       view.radioGroup1.check(R.id.regularRadio)
     } else {
       view.radioGroup1.check(R.id.permanentRadio)
@@ -112,7 +112,6 @@ class UpdateDaFragment : Fragment() {
     view.upload.setOnClickListener {
       val userName = view.productTitle.text.toString()
       val bloodGroup = view.bloodGroupTitle.text.toString()
-      val password = ""
       val mobile = view.price.text.toString()
       val bkashNumber = view.offerPrice.text.toString()
       val daIDString = view.daId.text.toString()
@@ -124,7 +123,6 @@ class UpdateDaFragment : Fragment() {
           daAgent["phone"] = mobile
           daAgent["bkash"] = bkashNumber
           daAgent["daUID"] = daIDString
-          daAgent["password"] = password
           daAgent["bloodGroup"] = bloodGroup
           daAgent["daCategory"] = if (view.radioGroup1.checkedRadioButtonId == R.id.regularRadio) {
             Constants.DA_REG
@@ -159,7 +157,6 @@ class UpdateDaFragment : Fragment() {
               daAgent["phone"] = mobile
               daAgent["bkash"] = bkashNumber
               daAgent["daUID"] = daIDString
-              daAgent["password"] = password
               daAgent["bloodGroup"] = bloodGroup
               daAgent["image"] = image
               daAgent["daCategory"] = if (view.radioGroup1.checkedRadioButtonId == R.id.regularRadio) {
