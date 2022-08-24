@@ -1,6 +1,8 @@
 package admin.arpan.delivery.repositories
 
+import admin.arpan.delivery.models.Location
 import admin.arpan.delivery.models.Shop
+import admin.arpan.delivery.models.User
 import admin.arpan.delivery.utils.Preference
 import admin.arpan.delivery.utils.networking.RetrofitBuilder
 import admin.arpan.delivery.utils.networking.responses.*
@@ -8,7 +10,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class ShopRepository
+class LocationRepository
 @Inject constructor(
   private val retrofitBuilder: RetrofitBuilder,
   private val preference: Preference
@@ -22,48 +24,40 @@ class ShopRepository
     }
   }
 
-  suspend fun getShops(): GetAllShopsResponse {
+  suspend fun getAll(): GetAllLocationResponse {
     val accessToken = getAccessToken()
     return if (accessToken == null) {
-      GetAllShopsResponse(true, "Not logged in", ArrayList(), null, null, null, null)
+      GetAllLocationResponse(true, "Not logged in", ArrayList(), null, null, null, null)
     } else {
-      retrofitBuilder.apiService.getAllShops("Bearer $accessToken", 100, 1)
+      retrofitBuilder.apiService.getAllLocations("Bearer $accessToken", 100, 1)
     }
   }
 
-  suspend fun updateShop(id: String, shop: HashMap<String, Any>): Shop {
+  suspend fun update(id: String, data: HashMap<String, Any>): Location {
     val accessToken = getAccessToken()
     return if (accessToken == null) {
-      Shop()
+      Location(true, "Not logged in")
     } else {
-      retrofitBuilder.apiService.updateShop("Bearer $accessToken", id, shop)
+      retrofitBuilder.apiService.updateLocation("Bearer $accessToken", id, data)
     }
   }
 
-  suspend fun createShop(shop: Shop): Shop {
+  suspend fun create(data: Location): Location {
     val accessToken = getAccessToken()
     return if (accessToken == null) {
-      Shop()
+      Location(true, "Not logged in")
     } else {
-      retrofitBuilder.apiService.createShop("Bearer $accessToken", shop)
+      retrofitBuilder.apiService.createLocation("Bearer $accessToken", data)
     }
   }
 
-  suspend fun deleteShop(id: String): DefaultResponse {
+  suspend fun delete(id: String): DefaultResponse {
     val accessToken = getAccessToken()
     return if (accessToken == null) {
       DefaultResponse(true, "Not logged in")
     } else {
-      retrofitBuilder.apiService.deleteShop("Bearer $accessToken", id)
+      retrofitBuilder.apiService.deleteLocation("Bearer $accessToken", id)
     }
   }
 
-  suspend fun removeCategoryFromShop(shopId: String, categoryId: String): DefaultResponse {
-    val accessToken = getAccessToken()
-    return if (accessToken == null) {
-      DefaultResponse(true, "Not logged in")
-    } else {
-      retrofitBuilder.apiService.removeCategoryFromShop("Bearer $accessToken", shopId, categoryId)
-    }
-  }
 }

@@ -1,7 +1,9 @@
 package admin.arpan.delivery.repositories
 
 import admin.arpan.delivery.db.model.OrderItemMain
+import admin.arpan.delivery.models.Shop
 import admin.arpan.delivery.models.Tokens
+import admin.arpan.delivery.models.User
 import admin.arpan.delivery.utils.Preference
 import admin.arpan.delivery.utils.networking.RetrofitBuilder
 import admin.arpan.delivery.utils.networking.requests.GetOrdersRequest
@@ -21,10 +23,10 @@ class OrderRepository
   private val preference: Preference
 ) {
 
-  suspend fun createNewOrder(orderItemMain: OrderItemMain): DefaultResponse {
+  suspend fun createNewOrder(orderItemMain: OrderItemMain): OrderItemMain {
     val accessToken = getAccessToken()
     return if (accessToken == null) {
-      DefaultResponse(true, "Not logged in")
+      OrderItemMain(true, "Not logged in")
     } else {
       retrofitBuilder.apiService.createNewOrder("Bearer $accessToken", orderItemMain)
     }
@@ -36,6 +38,24 @@ class OrderRepository
       GetOrdersResponse(true, "Not logged in", null, null, null, null, null)
     } else {
       retrofitBuilder.apiService.getOrders("Bearer $accessToken", getOrdersRequest)
+    }
+  }
+
+  suspend fun update(id: String, data: HashMap<String, Any>): OrderItemMain {
+    val accessToken = getAccessToken()
+    return if (accessToken == null) {
+      OrderItemMain()
+    } else {
+      retrofitBuilder.apiService.updateOrder("Bearer $accessToken", id, data)
+    }
+  }
+
+  suspend fun delete(id: String): DefaultResponse {
+    val accessToken = getAccessToken()
+    return if (accessToken == null) {
+      DefaultResponse(true, "Not logged in")
+    } else {
+      retrofitBuilder.apiService.deleteOrder("Bearer $accessToken", id)
     }
   }
 

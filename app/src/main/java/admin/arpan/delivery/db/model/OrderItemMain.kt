@@ -1,7 +1,11 @@
 package admin.arpan.delivery.db.model
 
+import admin.arpan.delivery.models.Location
+
 data class OrderItemMain(
-    var key : String = "",
+    var error: Boolean? = null,
+    var message: String? = null,
+    var id : String = "",
     var docID : String = "",
     var userId : String = "",
     var userPhoneAccount : String = "",
@@ -14,7 +18,7 @@ data class OrderItemMain(
     var promoCode: PromoCode = PromoCode(),
     var paymentMethod : String = "",
     var totalPrice : Int = 0,
-    var locationItem: LocationItem = LocationItem(),
+    var locationItem: Location = Location(),
     var deliveryCharge : Int = 0,
     var orderPlacingTimeStamp : Long = 0,
     var lastTouchedTimeStamp : Long = 0,

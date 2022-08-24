@@ -30,12 +30,23 @@ interface ApiService {
   suspend fun createNewOrder(
     @Header("Authorization") accessToken: String,
     @Body orderItemMain: OrderItemMain
-  ): DefaultResponse
+  ): OrderItemMain
   @POST("orders/filter")
   suspend fun getOrders(
     @Header("Authorization") accessToken: String,
     @Body getOrdersRequest: GetOrdersRequest
   ): GetOrdersResponse
+  @PATCH("orders/{id}")
+  suspend fun updateOrder(
+    @Header("Authorization") accessToken: String,
+    @Path("id") id: String,
+    @Body shop: HashMap<String, Any>
+  ): OrderItemMain
+  @DELETE("orders/{id}")
+  suspend fun deleteOrder(
+    @Header("Authorization") accessToken: String,
+    @Path("id") id: String
+  ): DefaultResponse
 
   @GET("shops")
   suspend fun getAllShops(
@@ -168,6 +179,29 @@ interface ApiService {
   ): Banner
   @DELETE("banners/{id}")
   suspend fun deleteBanner(
+    @Header("Authorization") accessToken: String,
+    @Path("id") id: String
+  ): DefaultResponse
+
+  @GET("locations")
+  suspend fun getAllLocations(
+    @Header("Authorization") accessToken: String,
+    @Query("limit") limit: Int,
+    @Query("page") page: Int
+  ): GetAllLocationResponse
+  @POST("locations")
+  suspend fun createLocation(
+    @Header("Authorization") accessToken: String,
+    @Body banner: Location
+  ): Location
+  @PATCH("locations/{id}")
+  suspend fun updateLocation(
+    @Header("Authorization") accessToken: String,
+    @Path("id") id: String,
+    @Body banner: HashMap<String, Any>
+  ): Location
+  @DELETE("locations/{id}")
+  suspend fun deleteLocation(
     @Header("Authorization") accessToken: String,
     @Path("id") id: String
   ): DefaultResponse

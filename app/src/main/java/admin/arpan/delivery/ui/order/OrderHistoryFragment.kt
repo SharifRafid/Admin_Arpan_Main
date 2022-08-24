@@ -4,6 +4,7 @@ import admin.arpan.delivery.R
 import admin.arpan.delivery.db.adapter.OrderItemRecyclerAdapter
 import admin.arpan.delivery.db.adapter.OrderProductItemRecyclerAdapter
 import admin.arpan.delivery.db.model.*
+import admin.arpan.delivery.models.Shop
 import admin.arpan.delivery.ui.home.HomeActivity
 import admin.arpan.delivery.ui.home.HomeViewModel
 import admin.arpan.delivery.utils.Constants
@@ -415,7 +416,7 @@ class OrderHistoryFragment : DialogFragment() {
                     if(orderItemMain.products[0].parcel_order_image.isNotEmpty()){
                         val firebaseStorage = FirebaseStorage.getInstance()
                             .reference.child("ORDER_IMAGES")
-                            .child(orderItemMain.key)
+                            .child(orderItemMain.id!!)
                             .child(orderItemMain.products[0].parcel_order_image)
 
                         Glide.with(requireContext())
@@ -455,7 +456,7 @@ class OrderHistoryFragment : DialogFragment() {
                     if(orderItemMain.products[0].medicine_order_image.isNotEmpty()){
                         val firebaseStorage = FirebaseStorage.getInstance()
                             .reference.child("ORDER_IMAGES")
-                            .child(orderItemMain.key)
+                            .child(orderItemMain.id!!)
                             .child(orderItemMain.products[0].medicine_order_image)
 
                         Glide.with(requireContext())
@@ -499,7 +500,7 @@ class OrderHistoryFragment : DialogFragment() {
                     if(orderItemMain.products[0].custom_order_image.isNotEmpty()){
                         val firebaseStorage = FirebaseStorage.getInstance()
                             .reference.child("ORDER_IMAGES")
-                            .child(orderItemMain.key)
+                            .child(orderItemMain.id!!)
                             .child(orderItemMain.products[0].custom_order_image)
 
                         Glide.with(requireContext())
@@ -578,7 +579,7 @@ class OrderHistoryFragment : DialogFragment() {
         }else{
             view.cardViewPickDropImaage.visibility = View.VISIBLE
             val storageReference = FirebaseStorage.getInstance().reference.child("ORDER_IMAGES")
-                .child(orderItemMain.key).child(orderItemMain.pickDropOrderItem.parcelImage)
+                .child(orderItemMain.id!!).child(orderItemMain.pickDropOrderItem.parcelImage)
 
             Glide.with(view.context)
                 .load(storageReference)
@@ -1069,47 +1070,47 @@ class OrderHistoryFragment : DialogFragment() {
         firebaseFirestore.collection(Constants.FC_SHOPS_MAIN)
                 .document(mainShopItemHashMap[currentCalc].shop_doc_id)
                 .get().addOnSuccessListener { document ->
-                    mainShopItemHashMap[currentCalc].shop_details =
-                        if(document.data == null){
-                            ShopItem(
-                                key = "",
-                                name = "SHOP DELETED",
-                                categories = "",
-                                image = "",
-                                cover_image = "",
-                                da_charge = "",
-                                deliver_charge = "",
-                                location = "",
-                                username = "",
-                                password = "",
-                                order = 0,
-                                status = ""
-                            )
-                        }else{
-                            ShopItem(
-                                key = document.id,
-                                name = document.getString(Constants.FIELD_FD_SM_NAME).toString(),
-                                categories = document.getString(Constants.FIELD_FD_SM_CATEGORY).toString(),
-                                image = document.getString(Constants.FIELD_FD_SM_ICON).toString(),
-                                cover_image = document.getString(Constants.FIELD_FD_SM_COVER).toString(),
-                                da_charge = document.getString(Constants.FIELD_FD_SM_DA_CHARGE).toString(),
-                                deliver_charge = document.getString(Constants.FIELD_FD_SM_DELIVERY).toString(),
-                                location = document.getString(Constants.FIELD_FD_SM_LOCATION).toString(),
-                                username = document.getString(Constants.FIELD_FD_SM_USERNAME).toString(),
-                                password = document.getString(Constants.FIELD_FD_SM_PASSWORD).toString(),
-                                order = document.getString(Constants.FIELD_FD_SM_ORDER).toString().toInt(),
-                                status = document.getString(Constants.FIELD_FD_SM_STATUS).toString()
-                            )
-                        }
-                    if(currentCalc+1 >= mainShopItemHashMap.size){
-                        // The data is downloaded all of those
-                        view.productsRecyclerView.layoutManager = LinearLayoutManager(view.context)
-                        view.productsRecyclerView.adapter = productRecyclerViewAdapter
-                        progressDialog.dismiss()
-                    }else{
-                        currentCalc ++
-                        fillUpShopDetailsValueInMainShopItemList(view)
-                    }
+//                    mainShopItemHashMap[currentCalc].shop_details =
+//                        if(document.data == null){
+//                            Shop(
+//                                key = "",
+//                                name = "SHOP DELETED",
+//                                categories = "",
+//                                image = "",
+//                                cover_image = "",
+//                                da_charge = "",
+//                                deliver_charge = "",
+//                                location = "",
+//                                username = "",
+//                                password = "",
+//                                order = 0,
+//                                status = ""
+//                            )
+//                        }else{
+//                            Shop(
+//                                key = document.id,
+//                                name = document.getString(Constants.FIELD_FD_SM_NAME).toString(),
+//                                categories = document.getString(Constants.FIELD_FD_SM_CATEGORY).toString(),
+//                                image = document.getString(Constants.FIELD_FD_SM_ICON).toString(),
+//                                cover_image = document.getString(Constants.FIELD_FD_SM_COVER).toString(),
+//                                da_charge = document.getString(Constants.FIELD_FD_SM_DA_CHARGE).toString(),
+//                                deliver_charge = document.getString(Constants.FIELD_FD_SM_DELIVERY).toString(),
+//                                location = document.getString(Constants.FIELD_FD_SM_LOCATION).toString(),
+//                                username = document.getString(Constants.FIELD_FD_SM_USERNAME).toString(),
+//                                password = document.getString(Constants.FIELD_FD_SM_PASSWORD).toString(),
+//                                order = document.getString(Constants.FIELD_FD_SM_ORDER).toString().toInt(),
+//                                status = document.getString(Constants.FIELD_FD_SM_STATUS).toString()
+//                            )
+//                        }
+//                    if(currentCalc+1 >= mainShopItemHashMap.size){
+//                        // The data is downloaded all of those
+//                        view.productsRecyclerView.layoutManager = LinearLayoutManager(view.context)
+//                        view.productsRecyclerView.adapter = productRecyclerViewAdapter
+//                        progressDialog.dismiss()
+//                    }else{
+//                        currentCalc ++
+//                        fillUpShopDetailsValueInMainShopItemList(view)
+//                    }
                 }
     }
 

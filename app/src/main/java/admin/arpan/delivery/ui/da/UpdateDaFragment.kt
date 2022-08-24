@@ -159,11 +159,12 @@ class UpdateDaFragment : Fragment() {
               daAgent["daUID"] = daIDString
               daAgent["bloodGroup"] = bloodGroup
               daAgent["image"] = image
-              daAgent["daCategory"] = if (view.radioGroup1.checkedRadioButtonId == R.id.regularRadio) {
-                Constants.DA_REG
-              } else {
-                Constants.DA_PERM
-              }
+              daAgent["daCategory"] =
+                if (view.radioGroup1.checkedRadioButtonId == R.id.regularRadio) {
+                  Constants.DA_REG
+                } else {
+                  Constants.DA_PERM
+                }
               LiveDataUtil.observeOnce(daViewModel.updateItem(selectedDaAgent.id!!, daAgent)) {
                 progress.dismiss()
                 if (it.id != null) {
