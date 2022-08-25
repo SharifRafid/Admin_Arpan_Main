@@ -30,8 +30,8 @@
         android:label="fragment_feedbacks"
         tools:layout="@layout/fragment_feedbacks" />
     <fragment
-        android:id="@+id/orderHistoryFragmentNew22"
-        android:name="admin.arpan.delivery.ui.order.OrderHistoryFragmentNew2"
+        android:id="@+id/orderHistoryFragment"
+        android:name="admin.arpan.delivery.ui.order.OrderHistoryFragment"
         android:label="OrderHistoryFragmentNew2" />
     <fragment
         android:id="@+id/addCustomOrder"

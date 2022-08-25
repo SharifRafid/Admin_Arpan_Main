@@ -5,15 +5,9 @@ import android.os.Bundle
 
 interface HomeMainNewInterface {
     fun navigateToFragment(index : Int)
-    fun loadOrdersOneDayList()
     fun openSelectedOrderItemAsDialog(position: Int, mainItemPositions: Int, docId: String, userId: String, orderItemMain: OrderItemMain)
     fun callOnBackPressed()
-    fun loadShopsDataMain()
     fun openFeedBackDialog()
-    fun loadDaMainListData()
     fun navigateToFragment(index: Int, bundle: Bundle)
     fun logOutUser()
-    fun loadThisMonthOrdersMainData()
-    fun loadLastMonthOrdersMainData()
-    fun loadUsersMainArrayListData()
 }

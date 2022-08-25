@@ -108,7 +108,6 @@ class OrdersFilterByDay : Fragment(), OrderOldSubItemRecyclerAdapterInterface {
                     val tempOrdersThisMonthArrayList = ArrayList<OrderItemMain>()
                     for(document in value.documents){
                         val o = document.toObject(OrderItemMain::class.java)!!
-                        o.docID = document.id
                         tempOrdersThisMonthArrayList.add(o)
                     }
                     if(tempOrdersThisMonthArrayList.isNotEmpty()){
@@ -187,7 +186,7 @@ class OrdersFilterByDay : Fragment(), OrderOldSubItemRecyclerAdapterInterface {
         val bundle = Bundle()
         bundle.putString("orderID",docId)
         bundle.putString("customerId",userId)
-        homeMainNewInterface.navigateToFragment(R.id.orderHistoryFragmentNew22, bundle)
+        homeMainNewInterface.navigateToFragment(R.id.orderHistoryFragment, bundle)
     }
 
     companion object {

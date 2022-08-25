@@ -37,6 +37,17 @@ class OrderViewModel @Inject constructor(
       emit(dataResponse)
     }
 
+  fun getItemById(id: String) = liveData(Dispatchers.IO) {
+    var dataResponse: OrderItemMain
+    try {
+      dataResponse = orderRepository.getItemById(id)
+    } catch (e: Exception) {
+      dataResponse = OrderItemMain(true, e.message.toString())
+      e.printStackTrace()
+    }
+    emit(dataResponse)
+  }
+
   fun createItem(data: OrderItemMain) =
     liveData(Dispatchers.IO) {
       var dataResponse: OrderItemMain

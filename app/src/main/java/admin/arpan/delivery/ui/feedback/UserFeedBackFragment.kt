@@ -1,18 +1,14 @@
 package admin.arpan.delivery.ui.feedback
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import admin.arpan.delivery.R
-import admin.arpan.delivery.ui.home.HomeActivity
 import android.content.Context
 import android.widget.ArrayAdapter
 import androidx.fragment.app.DialogFragment
-import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.ListenerRegistration
 import kotlinx.android.synthetic.main.fragment_user_feed_back.view.*
 
 

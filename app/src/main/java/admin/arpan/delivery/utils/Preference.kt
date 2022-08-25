@@ -28,7 +28,7 @@ class Preference(var application: Application) {
         return getGsonParser()?.fromJson<Tokens>(authPreferences.getString("tokensData", ""), Tokens::class.java)
     }
 
-    fun clearAuth() {
+    fun clear() {
         authPreferences.edit().clear().apply()
     }
 

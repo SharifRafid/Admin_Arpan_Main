@@ -8,6 +8,7 @@
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.3375" />
         <entry key="app/src/main/res/layout/activity_main2.xml" value="0.3375" />
         <entry key="app/src/main/res/layout/activity_products.xml" value="0.18" />
+        <entry key="app/src/main/res/layout/activity_setting.xml" value="0.3476923076923077" />
         <entry key="app/src/main/res/layout/activity_shop_category.xml" value="0.25885416666666666" />
         <entry key="app/src/main/res/layout/activity_update_shop.xml" value="0.24427083333333333" />
         <entry key="app/src/main/res/layout/da_list_items.xml" value="0.33" />
@@ -25,10 +26,11 @@
         <entry key="app/src/main/res/layout/edit_product_item_view.xml" value="0.353125" />
         <entry key="app/src/main/res/layout/fragment_add_custom_order.xml" value="0.353125" />
         <entry key="app/src/main/res/layout/fragment_da_management.xml" value="0.353125" />
-        <entry key="app/src/main/res/layout/fragment_edit_order.xml" value="0.353125" />
+        <entry key="app/src/main/res/layout/fragment_edit_order.xml" value="0.2" />
         <entry key="app/src/main/res/layout/fragment_home.xml" value="0.20104166666666667" />
         <entry key="app/src/main/res/layout/fragment_order_history.xml" value="0.353125" />
         <entry key="app/src/main/res/layout/fragment_order_history_copy.xml" value="0.353125" />
+        <entry key="app/src/main/res/layout/fragment_order_history_new.xml" value="0.33" />
         <entry key="app/src/main/res/layout/fragment_orders_filter_by_day.xml" value="0.353125" />
         <entry key="app/src/main/res/layout/fragment_orders_filter_date.xml" value="0.353125" />
         <entry key="app/src/main/res/layout/fragment_shop_product_category.xml" value="0.25" />

@@ -31,26 +31,12 @@
         <activity
             android:name=".ui.settings.SettingActivity"
             android:windowSoftInputMode="adjustNothing" />
-        <activity android:name=".ui.order.OrdresActivity" />
         <activity android:name=".ui.da.DaActivity" />
         <activity android:name=".ui.products.UpdateProductActivity" />
         <activity android:name=".ui.shops.ShopCategoryActivity" />
         <activity android:name=".ui.shops.UpdateShop" />
         <activity android:name=".ui.shops.ShopsActivity" />
-        <activity
-            android:name=".ui.products.AddProduct"
-            android:label=""
-            android:theme="@style/Theme.UserDialog" />
         <activity android:name=".ui.products.ProductsActivity" />
-        <activity
-            android:exported="true"
-            android:name=".ui.home.HomeActivity">
-            <intent-filter>
-                <action android:name=".ui.home.HomeActivity" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
         <activity android:name=".ui.shops.AddShop" />
         <activity
             android:exported="true" android:name=".ui.auth.MainActivity">

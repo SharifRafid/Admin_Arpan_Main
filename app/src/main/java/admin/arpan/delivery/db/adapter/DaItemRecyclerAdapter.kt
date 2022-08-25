@@ -1,18 +1,11 @@
 package admin.arpan.delivery.db.adapter
 
-import admin.arpan.delivery.CalculationLogics
 import admin.arpan.delivery.R
-import admin.arpan.delivery.db.model.DaAgent
-import admin.arpan.delivery.db.model.OrderItemMain
-import admin.arpan.delivery.models.Shop
 import admin.arpan.delivery.models.User
-import admin.arpan.delivery.ui.da.DaActivity
-import admin.arpan.delivery.ui.da.UpdateDaFragment
 import admin.arpan.delivery.ui.interfaces.HomeMainNewInterface
 import admin.arpan.delivery.utils.Constants
 import admin.arpan.delivery.utils.getGsonParser
 import admin.arpan.delivery.utils.networking.responses.DaItemResponse
-import admin.arpan.delivery.utils.showToast
 import android.app.AlertDialog
 import android.content.Context
 import android.content.DialogInterface
@@ -20,17 +13,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.RadioButton
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.storage.FirebaseStorage
-import com.shashank.sony.fancytoastlib.FancyToast
 import kotlinx.android.synthetic.main.da_list_items.view.*
 
 class DaItemRecyclerAdapter(

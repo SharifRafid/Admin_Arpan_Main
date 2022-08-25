@@ -1,7 +1,9 @@
 package admin.arpan.delivery.viewModels
 
+import admin.arpan.delivery.models.SlidingTextItem
 import admin.arpan.delivery.models.User
 import admin.arpan.delivery.repositories.DARepository
+import admin.arpan.delivery.repositories.NoticeRepository
 import admin.arpan.delivery.utils.networking.responses.*
 import android.app.Application
 import androidx.lifecycle.*
@@ -10,19 +12,19 @@ import kotlinx.coroutines.Dispatchers
 import javax.inject.Inject
 
 @HiltViewModel
-class DAViewModel @Inject constructor(
+class NoticeViewModel @Inject constructor(
   private val application: Application,
-  private val daRepository: DARepository,
+  private val noticeRepository: NoticeRepository,
 ) : ViewModel() {
 
   fun getAllItems() =
     liveData(Dispatchers.IO) {
-      var dataResponse: GetAllDAResponse
+      var dataResponse: GetAllNoticesResponse
       try {
-        dataResponse = daRepository.getAll()
+        dataResponse = noticeRepository.getAll()
       } catch (e: Exception) {
         dataResponse =
-          GetAllDAResponse(
+          GetAllNoticesResponse(
             true,
             e.message.toString(),
             ArrayList(), null,
@@ -34,43 +36,24 @@ class DAViewModel @Inject constructor(
       emit(dataResponse)
     }
 
-  fun getActiveDas() =
+  fun createItem(data: SlidingTextItem) =
     liveData(Dispatchers.IO) {
-      var dataResponse: GetActiveDAResponse
+      var dataResponse: SlidingTextItem
       try {
-        dataResponse = daRepository.getActiveDas()
+        dataResponse = noticeRepository.create(data)
       } catch (e: Exception) {
-        dataResponse =
-          GetActiveDAResponse(
-            true,
-            e.message.toString(),
-            ArrayList(), null,
-            null, null,
-            null
-          )
-        e.printStackTrace()
-      }
-      emit(dataResponse)
-    }
-
-  fun createItem(data: User) =
-    liveData(Dispatchers.IO) {
-      var dataResponse: User
-      try {
-        dataResponse = daRepository.create(data)
-      } catch (e: Exception) {
-        dataResponse = User()
+        dataResponse = SlidingTextItem(true, e.message.toString())
         e.printStackTrace()
       }
       emit(dataResponse)
     }
 
   fun updateItem(id: String, data: HashMap<String, Any>) = liveData(Dispatchers.IO) {
-    var dataResponse: User
+    var dataResponse: SlidingTextItem
     try {
-      dataResponse = daRepository.update(id, data)
+      dataResponse = noticeRepository.update(id, data)
     } catch (e: Exception) {
-      dataResponse = User()
+      dataResponse = SlidingTextItem(true, e.message.toString())
       e.printStackTrace()
     }
     emit(dataResponse)
@@ -79,7 +62,7 @@ class DAViewModel @Inject constructor(
   fun deleteItem(id: String) = liveData(Dispatchers.IO) {
     var defaultResponse: DefaultResponse
     try {
-      defaultResponse = daRepository.delete(id)
+      defaultResponse = noticeRepository.delete(id)
     } catch (e: Exception) {
       defaultResponse = DefaultResponse(true, e.message.toString())
       e.printStackTrace()

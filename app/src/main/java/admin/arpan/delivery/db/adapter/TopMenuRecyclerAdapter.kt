@@ -1,19 +1,9 @@
 package admin.arpan.delivery.db.adapter
 
-import admin.arpan.delivery.ui.shops.AddShop
-import admin.arpan.delivery.ui.auth.MainActivity
 import admin.arpan.delivery.R
-import admin.arpan.delivery.ui.da.DaActivity
 import admin.arpan.delivery.ui.feedback.UserFeedBackFragment
-import admin.arpan.delivery.ui.home.AddOffers
-import admin.arpan.delivery.ui.home.HomeActivity
 import admin.arpan.delivery.ui.home.HomeActivityMain
-import admin.arpan.delivery.ui.order.AddCustomOrder
-import admin.arpan.delivery.ui.order.OrdresActivity
-import admin.arpan.delivery.ui.settings.SettingActivity
-import admin.arpan.delivery.ui.shops.ShopsActivity
 import android.content.Context
-import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -50,7 +40,7 @@ class TopMenuRecyclerAdapter(val context : Context,
                 0->{(context as HomeActivityMain)}
                 1->{(context as HomeActivityMain)}
                 2->{(context as HomeActivityMain)}
-                4-> UserFeedBackFragment().show((context as HomeActivity).supportFragmentManager, "")
+                4-> UserFeedBackFragment().show((context as HomeActivityMain).supportFragmentManager, "")
             }
         }
     }

@@ -49,6 +49,14 @@ class OrderRepository
       retrofitBuilder.apiService.updateOrder("Bearer $accessToken", id, data)
     }
   }
+  suspend fun getItemById(id: String): OrderItemMain {
+    val accessToken = getAccessToken()
+    return if (accessToken == null) {
+      OrderItemMain()
+    } else {
+      retrofitBuilder.apiService.getOrderById("Bearer $accessToken", id)
+    }
+  }
 
   suspend fun delete(id: String): DefaultResponse {
     val accessToken = getAccessToken()

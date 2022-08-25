@@ -65,19 +65,19 @@ class ShopProductEditItemRecyclerAdapter(
         }
         holder.unitEditText.doOnTextChanged { text, start, before, count ->
             productItems[position].product_item_amount = holder.unitEditText.getNumValue()
-            shopProductAddOrderRecyclerBaseInterface.updateItemTotalPriceOnRecycle(rootAdapterPosition)
+            shopProductAddOrderRecyclerBaseInterface.updateItemTotalPriceOnRecycle(position)
             shopProductAddOrderInterface.updateTotalProductsPricing()
         }
         holder.priceEditText.doOnTextChanged { text, start, before, count ->
             productItems[position].product_arpan_profit = holder.arpanEditText.getNumValue()
             productItems[position].product_item_price = holder.priceEditText.getNumValue() + holder.arpanEditText.getNumValue()
-            shopProductAddOrderRecyclerBaseInterface.updateItemTotalPriceOnRecycle(rootAdapterPosition)
+            shopProductAddOrderRecyclerBaseInterface.updateItemTotalPriceOnRecycle(position)
             shopProductAddOrderInterface.updateTotalProductsPricing()
         }
         holder.arpanEditText.doOnTextChanged { text, start, before, count ->
             productItems[position].product_arpan_profit = holder.arpanEditText.getNumValue()
             productItems[position].product_item_price = holder.priceEditText.getNumValue() + holder.arpanEditText.getNumValue()
-            shopProductAddOrderRecyclerBaseInterface.updateItemTotalPriceOnRecycle(rootAdapterPosition)
+            shopProductAddOrderRecyclerBaseInterface.updateItemTotalPriceOnRecycle(position)
             shopProductAddOrderInterface.updateTotalProductsPricing()
         }
         holder.deleteProductItem.setOnClickListener {

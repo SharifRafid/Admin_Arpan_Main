@@ -1,7 +1,6 @@
 package admin.arpan.delivery.ui.order
 
 import admin.arpan.delivery.R
-import admin.arpan.delivery.db.adapter.ProductItemRecyclerAdapter
 import admin.arpan.delivery.db.adapter.ShopProductAddItemRecyclerAdapter
 import admin.arpan.delivery.db.adapter.ShopProductAddOrderInterface
 import admin.arpan.delivery.db.model.*
@@ -9,7 +8,6 @@ import admin.arpan.delivery.models.Category
 import admin.arpan.delivery.models.Location
 import admin.arpan.delivery.ui.home.HomeViewModelMainData
 import admin.arpan.delivery.ui.interfaces.HomeMainNewInterface
-import admin.arpan.delivery.utils.Constants
 import admin.arpan.delivery.utils.LiveDataUtil
 import admin.arpan.delivery.utils.createProgressDialog
 import admin.arpan.delivery.utils.showToast
@@ -32,14 +30,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import androidx.activity.viewModels
 import androidx.core.net.toFile
 import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.github.dhaval2404.imagepicker.ImagePicker
 import com.shashank.sony.fancytoastlib.FancyToast
-import com.squareup.okhttp.*
 import kotlinx.android.synthetic.main.assign_da_list_view.view.*
 import kotlinx.android.synthetic.main.dialog_alert_layout_main.view.*
 import kotlinx.android.synthetic.main.fragment_add_custom_order.view.*
@@ -47,22 +43,17 @@ import java.lang.ClassCastException
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
-import kotlinx.android.synthetic.main.activity_products.*
 import kotlinx.android.synthetic.main.dialog_list_common.view.*
 import kotlinx.android.synthetic.main.fragment_add_custom_order.view.title_text_view
 import androidx.fragment.app.viewModels
 import com.google.firebase.database.FirebaseDatabase
 import com.wdullaer.materialdatetimepicker.time.TimePickerDialog
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.synthetic.main.activity_add_product.*
-import kotlinx.android.synthetic.main.activity_shop_category.*
-import kotlinx.android.synthetic.main.dialog_add_shop_category.view.*
 import kotlinx.android.synthetic.main.dialog_alert_layout_main.view.titleTextView
 import kotlinx.android.synthetic.main.fragment_add_custom_order.view.autofillAllTextBoxesId
 import kotlinx.android.synthetic.main.fragment_add_custom_order.view.pickUpDateTextView
 import kotlinx.android.synthetic.main.fragment_add_custom_order.view.pickUpTimeTextView
 import kotlinx.android.synthetic.main.fragment_add_custom_order.view.radioGroup
-import kotlinx.android.synthetic.main.fragment_edit_order.view.*
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -542,7 +533,7 @@ class AddCustomOrder : Fragment(), ShopProductAddOrderInterface,
         val bundle = Bundle()
         bundle.putString("orderID", it.id)
         bundle.putString("customerId", "ADMINUSERID123123123")
-        homeMainNewInterface.navigateToFragment(R.id.orderHistoryFragmentNew22, bundle)
+        homeMainNewInterface.navigateToFragment(R.id.orderHistoryFragment, bundle)
       }
     }
   }

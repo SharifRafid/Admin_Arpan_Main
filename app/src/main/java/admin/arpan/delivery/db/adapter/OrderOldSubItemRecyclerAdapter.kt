@@ -70,23 +70,23 @@ class OrderOldSubItemRecyclerAdapter(
       orderOldSubItemRecyclerAdapterInterfaceListener.openSelectedOrderItemAsDialog(
         position,
         mainItemPositions,
-        productItems[position].docID,
-        productItems[position].userId,
+        productItems[position].id!!,
+        productItems[position].userId!!,
         productItems[position]
       )
     }
-    holder.cardView.setOnLongClickListener {
-      if (viewModel != null) {
-        LiveDataUtil.observeOnce(viewModel.createNewOrder(productItems[position])) {
-          if (it.error == true) {
-            context.showToast("Error : ${it.message}", FancyToast.ERROR)
-          } else {
-            context.showToast("Succcesss", FancyToast.SUCCESS)
-          }
-        }
-      }
-      true
-    }
+//    holder.cardView.setOnLongClickListener {
+//      if (viewModel != null) {
+//        LiveDataUtil.observeOnce(viewModel.createNewOrder(productItems[position])) {
+//          if (it.error == true) {
+//            context.showToast("Error : ${it.message}", FancyToast.ERROR)
+//          } else {
+//            context.showToast("Succcesss", FancyToast.SUCCESS)
+//          }
+//        }
+//      }
+//      true
+//    }
   }
 
   fun getDate(milliSeconds: Long, dateFormat: String?): String? {

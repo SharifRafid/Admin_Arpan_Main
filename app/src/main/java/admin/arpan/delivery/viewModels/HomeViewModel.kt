@@ -19,11 +19,11 @@ class HomeViewModel @Inject constructor(
 
   fun createNewOrder(orderItemMain: OrderItemMain) =
     liveData(Dispatchers.IO) {
-      var defaultResponse: DefaultResponse
+      var defaultResponse: OrderItemMain
       try {
         defaultResponse = orderRepository.createNewOrder(orderItemMain)
       } catch (e: Exception) {
-        defaultResponse = DefaultResponse(true, "Error : ${e.message.toString()}")
+        defaultResponse = OrderItemMain(true, "Error : ${e.message.toString()}")
         e.printStackTrace()
       }
       emit(defaultResponse)

@@ -4,6 +4,7 @@ import admin.arpan.delivery.models.Tokens
 import admin.arpan.delivery.repositories.AuthRepository
 import admin.arpan.delivery.ui.home.HomeActivityMain
 import admin.arpan.delivery.utils.Preference
+import admin.arpan.delivery.utils.networking.responses.DefaultResponse
 import admin.arpan.delivery.utils.networking.responses.LoginResponse
 import admin.arpan.delivery.utils.networking.responses.RefreshResponse
 import admin.arpan.delivery.utils.showToast
@@ -31,6 +32,18 @@ class AuthViewModel @Inject constructor(
         loginResponse = authRepository.getLoginResponse(username, password)
       } catch (e: Exception) {
         loginResponse = LoginResponse(true, "Error : ${e.message.toString()}", null, null)
+        e.printStackTrace()
+      }
+      emit(loginResponse)
+    }
+
+  fun getLogoutResponse() =
+    liveData(Dispatchers.IO) {
+      var loginResponse: DefaultResponse
+      try {
+        loginResponse = authRepository.getLogoutResponse()
+      } catch (e: Exception) {
+        loginResponse = DefaultResponse(true, "Error : ${e.message.toString()}")
         e.printStackTrace()
       }
       emit(loginResponse)

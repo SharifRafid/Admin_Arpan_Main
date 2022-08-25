@@ -1,7 +1,9 @@
-package admin.arpan.delivery.db.model
+package admin.arpan.delivery.models
 
 data class SlidingTextItem(
-    var key : String = "",
+    var error: Boolean? = null,
+    var message: String? = null,
+    var id : String? = null,
     var enabled : Boolean = false,
     var textTitle : String = "",
     var textDescription : String = "",

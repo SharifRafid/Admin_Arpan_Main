@@ -1,7 +1,6 @@
 package admin.arpan.delivery.repositories
 
-import admin.arpan.delivery.models.Shop
-import admin.arpan.delivery.models.User
+import admin.arpan.delivery.models.SlidingTextItem
 import admin.arpan.delivery.utils.Preference
 import admin.arpan.delivery.utils.networking.RetrofitBuilder
 import admin.arpan.delivery.utils.networking.responses.*
@@ -9,7 +8,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class DARepository
+class NoticeRepository
 @Inject constructor(
   private val retrofitBuilder: RetrofitBuilder,
   private val preference: Preference
@@ -23,39 +22,30 @@ class DARepository
     }
   }
 
-  suspend fun getAll(): GetAllDAResponse {
+  suspend fun getAll(): GetAllNoticesResponse {
     val accessToken = getAccessToken()
     return if (accessToken == null) {
-      GetAllDAResponse(true, "Not logged in", ArrayList(), null, null, null, null)
+      GetAllNoticesResponse(true, "Not logged in", ArrayList(), null, null, null, null)
     } else {
-      retrofitBuilder.apiService.getAllDAs("Bearer $accessToken", 100, 1)
+      retrofitBuilder.apiService.getAllNotices("Bearer $accessToken", 100, 1)
     }
   }
 
-  suspend fun getActiveDas(): GetActiveDAResponse {
+  suspend fun update(id: String, data: HashMap<String, Any>): SlidingTextItem {
     val accessToken = getAccessToken()
     return if (accessToken == null) {
-      GetActiveDAResponse(true, "Not logged in", ArrayList(), null, null, null, null)
+      SlidingTextItem(true, "Not logged in")
     } else {
-      retrofitBuilder.apiService.getActiveDAs("Bearer $accessToken", 100, 1)
+      retrofitBuilder.apiService.updateNotice("Bearer $accessToken", id, data)
     }
   }
 
-  suspend fun update(id: String, data: HashMap<String, Any>): User {
+  suspend fun create(data: SlidingTextItem): SlidingTextItem {
     val accessToken = getAccessToken()
     return if (accessToken == null) {
-      User()
+      SlidingTextItem(true, "Not logged in")
     } else {
-      retrofitBuilder.apiService.updateDA("Bearer $accessToken", id, data)
-    }
-  }
-
-  suspend fun create(data: User): User {
-    val accessToken = getAccessToken()
-    return if (accessToken == null) {
-      User(true, "Not logged in")
-    } else {
-      retrofitBuilder.apiService.createDA("Bearer $accessToken", data)
+      retrofitBuilder.apiService.createNotice("Bearer $accessToken", data)
     }
   }
 
@@ -64,7 +54,7 @@ class DARepository
     return if (accessToken == null) {
       DefaultResponse(true, "Not logged in")
     } else {
-      retrofitBuilder.apiService.deleteDA("Bearer $accessToken", id)
+      retrofitBuilder.apiService.deleteNotice("Bearer $accessToken", id)
     }
   }
 

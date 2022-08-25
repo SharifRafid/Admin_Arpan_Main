@@ -9,6 +9,7 @@ import admin.arpan.delivery.R
 import admin.arpan.delivery.db.adapter.ShopProductAddItemRecyclerAdapter
 import admin.arpan.delivery.db.adapter.ShopProductAddOrderInterface
 import admin.arpan.delivery.db.model.*
+import admin.arpan.delivery.models.Category
 import admin.arpan.delivery.models.Location
 import admin.arpan.delivery.models.Shop
 import admin.arpan.delivery.ui.home.HomeViewModelMainData
@@ -32,7 +33,6 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Source
 import com.shashank.sony.fancytoastlib.FancyToast
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog
@@ -138,7 +138,7 @@ class EditOrderFragment(val orderItemMain: OrderItemMain) : DialogFragment(),
     initRadioButtonForDateAndTimePickingStuff(view)
 
     view.title_text_view.setOnClickListener {
-      homeMainNewInterface.callOnBackPressed()
+      dismiss()
     }
 
     view.deliveryChargeTotalEditOrder.doOnTextChanged { text, start, before, count ->
@@ -148,8 +148,7 @@ class EditOrderFragment(val orderItemMain: OrderItemMain) : DialogFragment(),
       daChargeMain = view.daChargeTotalEditOrder.getNumValue()
     }
 
-    val orderId = arguments?.getString("orderID").toString()
-    val customerId = arguments?.getString("customerId").toString()
+    val orderId = orderItemMain.id!!
 
     if (orderItemMain.paymentMethod == "COD") {
       view.radioGroup.check(R.id.rb2)
@@ -217,27 +216,27 @@ class EditOrderFragment(val orderItemMain: OrderItemMain) : DialogFragment(),
       view.phoneEdittextEditOrderContainer.hint = "Sender Mobile"
       view.addressEdittextEditOrderContainer.hint = "Sender Address"
 
-      view.nameEdittextEditOrder.setText(orderItemMain.pickDropOrderItem.senderName)
-      view.phoneEdittextEditOrder.setText(orderItemMain.pickDropOrderItem.senderPhone)
-      view.addressEdittextEditOrder.setText(orderItemMain.pickDropOrderItem.senderAddress)
+      view.nameEdittextEditOrder.setText(orderItemMain.pickDropOrderItem!!.senderName)
+      view.phoneEdittextEditOrder.setText(orderItemMain.pickDropOrderItem!!.senderPhone)
+      view.addressEdittextEditOrder.setText(orderItemMain.pickDropOrderItem!!.senderAddress)
 
-      view.recieverNameEdittextEditOrder.setText(orderItemMain.pickDropOrderItem.recieverName)
-      view.recieverPhoneEdittextEditOrder.setText(orderItemMain.pickDropOrderItem.recieverPhone)
-      view.recieverAddressEdittextEditOrder.setText(orderItemMain.pickDropOrderItem.recieverAddress)
+      view.recieverNameEdittextEditOrder.setText(orderItemMain.pickDropOrderItem!!.recieverName)
+      view.recieverPhoneEdittextEditOrder.setText(orderItemMain.pickDropOrderItem!!.recieverPhone)
+      view.recieverAddressEdittextEditOrder.setText(orderItemMain.pickDropOrderItem!!.recieverAddress)
 
       view.titleCustomOrderEdittextEditOrderContainer.visibility = View.GONE
       view.productsRecyclerView.visibility = View.GONE
       view.imageButtonAdd.visibility = View.GONE
 
-      view.detailsCustomOrderEdittextEditOrder.setText(orderItemMain.pickDropOrderItem.parcelDetails)
+      view.detailsCustomOrderEdittextEditOrder.setText(orderItemMain.pickDropOrderItem!!.parcelDetails)
 
-      if (locationsNames.contains(orderItemMain.pickDropOrderItem.senderLocation)) {
-        view.locationsArrayList.setSelection(locationsNames.indexOf(orderItemMain.pickDropOrderItem.senderLocation))
+      if (locationsNames.contains(orderItemMain.pickDropOrderItem!!.senderLocation)) {
+        view.locationsArrayList.setSelection(locationsNames.indexOf(orderItemMain.pickDropOrderItem!!.senderLocation))
       } else {
         view.locationsArrayList.setSelection(0)
       }
-      if (locationsNames.contains(orderItemMain.pickDropOrderItem.recieverLocation)) {
-        view.locationsRecieverArrayList.setSelection(locationsNames.indexOf(orderItemMain.pickDropOrderItem.recieverLocation))
+      if (locationsNames.contains(orderItemMain.pickDropOrderItem!!.recieverLocation)) {
+        view.locationsRecieverArrayList.setSelection(locationsNames.indexOf(orderItemMain.pickDropOrderItem!!.recieverLocation))
       } else {
         view.locationsRecieverArrayList.setSelection(0)
       }
@@ -323,49 +322,80 @@ class EditOrderFragment(val orderItemMain: OrderItemMain) : DialogFragment(),
         }
         val shopsArrayListKeys = ArrayList<String>()
         val shopsArrayListNames = ArrayList<String>()
-//        for (shopItem in homeViewModelMainData.getShopsMainArrayListData().value!!) {
-//          shopsArrayListKeys.add(shopItem.key)
-//          shopsArrayListNames.add(shopItem.name)
-//        }
-        for (cartItemEntity in productsArrayList) {
-          val filteredArray =
-            mainShopItemHashMap.filter { it -> it.shop_doc_id == cartItemEntity.product_item_shop_key }
-          if (filteredArray.isEmpty()) {
-            val shopItem = MainShopCartItem()
-            shopItem.shop_doc_id = cartItemEntity.product_item_shop_key
-            shopItem.cart_products.add(cartItemEntity)
-            mainShopItemHashMap.add(shopItem)
+        LiveDataUtil.observeOnce(shopViewModel.getShops()) { shopResults ->
+          if (shopResults.error == true) {
+            contextMain.showToast(shopResults.message.toString(), FancyToast.ERROR)
           } else {
-            mainShopItemHashMap[mainShopItemHashMap.indexOf(filteredArray[0])]
-              .cart_products.add(cartItemEntity)
-          }
-        }
-        shopProductAddItemRecyclerAdapter = ShopProductAddItemRecyclerAdapter(
-          contextMain,
-          mainShopItemHashMap, this
-        )
-        progressDialog = contextMain.createProgressDialog()
-        if (mainShopItemHashMap.isNotEmpty()) {
-          progressDialog.show()
-          currentCalc = 0
-          fillUpShopDetailsValueInMainShopItemList(view)
-        }
-        view.productsRecyclerView.layoutManager = LinearLayoutManager(contextMain)
-        view.productsRecyclerView.visibility = View.VISIBLE
-        view.imageButtonAdd.visibility = View.VISIBLE
-        val shopsMainList = ArrayList<Shop>()
-        view.imageButtonAdd.setOnClickListener {
-          val dialogShopSelectList = AlertDialog.Builder(contextMain).create()
-          val dialogShopSelectListView =
-            LayoutInflater.from(contextMain).inflate(R.layout.dialog_list_common, null)
-          dialogShopSelectListView.dialogTitleCommon.text = "Choose Shop"
-          val shopsList = ArrayList<String>()
-          if (shopsMainList.isEmpty()) {
-            LiveDataUtil.observeOnce(shopViewModel.getShops()) { shopResults ->
-              if (shopResults.error == true) {
-                Log.e("Error", shopResults.message.toString())
+            for (shopItem in shopResults.results) {
+              shopsArrayListKeys.add(shopItem.id!!)
+              shopsArrayListNames.add(shopItem.name!!)
+            }
+            for (cartItemEntity in productsArrayList) {
+              val filteredArray =
+                mainShopItemHashMap.filter { it -> it.shop_doc_id == cartItemEntity.product_item_shop_key }
+              if (filteredArray.isEmpty()) {
+                val shopItem = MainShopCartItem()
+                shopItem.shop_doc_id = cartItemEntity.product_item_shop_key
+                shopItem.cart_products.add(cartItemEntity)
+                mainShopItemHashMap.add(shopItem)
               } else {
-                shopsMainList.addAll(shopResults.results)
+                mainShopItemHashMap[mainShopItemHashMap.indexOf(filteredArray[0])]
+                  .cart_products.add(cartItemEntity)
+              }
+            }
+            shopProductAddItemRecyclerAdapter = ShopProductAddItemRecyclerAdapter(
+              contextMain,
+              mainShopItemHashMap, this
+            )
+            progressDialog = contextMain.createProgressDialog()
+            if (mainShopItemHashMap.isNotEmpty()) {
+              progressDialog.show()
+              currentCalc = 0
+              view.productsRecyclerView.layoutManager = LinearLayoutManager(view.context)
+              view.productsRecyclerView.adapter = shopProductAddItemRecyclerAdapter
+              updateTotalProductsPricing()
+              progressDialog.dismiss()
+            }
+            view.productsRecyclerView.layoutManager = LinearLayoutManager(contextMain)
+            view.productsRecyclerView.visibility = View.VISIBLE
+            view.imageButtonAdd.visibility = View.VISIBLE
+            val shopsMainList = ArrayList<Shop>()
+            view.imageButtonAdd.setOnClickListener {
+              val dialogShopSelectList = AlertDialog.Builder(contextMain).create()
+              val dialogShopSelectListView =
+                LayoutInflater.from(contextMain).inflate(R.layout.dialog_list_common, null)
+              dialogShopSelectListView.dialogTitleCommon.text = "Choose Shop"
+              val shopsList = ArrayList<String>()
+              if (shopsMainList.isEmpty()) {
+                LiveDataUtil.observeOnce(shopViewModel.getShops()) { shopResults ->
+                  if (shopResults.error == true) {
+                    Log.e("Error", shopResults.message.toString())
+                  } else {
+                    shopsMainList.addAll(shopResults.results)
+                    for (shopItem in shopsMainList) {
+                      shopsList.add(shopItem.name!!)
+                    }
+                    dialogShopSelectListView.dialogListViewCommon.adapter = ArrayAdapter(
+                      contextMain,
+                      R.layout.support_simple_spinner_dropdown_item, shopsList
+                    )
+                    dialogShopSelectListView.dialogListViewCommon.setOnItemClickListener { parent, view, position, id ->
+                      mainShopItemHashMap.add(
+                        MainShopCartItem(
+                          "",
+                          shopsMainList[position].id!!,
+                          ArrayList(),
+                          shopsMainList[position]
+                        )
+                      )
+                      shopProductAddItemRecyclerAdapter.notifyItemInserted(mainShopItemHashMap.size - 1)
+                      dialogShopSelectList.dismiss()
+                    }
+                    dialogShopSelectList.setView(dialogShopSelectListView)
+                    dialogShopSelectList.show()
+                  }
+                }
+              } else {
                 for (shopItem in shopsMainList) {
                   shopsList.add(shopItem.name!!)
                 }
@@ -389,37 +419,14 @@ class EditOrderFragment(val orderItemMain: OrderItemMain) : DialogFragment(),
                 dialogShopSelectList.show()
               }
             }
-          } else {
-            for (shopItem in shopsMainList) {
-              shopsList.add(shopItem.name!!)
-            }
-            dialogShopSelectListView.dialogListViewCommon.adapter = ArrayAdapter(
-              contextMain,
-              R.layout.support_simple_spinner_dropdown_item, shopsList
-            )
-            dialogShopSelectListView.dialogListViewCommon.setOnItemClickListener { parent, view, position, id ->
-              mainShopItemHashMap.add(
-                MainShopCartItem(
-                  "",
-                  shopsMainList[position].id!!,
-                  ArrayList(),
-                  shopsMainList[position]
-                )
-              )
-              shopProductAddItemRecyclerAdapter.notifyItemInserted(mainShopItemHashMap.size - 1)
-              dialogShopSelectList.dismiss()
-            }
-            dialogShopSelectList.setView(dialogShopSelectListView)
-            dialogShopSelectList.show()
           }
         }
       }
     }
     view.saveNowEditOrderButton.setOnClickListener {
-      dismiss()
       val updateOrderItem = HashMap<String, Any>()
       if (orderItemMain.pickDropOrder) {
-        val pickDropOrderItem = orderItemMain.pickDropOrderItem.copy()
+        val pickDropOrderItem = orderItemMain.pickDropOrderItem!!.copy()
         pickDropOrderItem.senderName = view.nameEdittextEditOrder.text.toString()
         pickDropOrderItem.senderPhone = view.phoneEdittextEditOrder.text.toString()
         pickDropOrderItem.senderAddress = view.addressEdittextEditOrder.text.toString()
@@ -492,11 +499,14 @@ class EditOrderFragment(val orderItemMain: OrderItemMain) : DialogFragment(),
       } else {
         "COD"
       }
-      FirebaseFirestore.getInstance().collection("users")
-        .document(customerId)
-        .collection("users_order_collection")
-        .document(orderId)
-        .update(updateOrderItem)
+      LiveDataUtil.observeOnce(orderViewModel.updateItem(orderId, updateOrderItem)) {
+        if (it.id != null) {
+          requireContext().showToast("Successfully Changed", FancyToast.SUCCESS)
+          dismiss()
+        } else {
+          requireContext().showToast(it.message.toString(), FancyToast.ERROR)
+        }
+      }
     }
 
   }
@@ -517,8 +527,8 @@ class EditOrderFragment(val orderItemMain: OrderItemMain) : DialogFragment(),
         view.locationsArrayList.adapter = adapter
         view.locationsRecieverArrayList.adapter = adapter
 
-        if (locationsNames.contains(orderItemMain.locationItem.locationName)) {
-          view.locationsArrayList.setSelection(locationsNames.indexOf(orderItemMain.locationItem.locationName))
+        if (locationsNames.contains(orderItemMain.locationItem!!.locationName)) {
+          view.locationsArrayList.setSelection(locationsNames.indexOf(orderItemMain.locationItem!!.locationName))
         } else {
           view.locationsArrayList.setSelection(0)
         }
@@ -657,86 +667,33 @@ class EditOrderFragment(val orderItemMain: OrderItemMain) : DialogFragment(),
     }
   }
 
-  private fun fillUpShopDetailsValueInMainShopItemList(view: View) {
-    FirebaseFirestore.getInstance().collection(Constants.FC_SHOPS_MAIN)
-      .document(mainShopItemHashMap[currentCalc].shop_doc_id)
-      .get(Source.CACHE).addOnCompleteListener {
-        if (it.isSuccessful) {
-          val document = it.result!!
-//          mainShopItemHashMap[currentCalc].shop_details =
-//            ShopItem(
-//              key = document.id,
-//              name = document.getString(Constants.FIELD_FD_SM_NAME).toString(),
-//              categories = document.getString(Constants.FIELD_FD_SM_CATEGORY).toString(),
-//              image = document.getString(Constants.FIELD_FD_SM_ICON).toString(),
-//              cover_image = document.getString(Constants.FIELD_FD_SM_COVER).toString(),
-//              da_charge = document.getString(Constants.FIELD_FD_SM_DA_CHARGE).toString(),
-//              deliver_charge = document.getString(Constants.FIELD_FD_SM_DELIVERY).toString(),
-//              location = document.getString(Constants.FIELD_FD_SM_LOCATION).toString(),
-//              username = document.getString(Constants.FIELD_FD_SM_USERNAME).toString(),
-//              password = document.getString(Constants.FIELD_FD_SM_PASSWORD).toString(),
-//              order = document.getString(Constants.FIELD_FD_SM_ORDER).toString().toInt(),
-//              isClient = document.getString(Constants.FIELD_FD_SM_IS_CLIENT).toString()
-//            )
-//          if (currentCalc + 1 >= mainShopItemHashMap.size) {
-//            // The data is downloaded all of those
-//            view.productsRecyclerView.layoutManager = LinearLayoutManager(view.context)
-//            view.productsRecyclerView.adapter = shopProductAddItemRecyclerAdapter
-//            updateTotalProductsPricing()
-//            progressDialog.dismiss()
-//          } else {
-//            currentCalc++
-//            fillUpShopDetailsValueInMainShopItemList(view)
-//          }
-        } else {
-          it.exception?.printStackTrace()
-        }
-      }
-  }
-
   override fun addProductToShop(position: Int, shopDocId: String) {
     val dialogShopSelectList = AlertDialog.Builder(context).create()
     val dialogShopSelectListView =
       LayoutInflater.from(context).inflate(R.layout.dialog_list_common, null)
     dialogShopSelectListView.dialogTitleCommon.text = "Choose Category"
-    FirebaseFirestore.getInstance().collection(Constants.FC_SHOPS_MAIN_CATEGORY)
-      .document(Constants.FD_PRODUCTS_MAIN_CATEGORY)
-      .collection(Constants.FD_PRODUCTS_MAIN_CATEGORY)
-      .document(shopDocId)
-      .get().addOnCompleteListener { task ->
-        if (task.isSuccessful) {
-          if (task.result!!.data != null) {
-            val categoryItemsArray = ArrayList<ProductCategoryItem>()
-            val categoryItemsNames = ArrayList<String>()
-            val map = task.result!!.data as Map<String, Map<String, String>>
-            for (category_field in map.entries) {
-              categoryItemsArray.add(
-                ProductCategoryItem(
-                  key = category_field.key,
-                  name = category_field.value[Constants.FIELD_FD_PRODUCTS_MAIN_CATEGORY_NAME].toString(),
-                  category_key = category_field.value[Constants.FIELD_FD_PRODUCTS_MAIN_CATEGORY_KEY].toString(),
-                  order = category_field.value[Constants.FIELD_FD_PRODUCTS_MAIN_CATEGORY_ORDER].toString()
-                    .toInt(),
-                )
-              )
-            }
-            Collections.sort(categoryItemsArray, kotlin.Comparator { o1, o2 ->
-              (o1.order).compareTo(o2.order)
-            })
-            for (shopItem in categoryItemsArray) {
-              categoryItemsNames.add(shopItem.name)
-            }
-            dialogShopSelectListView.dialogListViewCommon.adapter = ArrayAdapter(
-              contextMain,
-              R.layout.support_simple_spinner_dropdown_item, categoryItemsNames
-            )
-            dialogShopSelectListView.dialogListViewCommon.setOnItemClickListener { parent, view, position2, id ->
-              showProductAddDialogList(position, shopDocId, categoryItemsArray[position2])
-              dialogShopSelectList.dismiss()
-            }
-          }
+
+    LiveDataUtil.observeOnce(categoryViewModel.getProductCategoriesOfShop(shopDocId)) { categoryItemsArray ->
+      if (categoryItemsArray != null) {
+        val categoryItemsNames = ArrayList<String>()
+        for (catItem in categoryItemsArray) {
+          categoryItemsNames.add(catItem.name!!)
         }
+        dialogShopSelectListView.dialogListViewCommon.adapter = ArrayAdapter(
+          contextMain,
+          R.layout.support_simple_spinner_dropdown_item, categoryItemsNames
+        )
+        dialogShopSelectListView.dialogListViewCommon.setOnItemClickListener { parent, view, position2, id ->
+          showProductAddDialogList(position, shopDocId, categoryItemsArray[position2])
+          dialogShopSelectList.dismiss()
+        }
+      } else {
+        contextMain.showToast(
+          "Error : Failed to fetch categories.",
+          FancyToast.ERROR
+        )
       }
+    }
     dialogShopSelectList.setView(dialogShopSelectListView)
     dialogShopSelectList.show()
   }
@@ -744,51 +701,51 @@ class EditOrderFragment(val orderItemMain: OrderItemMain) : DialogFragment(),
   private fun showProductAddDialogList(
     position: Int,
     shopDocId: String,
-    productCategoryItem: ProductCategoryItem
+    productCategoryItem: Category
   ) {
     val dialogShopSelectList = AlertDialog.Builder(context).create()
     val dialogShopSelectListView =
-      LayoutInflater.from(context).inflate(R.layout.dialog_list_common, null)
+      LayoutInflater.from(context).inflate(admin.arpan.delivery.R.layout.dialog_list_common, null)
     dialogShopSelectListView.dialogTitleCommon.text = "Choose Product"
-    FirebaseFirestore.getInstance().collection(Constants.FC_SHOPS_MAIN)
-      .document(shopDocId).collection(Constants.FD_PRODUCTS_MAIN_SUB_COLLECTION)
-      .whereEqualTo("shopCategoryKey", productCategoryItem.category_key)
-      .get().addOnCompleteListener {
-        if (it.isSuccessful) {
-          val productsMainArrayList = ArrayList<ProductItem>()
-          val productsMainArrayListNames = ArrayList<String>()
-          for (document in it.result!!.documents) {
-            val obj = document.toObject(ProductItem::class.java)!!
-            obj.key = document.id
-            productsMainArrayList.add(obj)
-            productsMainArrayListNames.add(obj.name)
-          }
-          dialogShopSelectListView.dialogListViewCommon.adapter = ArrayAdapter(
-            contextMain,
-            R.layout.support_simple_spinner_dropdown_item, productsMainArrayListNames
-          )
-          dialogShopSelectListView.dialogListViewCommon.setOnItemClickListener { parent, view, position2, id ->
-            mainShopItemHashMap[position].cart_products.add(
-              CartProductEntity(
-                id = 0,
-                product_item = true,
-                product_item_price = productsMainArrayList[position2].price.toInt() + productsMainArrayList[position2].arpanCharge,
-                product_arpan_profit = productsMainArrayList[position2].arpanCharge,
-                product_item_amount = 1,
-                product_item_category_tag = productCategoryItem.category_key,
-                product_item_shop_key = shopDocId,
-                product_item_name = productsMainArrayList[position2].name,
-                product_item_desc = productsMainArrayList[position2].shortDescription
-              )
+
+    LiveDataUtil.observeOnce(
+      productViewModel.getProductsByCategoryId(
+        productCategoryItem.id!!,
+        shopDocId
+      )
+    ) {
+      if (it.error == true) {
+        contextMain.showToast("Error : ${it.message}", FancyToast.ERROR)
+      } else {
+        val productsMainArrayList = it.results!!
+        val productsMainArrayListNames = ArrayList<String>()
+        for (document in productsMainArrayList) {
+          productsMainArrayListNames.add(document.name!!)
+        }
+        dialogShopSelectListView.dialogListViewCommon.adapter = ArrayAdapter(
+          contextMain,
+          R.layout.support_simple_spinner_dropdown_item, productsMainArrayListNames
+        )
+        dialogShopSelectListView.dialogListViewCommon.setOnItemClickListener { parent, view, position2, id ->
+          mainShopItemHashMap[position].cart_products.add(
+            CartProductEntity(
+              id = 0,
+              product_item = true,
+              product_item_price = productsMainArrayList[position2].price!! + productsMainArrayList[position2].arpanCharge!!,
+              product_arpan_profit = productsMainArrayList[position2].arpanCharge!!,
+              product_item_amount = 1,
+              product_item_category_tag = productCategoryItem.name!!,
+              product_item_shop_key = shopDocId,
+              product_item_name = productsMainArrayList[position2].name!!,
+              product_item_desc = productsMainArrayList[position2].shortDescription!!
             )
-            shopProductAddItemRecyclerAdapter.notifyItemChanged(position)
-            updateTotalProductsPricing()
-            dialogShopSelectList.dismiss()
-          }
-        } else {
-          it.exception!!.printStackTrace()
+          )
+          shopProductAddItemRecyclerAdapter.notifyItemChanged(position)
+          updateTotalProductsPricing()
+          dialogShopSelectList.dismiss()
         }
       }
+    }
     dialogShopSelectList.setView(dialogShopSelectListView)
     dialogShopSelectList.show()
   }

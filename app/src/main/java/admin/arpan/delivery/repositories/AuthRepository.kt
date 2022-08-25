@@ -5,6 +5,7 @@ import admin.arpan.delivery.utils.Preference
 import admin.arpan.delivery.utils.networking.RetrofitBuilder
 import admin.arpan.delivery.utils.networking.requests.LoginRequest
 import admin.arpan.delivery.utils.networking.requests.RefreshRequest
+import admin.arpan.delivery.utils.networking.responses.DefaultResponse
 import admin.arpan.delivery.utils.networking.responses.LoginResponse
 import admin.arpan.delivery.utils.networking.responses.RefreshResponse
 import javax.inject.Inject
@@ -19,6 +20,14 @@ class AuthRepository
 
   suspend fun getLoginResponse(email: String, password: String) =
     retrofitBuilder.apiService.login(LoginRequest(email, password))
+
+  suspend fun getLogoutResponse(): DefaultResponse {
+    val refreshToken = HashMap<String, Any>()
+    refreshToken["refreshToken"] = preference.getTokens()!!.refresh.token
+    return retrofitBuilder.apiService.logout(
+      preference.getTokens()!!.access.token, refreshToken
+    )
+  }
 
   suspend fun getRefreshResponse(): RefreshResponse {
     val refreshToken = getRefreshToken()

@@ -18,6 +18,7 @@ import admin.arpan.delivery.ui.settings.SettingActivity
 import admin.arpan.delivery.utils.LiveDataUtil
 import admin.arpan.delivery.utils.getDate
 import admin.arpan.delivery.utils.networking.requests.GetOrdersRequest
+import admin.arpan.delivery.viewModels.AuthViewModel
 import admin.arpan.delivery.viewModels.HomeViewModel
 import android.content.Context
 import android.content.Intent
@@ -56,6 +57,7 @@ class HomeFragment : Fragment(), OrderOldSubItemRecyclerAdapterInterface {
     private var ordersMainOldItemsArrayList = ArrayList<OrderOldItems>()
     private var ordersMainArrayList =  ArrayList<OrderItemMain>()
     private val viewModel: HomeViewModel by viewModels()
+    private val authViewModel: AuthViewModel by viewModels()
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -137,6 +139,7 @@ class HomeFragment : Fragment(), OrderOldSubItemRecyclerAdapterInterface {
                     view.progressBar.visibility = View.GONE
                     view.recyclerView.visibility = View.GONE
                 }else{
+                    homeViewModelMainData.setOrdersOneDayDataMainList(it.results)
                     view.noProductsText.visibility = View.GONE
                     view.progressBar.visibility = View.GONE
                     view.recyclerView.visibility = View.VISIBLE

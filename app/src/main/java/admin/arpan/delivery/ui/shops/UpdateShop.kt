@@ -1,9 +1,6 @@
 package admin.arpan.delivery.ui.shops
 
 import admin.arpan.delivery.R
-import admin.arpan.delivery.db.model.ShopCategoryItem
-import admin.arpan.delivery.db.model.ShopItem
-import admin.arpan.delivery.db.model.SlidingTextItem
 import admin.arpan.delivery.models.Category
 import admin.arpan.delivery.models.Notice
 import admin.arpan.delivery.models.Shop
@@ -19,29 +16,16 @@ import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.viewModels
-import androidx.appcompat.app.AlertDialog
 import androidx.core.net.toFile
-import androidx.core.widget.doOnTextChanged
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.dubd.bdlocationchooser.BdLocationChooser
-import com.dubd.bdlocationchooser.District
-import com.dubd.bdlocationchooser.Division
-import com.dubd.bdlocationchooser.Upazila
 import com.github.dhaval2404.colorpicker.MaterialColorPickerDialog
 import com.github.dhaval2404.imagepicker.ImagePicker
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.firestore.FieldValue
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.storage.FirebaseStorage
-import com.google.firebase.storage.StorageReference
 import com.shashank.sony.fancytoastlib.FancyToast
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.synthetic.main.activity_add_shop.*
 import kotlinx.android.synthetic.main.activity_update_shop.*
 import kotlinx.android.synthetic.main.activity_update_shop.bookTitle
 import kotlinx.android.synthetic.main.activity_update_shop.categoriesSpinner
@@ -51,17 +35,12 @@ import kotlinx.android.synthetic.main.activity_update_shop.delivery_charge
 import kotlinx.android.synthetic.main.activity_update_shop.imagePick
 import kotlinx.android.synthetic.main.activity_update_shop.imagePickCover
 import kotlinx.android.synthetic.main.activity_update_shop.location
-import kotlinx.android.synthetic.main.activity_update_shop.passWord
 import kotlinx.android.synthetic.main.activity_update_shop.titleTextView
 import kotlinx.android.synthetic.main.activity_update_shop.upload
-import kotlinx.android.synthetic.main.activity_update_shop.userName
-import kotlinx.android.synthetic.main.activity_update_shop.view.*
-import kotlinx.android.synthetic.main.dialog_add_normal_banner.view.*
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import java.io.File
-import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 

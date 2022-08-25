@@ -95,10 +95,10 @@ class UsersFragment : Fragment() {
                     Log.e(TAG, arrayOrdersOldMOnth.size.toString())
                     for(userItem in arrayListUsers){
                         for(order in arrayOrdersOldMOnth){
-                            Log.e(TAG, order.userId)
+                            Log.e(TAG, order.userId!!)
                             Log.e(TAG, userItem.key)
                             if(order.userId == userItem.key){
-                                Log.e(TAG, order.userId)
+                                Log.e(TAG, order.userId!!)
                                 userItem.ordersCountLastMonth += 1
                             }
                         }

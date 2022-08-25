@@ -1,5 +1,6 @@
 package admin.arpan.delivery.repositories
 
+import admin.arpan.delivery.models.Setting
 import admin.arpan.delivery.models.Shop
 import admin.arpan.delivery.models.User
 import admin.arpan.delivery.utils.Preference
@@ -9,7 +10,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class DARepository
+class SettingRepository
 @Inject constructor(
   private val retrofitBuilder: RetrofitBuilder,
   private val preference: Preference
@@ -23,39 +24,30 @@ class DARepository
     }
   }
 
-  suspend fun getAll(): GetAllDAResponse {
+  suspend fun getSetting(id : String): Setting {
     val accessToken = getAccessToken()
     return if (accessToken == null) {
-      GetAllDAResponse(true, "Not logged in", ArrayList(), null, null, null, null)
+      Setting(true, "Not logged in")
     } else {
-      retrofitBuilder.apiService.getAllDAs("Bearer $accessToken", 100, 1)
+      retrofitBuilder.apiService.getSettings("Bearer $accessToken", id)
     }
   }
 
-  suspend fun getActiveDas(): GetActiveDAResponse {
+  suspend fun update(id: String, data: HashMap<String, Any>): Setting {
     val accessToken = getAccessToken()
     return if (accessToken == null) {
-      GetActiveDAResponse(true, "Not logged in", ArrayList(), null, null, null, null)
+      Setting()
     } else {
-      retrofitBuilder.apiService.getActiveDAs("Bearer $accessToken", 100, 1)
+      retrofitBuilder.apiService.updateSetting("Bearer $accessToken", id, data)
     }
   }
 
-  suspend fun update(id: String, data: HashMap<String, Any>): User {
+  suspend fun create(data: Setting): Setting {
     val accessToken = getAccessToken()
     return if (accessToken == null) {
-      User()
+      Setting(true, "Not logged in")
     } else {
-      retrofitBuilder.apiService.updateDA("Bearer $accessToken", id, data)
-    }
-  }
-
-  suspend fun create(data: User): User {
-    val accessToken = getAccessToken()
-    return if (accessToken == null) {
-      User(true, "Not logged in")
-    } else {
-      retrofitBuilder.apiService.createDA("Bearer $accessToken", data)
+      retrofitBuilder.apiService.createSetting("Bearer $accessToken", data)
     }
   }
 
@@ -64,7 +56,7 @@ class DARepository
     return if (accessToken == null) {
       DefaultResponse(true, "Not logged in")
     } else {
-      retrofitBuilder.apiService.deleteDA("Bearer $accessToken", id)
+      retrofitBuilder.apiService.deleteSetting("Bearer $accessToken", id)
     }
   }
 

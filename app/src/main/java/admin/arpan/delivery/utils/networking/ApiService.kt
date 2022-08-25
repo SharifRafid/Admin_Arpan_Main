@@ -1,13 +1,13 @@
 package admin.arpan.delivery.utils.networking
 
 import admin.arpan.delivery.db.model.OrderItemMain
+import admin.arpan.delivery.models.SlidingTextItem
 import admin.arpan.delivery.models.*
 import admin.arpan.delivery.utils.networking.requests.GetOrdersRequest
 import admin.arpan.delivery.utils.networking.requests.LoginRequest
 import admin.arpan.delivery.utils.networking.requests.RefreshRequest
 import admin.arpan.delivery.utils.networking.responses.*
 import okhttp3.MultipartBody
-import retrofit2.Call
 import retrofit2.http.*
 
 interface ApiService {
@@ -15,8 +15,8 @@ interface ApiService {
   suspend fun login(@Body request: LoginRequest): LoginResponse
   @POST("auth/refresh")
   suspend fun refreshSession(@Body request: RefreshRequest): RefreshResponse
-  @GET("auth/logout")
-  suspend fun logout(@Header("Authorization") accessToken: String): DefaultResponse
+  @POST("auth/logout")
+  suspend fun logout(@Header("Authorization") accessToken: String,@Body refreshToken: HashMap<String, Any>): DefaultResponse
 
   @Multipart
   @POST("file/upload")
@@ -41,6 +41,11 @@ interface ApiService {
     @Header("Authorization") accessToken: String,
     @Path("id") id: String,
     @Body shop: HashMap<String, Any>
+  ): OrderItemMain
+  @GET("orders/{id}")
+  suspend fun getOrderById(
+    @Header("Authorization") accessToken: String,
+    @Path("id") id: String
   ): OrderItemMain
   @DELETE("orders/{id}")
   suspend fun deleteOrder(
@@ -143,6 +148,12 @@ interface ApiService {
     @Query("limit") limit: Int,
     @Query("page") page: Int
   ): GetAllDAResponse
+  @GET("das/active")
+  suspend fun getActiveDAs(
+    @Header("Authorization") accessToken: String,
+    @Query("limit") limit: Int,
+    @Query("page") page: Int
+  ): GetActiveDAResponse
   @POST("users")
   suspend fun createDA(
     @Header("Authorization") accessToken: String,
@@ -156,6 +167,51 @@ interface ApiService {
   ): User
   @DELETE("users/{id}")
   suspend fun deleteDA(
+    @Header("Authorization") accessToken: String,
+    @Path("id") id: String
+  ): DefaultResponse
+
+  @GET("notices")
+  suspend fun getAllNotices(
+    @Header("Authorization") accessToken: String,
+    @Query("limit") limit: Int,
+    @Query("page") page: Int
+  ): GetAllNoticesResponse
+  @POST("notices")
+  suspend fun createNotice(
+    @Header("Authorization") accessToken: String,
+    @Body shop: SlidingTextItem
+  ): SlidingTextItem
+  @PATCH("notices/{id}")
+  suspend fun updateNotice(
+    @Header("Authorization") accessToken: String,
+    @Path("id") id: String,
+    @Body shop: HashMap<String, Any>
+  ): SlidingTextItem
+  @DELETE("notices/{id}")
+  suspend fun deleteNotice(
+    @Header("Authorization") accessToken: String,
+    @Path("id") id: String
+  ): DefaultResponse
+
+  @GET("settings/{id}")
+  suspend fun getSettings(
+    @Header("Authorization") accessToken: String,
+    @Path("id") id: String
+  ): Setting
+  @POST("settings")
+  suspend fun createSetting(
+    @Header("Authorization") accessToken: String,
+    @Body shop: Setting
+  ): Setting
+  @PATCH("settings/{id}")
+  suspend fun updateSetting(
+    @Header("Authorization") accessToken: String,
+    @Path("id") id: String,
+    @Body shop: HashMap<String, Any>
+  ): Setting
+  @DELETE("settings/{id}")
+  suspend fun deleteSetting(
     @Header("Authorization") accessToken: String,
     @Path("id") id: String
   ): DefaultResponse

@@ -19,7 +19,6 @@ class OrderProductItemRecyclerAdapter(
 ) : RecyclerView.Adapter
     <OrderProductItemRecyclerAdapter.RecyclerViewHolder>() {
 
-    private var firebaseFirestore: FirebaseFirestore = FirebaseFirestore.getInstance()
     private lateinit var cartItemRecyclerAdapter: OrderItemRecyclerAdapter
 
     class RecyclerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

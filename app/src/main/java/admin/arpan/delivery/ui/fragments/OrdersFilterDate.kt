@@ -22,16 +22,13 @@ import android.content.Context
 import android.util.Log
 import android.widget.DatePicker
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.synthetic.main.fragment_home.view.*
 import kotlinx.android.synthetic.main.fragment_orders_filter_date.view.*
 import kotlinx.android.synthetic.main.fragment_orders_filter_date.view.cancelledOrdersTextView
 import kotlinx.android.synthetic.main.fragment_orders_filter_date.view.completedOrdersTextView
 import kotlinx.android.synthetic.main.fragment_orders_filter_date.view.noProductsText
-import kotlinx.android.synthetic.main.fragment_orders_filter_date.view.noProductsTextView
 import kotlinx.android.synthetic.main.fragment_orders_filter_date.view.ordersTotalTextView
 import kotlinx.android.synthetic.main.fragment_orders_filter_date.view.progressBar
 import kotlinx.android.synthetic.main.fragment_orders_filter_date.view.recyclerView
@@ -211,7 +208,7 @@ class OrdersFilterDate : Fragment(), OrderOldSubItemRecyclerAdapterInterface {
         ordersMainHashMap.clear()
         ordersMainOldItemsArrayList.clear()
         for(order in ordersMainArrayList){
-            val date = getDate(order.orderPlacingTimeStamp, "dd-MM-yyyy")
+            val date = getDate(order.orderPlacingTimeStamp!!, "dd-MM-yyyy")
             if(ordersMainHashMap.containsKey(date)){
                 ordersMainHashMap[date]!!.add(order)
             }else{
@@ -230,7 +227,7 @@ class OrdersFilterDate : Fragment(), OrderOldSubItemRecyclerAdapterInterface {
             )
         }
         Collections.sort(ordersMainOldItemsArrayList, kotlin.Comparator { o1, o2 ->
-            o1.orders[0].orderPlacingTimeStamp.compareTo(o2.orders[0].orderPlacingTimeStamp)
+            o1.orders[0].orderPlacingTimeStamp!!.compareTo(o2.orders[0].orderPlacingTimeStamp!!)
         })
         ordersMainOldItemsArrayList.reverse()
         view.recyclerView.layoutManager = LinearLayoutManager(contextMain)
@@ -289,6 +286,6 @@ class OrdersFilterDate : Fragment(), OrderOldSubItemRecyclerAdapterInterface {
         val bundle = Bundle()
         bundle.putString("orderID",docId)
         bundle.putString("customerId",userId)
-        homeMainNewInterface.navigateToFragment(R.id.orderHistoryFragmentNew22, bundle)
+        homeMainNewInterface.navigateToFragment(R.id.orderHistoryFragment, bundle)
     }
 }

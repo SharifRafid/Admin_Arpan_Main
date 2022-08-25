@@ -2,6 +2,7 @@ package admin.arpan.delivery.models
 
 import com.google.gson.annotations.SerializedName
 
+// Only for shop notices
 data class Notice(
   @SerializedName("color"       ) var color       : String? = null,
   @SerializedName("bgColor"     ) var bgColor     : String? = null,

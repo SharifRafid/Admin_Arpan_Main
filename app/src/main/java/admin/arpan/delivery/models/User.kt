@@ -20,6 +20,7 @@ data class User(
     var bkash: String? = null,
     var daCategory: String? = null,
     var daStatus: Boolean? = false,
+    var activeNow: Boolean? = false,
     var daStatusTitle: String? = null,
     var daUID: String? = null,
     var bloodGroup: String? = null,

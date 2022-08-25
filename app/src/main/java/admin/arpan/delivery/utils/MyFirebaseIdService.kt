@@ -1,10 +1,7 @@
 package admin.arpan.delivery.utils
 
 import admin.arpan.delivery.R
-import admin.arpan.delivery.ui.auth.MainActivity2
-import admin.arpan.delivery.ui.home.HomeActivity
-import admin.arpan.delivery.ui.home.HomeActivityMain
-import admin.arpan.delivery.ui.order.OrdresActivity
+import admin.arpan.delivery.ui.auth.MainActivity
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -77,7 +74,7 @@ class MyFirebaseIdService : FirebaseMessagingService() {
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         super.onMessageReceived(remoteMessage)
         Log.d("msg", "onMessageReceived: " + remoteMessage.data["message"])
-        val intent = Intent(this, MainActivity2::class.java)
+        val intent = Intent(this, MainActivity::class.java)
 //        val intent = Intent(this, HomeActivityMain::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
         for(entry in remoteMessage.data.entries){
