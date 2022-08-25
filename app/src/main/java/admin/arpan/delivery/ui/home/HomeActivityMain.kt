@@ -10,6 +10,7 @@ import admin.arpan.delivery.utils.Preference
 import admin.arpan.delivery.utils.showToast
 import admin.arpan.delivery.viewModels.AuthViewModel
 import admin.arpan.delivery.viewModels.HomeViewModel
+import admin.arpan.delivery.viewModels.UserViewModel
 import android.content.DialogInterface
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
@@ -42,14 +43,12 @@ class HomeActivityMain : AppCompatActivity(), HomeMainNewInterface {
 
   private lateinit var navController: NavController
 
-  private val firebaseFirestore = FirebaseFirestore.getInstance()
-  private val firebaseDatabase = FirebaseDatabase.getInstance().reference
-  private val firebaseAuth = FirebaseAuth.getInstance()
   private var selectedRecyclerAdapterItem = 0
   private var mainItemPositionsRecyclerAdapter = 0
 
   private lateinit var homeViewModelMainData: HomeViewModelMainData
   private val authViewModel: AuthViewModel by viewModels()
+  private val userViewModel: UserViewModel by viewModels()
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -96,28 +95,16 @@ class HomeActivityMain : AppCompatActivity(), HomeMainNewInterface {
   }
 
   private fun initFirebaseMessaging() {
-    if (FirebaseAuth.getInstance().currentUser != null) {
+    if(Preference(this.application).getUser() != null){
       FirebaseMessaging.getInstance().isAutoInitEnabled = true
-      val token = getSharedPreferences("FCM_TOKEN", MODE_PRIVATE)
-        .getString("TOKEN", "")
       FirebaseMessaging.getInstance().token.addOnCompleteListener(
         OnCompleteListener { task ->
           if (!task.isSuccessful) {
             return@OnCompleteListener
           }
-          val t = task.result!!
-          Log.e("TOKEN", t)
-          if (token != t) {
-            val tokenArray: MutableMap<String, Any> = HashMap()
-            tokenArray["registrationTokens"] = FieldValue.arrayUnion(t)
-            val map = HashMap<String, String>()
-            map["registration_token"] = t
-            getSharedPreferences("FCM_TOKEN", MODE_PRIVATE)
-              .edit().putString("TOKEN", t).apply()
-            FirebaseFirestore.getInstance()
-              .collection("admin_app_notification_data_tokens")
-              .document("admin_app_notification_data_tokens")
-              .update(tokenArray)
+          val token = task.result!!
+          LiveDataUtil.observeOnce(userViewModel.addRegTokenAdmin(token)){
+            Log.e("FCM", token.toString())
           }
         })
     }
@@ -151,8 +138,8 @@ class HomeActivityMain : AppCompatActivity(), HomeMainNewInterface {
       .setTitle("Sure to logout ?")
       .setPositiveButton("Yes", DialogInterface.OnClickListener { dialog, which ->
         dialog.dismiss()
-        LiveDataUtil.observeOnce(authViewModel.getLogoutResponse()){
-          Log.e("er",it.message.toString())
+        LiveDataUtil.observeOnce(authViewModel.getLogoutResponse()) {
+          FirebaseMessaging.getInstance().deleteToken()
           showToast("Logged Out", FancyToast.SUCCESS)
           Preference(this.application).clear()
           finish()

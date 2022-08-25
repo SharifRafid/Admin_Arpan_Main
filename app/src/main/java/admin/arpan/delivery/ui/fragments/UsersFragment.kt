@@ -91,17 +91,17 @@ class UsersFragment : Fragment() {
                     }
                     Log.e(TAG, arrayListUsers.size.toString())
                     val arrayStringUsers = ArrayList<String>()
-                    val arrayOrdersOldMOnth = homeViewModelMainData.getLastMonthOrdersMainData().value!!
-                    Log.e(TAG, arrayOrdersOldMOnth.size.toString())
+//                    val arrayOrdersOldMOnth = homeViewModelMainData.getLastMonthOrdersMainData().value!!
+//                    Log.e(TAG, arrayOrdersOldMOnth.size.toString())
                     for(userItem in arrayListUsers){
-                        for(order in arrayOrdersOldMOnth){
-                            Log.e(TAG, order.userId!!)
-                            Log.e(TAG, userItem.key)
-                            if(order.userId == userItem.key){
-                                Log.e(TAG, order.userId!!)
-                                userItem.ordersCountLastMonth += 1
-                            }
-                        }
+//                        for(order in arrayOrdersOldMOnth){
+//                            Log.e(TAG, order.userId!!)
+//                            Log.e(TAG, userItem.key)
+//                            if(order.userId == userItem.key){
+//                                Log.e(TAG, order.userId!!)
+//                                userItem.ordersCountLastMonth += 1
+//                            }
+//                        }
                     }
                     Collections.sort(arrayListUsers, kotlin.Comparator { o1, o2 ->
                         o2.ordersCountLastMonth.compareTo(o1.ordersCountLastMonth)

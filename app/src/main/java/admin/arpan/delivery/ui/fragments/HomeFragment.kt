@@ -32,206 +32,189 @@ import java.lang.ClassCastException
 import java.util.*
 import kotlin.collections.ArrayList
 
-
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [HomeFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
-
 @AndroidEntryPoint
 class HomeFragment : Fragment(), OrderOldSubItemRecyclerAdapterInterface {
 
-    private var param1: String? = null
-    private var param2: String? = null
-    private lateinit var contextMain : Context
-    private lateinit var homeMainNewInterface: HomeMainNewInterface
-    private val TAG = "HomeFragment"
-    private lateinit var homeViewModelMainData: HomeViewModelMainData
-    private var ordersMainHashMap = HashMap<String, ArrayList<OrderItemMain>>()
-    private var ordersMainOldItemsArrayList = ArrayList<OrderOldItems>()
-    private var ordersMainArrayList =  ArrayList<OrderItemMain>()
-    private val viewModel: HomeViewModel by viewModels()
-    private val authViewModel: AuthViewModel by viewModels()
+  private var param1: String? = null
+  private var param2: String? = null
+  private lateinit var contextMain: Context
+  private lateinit var homeMainNewInterface: HomeMainNewInterface
+  private val TAG = "HomeFragment"
+  private lateinit var homeViewModelMainData: HomeViewModelMainData
+  private var ordersMainHashMap = HashMap<String, ArrayList<OrderItemMain>>()
+  private var ordersMainOldItemsArrayList = ArrayList<OrderOldItems>()
+  private var ordersMainArrayList = ArrayList<OrderItemMain>()
+  private val viewModel: HomeViewModel by viewModels()
+  private val authViewModel: AuthViewModel by viewModels()
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        contextMain = context
-        try {
-            homeMainNewInterface = context as HomeMainNewInterface
-        }catch (classCastException : ClassCastException){
-            Log.e(TAG, "This activity does not implement the interface / listener")
-        }
+  override fun onAttach(context: Context) {
+    super.onAttach(context)
+    contextMain = context
+    try {
+      homeMainNewInterface = context as HomeMainNewInterface
+    } catch (classCastException: ClassCastException) {
+      Log.e(TAG, "This activity does not implement the interface / listener")
     }
+  }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
+  override fun onCreateView(
+    inflater: LayoutInflater,
+    container: ViewGroup?,
+    savedInstanceState: Bundle?
+  ): View? {
+    // Inflate the layout for this fragment
+    return inflater.inflate(R.layout.fragment_home, container, false)
+  }
+
+  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    homeViewModelMainData =
+      activity?.let { ViewModelProvider(it).get(HomeViewModelMainData::class.java) }!!
+    loadTopItemsRecyclerData(view)
+    loadOrdersMainOneDayData(view)
+    view.addCustomOrderButton.setOnClickListener {
+      homeMainNewInterface.navigateToFragment(R.id.addCustomOrder)
     }
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_home, container, false)
+    view.powerImageView.setOnClickListener {
+      homeMainNewInterface.logOutUser()
     }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        homeViewModelMainData = activity?.let { ViewModelProvider(it).get(HomeViewModelMainData::class.java) }!!
-        loadTopItemsRecyclerData(view)
-        loadOrdersMainOneDayData(view)
-        view.addCustomOrderButton.setOnClickListener {
-            homeMainNewInterface.navigateToFragment(R.id.addCustomOrder)
-        }
-        view.powerImageView.setOnClickListener {
-            homeMainNewInterface.logOutUser()
-        }
-        view.settingsImageView.setOnClickListener {
-            contextMain.startActivity(Intent(contextMain, SettingActivity::class.java))
+    view.settingsImageView.setOnClickListener {
+      contextMain.startActivity(Intent(contextMain, SettingActivity::class.java))
 //            homeMainNewInterface.navigateToFragment(R.id.daManagementFragment)
-        }
-        view.materialCardViewOrders.setOnClickListener {
-            homeMainNewInterface.navigateToFragment(R.id.usersFragment)
-        }
     }
-
-    private fun loadOrdersMainOneDayData(view: View) {
-        view.noProductsText.visibility = View.GONE
-        view.progressBar.visibility = View.VISIBLE
-        view.recyclerView.visibility = View.GONE
-
-        val c = Calendar.getInstance() // this takes current date
-        c[Calendar.HOUR_OF_DAY] = 0
-        c[Calendar.MINUTE] = 0
-        c[Calendar.SECOND] = 0
-
-        val d = Calendar.getInstance() // this takes current date
-        d[Calendar.HOUR_OF_DAY] = 24
-        d[Calendar.MINUTE] = 60
-        d[Calendar.SECOND] = 60
-
-        val startTimeMillis = c.timeInMillis
-        val endTimeMillis = d.timeInMillis
-
-        LiveDataUtil.observeOnce(viewModel.getOrders(
-            GetOrdersRequest(
-                startTimeMillis,
-                endTimeMillis,
-                100,
-                1
-            )
-        )){
-            if(it.error == true){
-                view.noProductsText.visibility = View.VISIBLE
-                view.noProductsTextView.text = getString(R.string.you_have_no_orders)
-                view.progressBar.visibility = View.GONE
-                view.recyclerView.visibility = View.GONE
-            }else{
-                if(it.results.isNullOrEmpty()){
-                    view.noProductsText.visibility = View.VISIBLE
-                    view.noProductsTextView.text = getString(R.string.you_have_no_orders)
-                    view.progressBar.visibility = View.GONE
-                    view.recyclerView.visibility = View.GONE
-                }else{
-                    homeViewModelMainData.setOrdersOneDayDataMainList(it.results)
-                    view.noProductsText.visibility = View.GONE
-                    view.progressBar.visibility = View.GONE
-                    view.recyclerView.visibility = View.VISIBLE
-                    ordersMainArrayList = it.results
-                    //Only for HomeFragment calculations when the passed data is for one day
-                    val calculationResult = CalculationLogics().calculateArpansStatsForArpan(ordersMainArrayList)
-                    view.ordersTotalTextView.text = calculationResult.totalOrders.toString()
-                    view.totalIncomeTextView.text = calculationResult.arpansIncome.toString()
-                    view.completedOrdersTextView.text = calculationResult.completed.toString()
-                    view.cancelledOrdersTextView.text = calculationResult.cancelled.toString()
-                    placeOrderMainData(view)
-                }
-            }
-        }
+    view.materialCardViewOrders.setOnClickListener {
+      homeMainNewInterface.navigateToFragment(R.id.usersFragment)
     }
+  }
 
-    private fun placeOrderMainData(view : View) {
-        ordersMainHashMap.clear()
-        ordersMainOldItemsArrayList.clear()
+  private fun loadOrdersMainOneDayData(view: View) {
+    view.noProductsText.visibility = View.GONE
+    view.progressBar.visibility = View.VISIBLE
+    view.recyclerView.visibility = View.GONE
 
-        for(order in ordersMainArrayList){
-            val date = getDate(order.orderPlacingTimeStamp, "dd-MM-yyyy")
-            if(ordersMainHashMap.containsKey(date)){
-                ordersMainHashMap[date]!!.add(order)
-            }else{
-                ordersMainHashMap[date!!] = ArrayList()
-                ordersMainHashMap[date]!!.add(order)
-            }
-        }
-        for(item in ordersMainHashMap.entries){
-            val order = OrderOldItems(
-                date = item.key,
-                orders = item.value
-            )
-            order.orders.reverse()
-            ordersMainOldItemsArrayList.add(order)
-        }
-        Collections.sort(ordersMainOldItemsArrayList, kotlin.Comparator { o1, o2 ->
-            o1.orders[0].orderPlacingTimeStamp.compareTo(o2.orders[0].orderPlacingTimeStamp)
-        })
-        ordersMainOldItemsArrayList.reverse()
-        val orderAdapterMain = OrderOldMainItemRecyclerAdapter(contextMain, ordersMainOldItemsArrayList, this, false,
-            showDaStatsMode = false, "", viewModel)
-        view.recyclerView.layoutManager = LinearLayoutManager(contextMain)
-        view.recyclerView.adapter = orderAdapterMain
-        view.noProductsText.visibility = View.GONE
+    val c = Calendar.getInstance() // this takes current date
+    c[Calendar.HOUR_OF_DAY] = 0
+    c[Calendar.MINUTE] = 0
+    c[Calendar.SECOND] = 0
+
+    val d = Calendar.getInstance() // this takes current date
+    d[Calendar.HOUR_OF_DAY] = 24
+    d[Calendar.MINUTE] = 60
+    d[Calendar.SECOND] = 60
+
+    val startTimeMillis = c.timeInMillis
+    val endTimeMillis = d.timeInMillis
+
+    LiveDataUtil.observeOnce(
+      viewModel.getOrders(
+        GetOrdersRequest(
+          startTimeMillis,
+          endTimeMillis,
+          100,
+          1
+        )
+      )
+    ) {
+      if (it.error == true) {
+        view.noProductsText.visibility = View.VISIBLE
+        view.noProductsTextView.text = getString(R.string.you_have_no_orders)
         view.progressBar.visibility = View.GONE
-        view.recyclerView.visibility = View.VISIBLE
+        view.recyclerView.visibility = View.GONE
+      } else {
+        if (it.results.isNullOrEmpty()) {
+          view.noProductsText.visibility = View.VISIBLE
+          view.noProductsTextView.text = getString(R.string.you_have_no_orders)
+          view.progressBar.visibility = View.GONE
+          view.recyclerView.visibility = View.GONE
+        } else {
+          homeViewModelMainData.setOrdersOneDayDataMainList(it.results)
+          view.noProductsText.visibility = View.GONE
+          view.progressBar.visibility = View.GONE
+          view.recyclerView.visibility = View.VISIBLE
+          ordersMainArrayList = it.results
+          //Only for HomeFragment calculations when the passed data is for one day
+          val calculationResult =
+            CalculationLogics().calculateArpansStatsForArpan(ordersMainArrayList)
+          view.ordersTotalTextView.text = calculationResult.totalOrders.toString()
+          view.totalIncomeTextView.text = calculationResult.arpansIncome.toString()
+          view.completedOrdersTextView.text = calculationResult.completed.toString()
+          view.cancelledOrdersTextView.text = calculationResult.cancelled.toString()
+          placeOrderMainData(view)
+        }
+      }
     }
+  }
 
-    private fun loadTopItemsRecyclerData(view: View) {
-        view.shopMangementButton.setOnClickListener {
-            homeMainNewInterface.navigateToFragment(R.id.shopsFragment)
-        }
-        view.offerManagement.setOnClickListener {
-            contextMain.startActivity(Intent(contextMain, AddOffers::class.java))
-        }
-        view.daManageMentCardView.setOnClickListener {
-            homeMainNewInterface.navigateToFragment(R.id.daManagementFragment)
-        }
-        view.feedBackCardView.setOnClickListener {
-            homeMainNewInterface.openFeedBackDialog()
-        }
-        view.ordersTextView.setOnClickListener {
-            homeMainNewInterface.navigateToFragment(R.id.ordersFilterDate)
-        }
-        view.statisticsCardView.setOnClickListener {
-            homeMainNewInterface.navigateToFragment(R.id.shopStatistics)
-        }
-    }
+  private fun placeOrderMainData(view: View) {
+    ordersMainHashMap.clear()
+    ordersMainOldItemsArrayList.clear()
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment HomeFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            HomeFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
-            }
+    for (order in ordersMainArrayList) {
+      val date = getDate(order.orderPlacingTimeStamp, "dd-MM-yyyy")
+      if (ordersMainHashMap.containsKey(date)) {
+        ordersMainHashMap[date]!!.add(order)
+      } else {
+        ordersMainHashMap[date!!] = ArrayList()
+        ordersMainHashMap[date]!!.add(order)
+      }
     }
+    for (item in ordersMainHashMap.entries) {
+      val order = OrderOldItems(
+        date = item.key,
+        orders = item.value
+      )
+      order.orders.reverse()
+      ordersMainOldItemsArrayList.add(order)
+    }
+    Collections.sort(ordersMainOldItemsArrayList, kotlin.Comparator { o1, o2 ->
+      o1.orders[0].orderPlacingTimeStamp.compareTo(o2.orders[0].orderPlacingTimeStamp)
+    })
+    ordersMainOldItemsArrayList.reverse()
+    val orderAdapterMain = OrderOldMainItemRecyclerAdapter(
+      contextMain, ordersMainOldItemsArrayList, this, false,
+      showDaStatsMode = false, "", viewModel
+    )
+    view.recyclerView.layoutManager = LinearLayoutManager(contextMain)
+    view.recyclerView.adapter = orderAdapterMain
+    view.noProductsText.visibility = View.GONE
+    view.progressBar.visibility = View.GONE
+    view.recyclerView.visibility = View.VISIBLE
+  }
 
-    override fun openSelectedOrderItemAsDialog(position: Int, mainItemPositions: Int, docId: String, userId: String, orderItemMain: OrderItemMain) {
-        homeMainNewInterface.openSelectedOrderItemAsDialog(position, mainItemPositions, docId, userId, orderItemMain,)
+  private fun loadTopItemsRecyclerData(view: View) {
+    view.shopMangementButton.setOnClickListener {
+      homeMainNewInterface.navigateToFragment(R.id.shopsFragment)
     }
+    view.offerManagement.setOnClickListener {
+      contextMain.startActivity(Intent(contextMain, AddOffers::class.java))
+    }
+    view.daManageMentCardView.setOnClickListener {
+      homeMainNewInterface.navigateToFragment(R.id.daManagementFragment)
+    }
+    view.feedBackCardView.setOnClickListener {
+      homeMainNewInterface.openFeedBackDialog()
+    }
+    view.ordersTextView.setOnClickListener {
+      homeMainNewInterface.navigateToFragment(R.id.ordersFilterDate)
+    }
+    view.statisticsCardView.setOnClickListener {
+      homeMainNewInterface.navigateToFragment(R.id.shopStatistics)
+    }
+  }
+
+
+  override fun openSelectedOrderItemAsDialog(
+    position: Int,
+    mainItemPositions: Int,
+    docId: String,
+    userId: String,
+    orderItemMain: OrderItemMain
+  ) {
+    homeMainNewInterface.openSelectedOrderItemAsDialog(
+      position,
+      mainItemPositions,
+      docId,
+      userId,
+      orderItemMain,
+    )
+  }
 }

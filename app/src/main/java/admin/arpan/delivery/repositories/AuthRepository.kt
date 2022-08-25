@@ -18,6 +18,13 @@ class AuthRepository
   private val preference: Preference
 ) {
 
+  private fun getAccessToken(): String? {
+    return if (preference.getTokens() != null) {
+      preference.getTokens()!!.access.token
+    } else {
+      null
+    }
+  }
   suspend fun getLoginResponse(email: String, password: String) =
     retrofitBuilder.apiService.login(LoginRequest(email, password))
 

@@ -6,7 +6,7 @@ import admin.arpan.delivery.models.User
 import com.google.gson.annotations.SerializedName
 
 
-data class GetActiveDAResponse (
+data class GetAllUserResponse (
 
   var error: Boolean?,
   var message: String?,

@@ -16,66 +16,21 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
 
+@AndroidEntryPoint
 class MyFirebaseIdService : FirebaseMessagingService() {
-
-    var db = FirebaseFirestore.getInstance()
-    var registrationTokens: List<String>? = null
 
     override fun onNewToken(s: String) {
         super.onNewToken(s)
-
-        //FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        val prefs = applicationContext.getSharedPreferences("USER_PREF",
-                MODE_PRIVATE)
-
-        val uid = getSharedPreferences("user_details", MODE_PRIVATE).getString("key", "").toString()
-
-        getRegistrationTokens(uid)
-
-        if (!uid.equals("null", ignoreCase = true)) {
-            if (registrationTokens != null && !registrationTokens!!.contains(s)) {
-                updateToken(s, uid)
-            }
-        }
-    }
-
-    private fun updateToken(token: String, uid: String) {
-//        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        val tokenArray: MutableMap<String, Any> = HashMap()
-        tokenArray["registrationTokens"] = FieldValue.arrayUnion(token)
-        addRegistrationToken(tokenArray, uid)
-    }
-
-    private fun addRegistrationToken(token: Map<String, Any>, uid: String) {
-        db.collection("admin_app_notification_data_tokens").document(uid).update(token)
-    }
-
-    private fun getRegistrationTokens(uid: String) {
-        db.collection("admin_app_notification_data_tokens")
-                .document("admin_app_notification_data_tokens")
-                .get()
-                .addOnCompleteListener(OnCompleteListener<DocumentSnapshot?> { task ->
-                    if (task.isSuccessful) {
-                        val document = task.result
-                        if (document!!.exists()) {
-                            Log.d(TAG, "DocumentSnapshot data: " + document.data)
-                            registrationTokens = document["registrationTokens"] as List<String>?
-                        } else {
-                            Log.d(TAG, "No such document")
-                        }
-                    } else {
-                        Log.d(TAG, "get failed with ", task.exception)
-                    }
-                })
+        Log.e("FCM", "onNewToken: "+s)
     }
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         super.onMessageReceived(remoteMessage)
-        Log.d("msg", "onMessageReceived: " + remoteMessage.data["message"])
+        Log.d("FCM", "onMessageReceived: " + remoteMessage.data["message"])
         val intent = Intent(this, MainActivity::class.java)
-//        val intent = Intent(this, HomeActivityMain::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
         for(entry in remoteMessage.data.entries){
             intent.putExtra(entry.key, entry.value.toString())

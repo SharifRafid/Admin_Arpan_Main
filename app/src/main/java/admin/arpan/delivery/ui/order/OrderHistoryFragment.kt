@@ -10,7 +10,9 @@ import admin.arpan.delivery.models.enums.OrderStatus
 import admin.arpan.delivery.ui.home.HomeViewModelMainData
 import admin.arpan.delivery.ui.interfaces.HomeMainNewInterface
 import admin.arpan.delivery.utils.*
+import admin.arpan.delivery.utils.networking.requests.SendNotificationRequest
 import admin.arpan.delivery.viewModels.DAViewModel
+import admin.arpan.delivery.viewModels.NotificationViewModel
 import admin.arpan.delivery.viewModels.OrderViewModel
 import android.app.Activity
 import android.app.AlertDialog
@@ -90,6 +92,7 @@ class OrderHistoryFragment : Fragment() {
   private lateinit var homeMainNewInterface: HomeMainNewInterface
   private val orderViewModel: OrderViewModel by viewModels()
   private val daViewModel: DAViewModel by viewModels()
+  private val notificationViewModel: NotificationViewModel by viewModels()
 
   override fun onAttach(context: Context) {
     super.onAttach(context)
@@ -846,14 +849,13 @@ class OrderHistoryFragment : Fragment() {
           LiveDataUtil.observeOnce(orderViewModel.updateItem(orderId, updateDaDetails)) { itOrder ->
             progressDialog.dismiss()
             if (itOrder.id != null) {
-              // TODO Fix notification code
-//              sendNotificationToDa(
-//                orderItemMain.userId!!,
-//                arrayListDaStatus[position].id!!,
-//                "আপনি একটি অর্ডার ${orderItemMain.orderId} পেয়েছেন ।",
-//                "আপনি একটি অর্ডার পেয়েছেন দ্রুত অর্ডারটি রিসিভ করুন ।",
-//                orderId
-//              )
+              sendNotificationToDa(
+                orderItemMain.userId!!,
+                arrayListDaStatus[position].id!!,
+                "আপনি একটি অর্ডার ${orderItemMain.orderId} পেয়েছেন ।",
+                "আপনি একটি অর্ডার পেয়েছেন দ্রুত অর্ডারটি রিসিভ করুন ।",
+                orderId
+              )
               alertDialogForDa.dismiss()
               requireContext().showToast("SUCCESS", FancyToast.SUCCESS)
               workWithTheDocumentData(view, itOrder)
@@ -910,13 +912,12 @@ class OrderHistoryFragment : Fragment() {
           if (itOrder.id != null) {
             requireContext().showToast("Verified Successfully", FancyToast.SUCCESS)
             workWithTheDocumentData(view, itOrder)
-            // TODO Fix notification code
-//            sendNotification(
-//              orderItemMain.userId!!,
-//              "আপনার অর্ডার ${orderItemMain.orderId} টি কনফার্ম করা হয়েছে ।",
-//              "আপনার অর্ডারটি কনফার্ম করা হয়েছে, দ্রুতই অর্ডারটি আপনার কাছে পৌছে যাবে ।",
-//              orderId
-//            )
+            sendNotification(
+              orderItemMain.userId!!,
+              "আপনার অর্ডার ${orderItemMain.orderId} টি কনফার্ম করা হয়েছে ।",
+              "আপনার অর্ডারটি কনফার্ম করা হয়েছে, দ্রুতই অর্ডারটি আপনার কাছে পৌছে যাবে ।",
+              orderId
+            )
           } else {
             requireContext().showToast("Failed to verify", FancyToast.ERROR)
           }
@@ -1103,13 +1104,12 @@ class OrderHistoryFragment : Fragment() {
         progressDialog.dismiss()
         if (it.id != null) {
           contextMain.showToast("Success", FancyToast.SUCCESS)
-//TODO fix notification
-          //          sendNotification(
-//            orderItemMain.userId!!,
-//            "আপনার অর্ডার ${orderItemMain.orderId} টি ক্যান্সেল করা হয়েছে ।",
-//            "অর্পণের সাথে থাকার জন্য ধন্যবাদ ।",
-//            orderId
-//          )
+                    sendNotification(
+            orderItemMain.userId!!,
+            "আপনার অর্ডার ${orderItemMain.orderId} টি ক্যান্সেল করা হয়েছে ।",
+            "অর্পণের সাথে থাকার জন্য ধন্যবাদ ।",
+            orderId
+          )
           workWithTheDocumentData(view, it)
         } else {
           contextMain.showToast("Failed", FancyToast.ERROR)
@@ -1127,35 +1127,16 @@ class OrderHistoryFragment : Fragment() {
     apibody: String,
     orderID: String
   ) {
-    val mediaType: MediaType =
-      MediaType.parse("application/json; charset=utf-8")
-    val data: MutableMap<String, String> =
-      java.util.HashMap()
-    data["userId"] = userId
-    data["apititle"] = apititle
-    data["apibody"] = apibody
-    data["orderID"] = orderID
-    data["click_action"] = ".ui.home.HomeActivity"
-    val json = Gson().toJson(data)
-    val body: RequestBody =
-      RequestBody.create(
-        mediaType,
-        json
+    LiveDataUtil.observeOnce(notificationViewModel.sendNotificationToDA(
+      SendNotificationRequest(
+        userId = userId,
+        title = apititle,
+        body = apibody,
+        orderId = orderID
       )
-    val request: Request = Request.Builder()
-      .url("https://admin.arpan.delivery/api/notification/send-order-status-changed-notification")
-      .post(body)
-      .build()
-    OkHttpClient().newCall(request).enqueue(object : Callback {
-      override fun onFailure(request: Request?, e: IOException?) {
-        e!!.printStackTrace()
-      }
-
-      override fun onResponse(response: Response?) {
-        Log.e("notifiication response", response!!.message())
-      }
-
-    })
+    )){
+      Log.e("Notification", it.toString())
+    }
   }
 
   fun sendNotificationToDa(
@@ -1165,40 +1146,17 @@ class OrderHistoryFragment : Fragment() {
     apibody: String,
     orderID: String
   ) {
-    val mediaType: MediaType =
-      MediaType.parse("application/json; charset=utf-8")
-    val data: MutableMap<String, String> =
-      java.util.HashMap()
-    data["userId"] = userId
-    data["daId"] = daId
-    data["apititle"] = apititle
-    data["apibody"] = apibody
-    data["orderID"] = orderID
-    data["click_action"] = ".ui.home.HomeActivity"
-    val json = Gson().toJson(data)
-    val body: RequestBody =
-      RequestBody.create(
-        mediaType,
-        json
+    LiveDataUtil.observeOnce(notificationViewModel.sendNotificationToDA(
+      SendNotificationRequest(
+        userId = userId,
+        daId = daId,
+        title = apititle,
+        body = apibody,
+        orderId = orderID
       )
-
-    Log.e("notifiication response", json)
-
-    val request: Request = Request.Builder()
-      .url("https://admin.arpan.delivery/api/notification/send-notification-to-da-about-a-new-order-that-he-recieved")
-      .post(body)
-      .build()
-    OkHttpClient().newCall(request).enqueue(object : Callback {
-      override fun onFailure(request: Request?, e: IOException?) {
-        Log.e("notifiication response", e!!.message.toString())
-        e!!.printStackTrace()
-      }
-
-      override fun onResponse(response: Response?) {
-        Log.e("notifiication response", response!!.message())
-      }
-
-    })
+    )){
+      Log.e("Notification", it.toString())
+    }
   }
 
   private fun setTextOnTextViewsOnMainUi(view: View, orderItemMain: OrderItemMain) {
